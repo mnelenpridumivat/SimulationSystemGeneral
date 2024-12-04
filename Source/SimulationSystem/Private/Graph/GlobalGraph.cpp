@@ -1,0 +1,542 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+//#define PARALLEL_SIM_PROCESS
+
+#include "GlobalGraph.h"
+
+#include "AISimProfileBase.h"
+#include "EngineUtils.h"
+//#include "ExposedFunctionLibrary.h"
+#include "AISimProfilePawn.h"
+#include "GraphAsset.h"
+#include "ProfileIDController.h"
+#include "SimProfileCamp.h"
+#include "SimulationFunctionLibrary.h"
+#include "SimulationState.h"
+#include "SimulationSystemSettings.h"
+#include "SquadTask_MoveToCamp.h"
+#include "Engine/LevelStreaming.h"
+#include "Kismet/GameplayStatics.h"
+#include "Profiles/SimProfileBase.h"
+#include "Profiles/AISimProfileSquad.h"
+#include "..\..\Public\Profiles\Tasks\SimAIController.h"
+#include "Kismet/KismetStringLibrary.h"
+
+
+void AGlobalGraph::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// ...
+	
+	LoadGraph();
+	LoadIndex = 0;
+	//AsyncLoadChunks(); // TODO: Remove temporary
+	LoadObjects_Initial();
+}
+
+AGlobalGraph::AGlobalGraph()
+{
+	PrimaryActorTick.bCanEverTick = true;
+	SetActorTickEnabled(false);
+	//PrimaryActorTick.TickInterval = 0.5f;
+	// ...
+}
+
+AGlobalGraph::~AGlobalGraph()
+{
+	UE_LOG(LogTemp, Log, TEXT("Destructor of global graph called!"));
+}
+
+void AGlobalGraph::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	if(!IsValid(ProfileIDController))
+	{
+		ProfileIDController = NewObject<UProfileIDController>(this);
+	}
+	//if(!IsValid(TasksController))
+	//{
+	//	TasksController = NewObject<USimAIController>(this);
+	//}
+}
+
+TWeakPtr<Simulation::Vertex> AGlobalGraph::GetVertexByID(const FSimVertexID& ID)
+{
+	ensureMsgf(ID.IsValid(),
+		TEXT("Accessed invalid SimVertexID"));
+	if(!ID.ChunkID)
+	{
+		return Links[ID.VertexID];
+	}
+	return LocalGraphs[ID.ChunkID-1]->GetVertex(ID);
+}
+
+FVector AGlobalGraph::GetVertexLocationByID(const FSimVertexID& ID)
+{
+	ensureMsgf(ID.IsValid(),
+		TEXT("Accessed invalid SimVertexID"));
+	if(!ID.ChunkID)
+	{
+		return VerticesSerialized[ID];
+	}
+	/*if(!LocalGraphs.IsValidIndex(ID.ChunkID-1))
+	{
+		TArray<AActor*> Actors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGraphAsset::StaticClass(), Actors);
+		LocalGraphs.Empty(Actors.Num());
+		for (auto& Actor : Actors)
+		{
+			auto CastedActor = Cast<AGraphAsset>(Actor);
+			if(!LocalGraphs.IsValidIndex(CastedActor->GetChunkIndex()-1))
+			{
+				LocalGraphs.Reserve(CastedActor->GetChunkIndex());
+			}
+			LocalGraphs.Insert(CastedActor, CastedActor->GetChunkIndex()-1);
+		}
+	}*/
+	return LocalGraphs[ID.ChunkID-1]->GetVertexLocationByID(ID);
+}
+
+void AGlobalGraph::DrawGraph(FColor Color, float LifeTime, float Thickness)
+{
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGraphAsset::StaticClass(), Actors);
+	//LocalGraphs.Empty(Actors.Num());
+	for (auto& Actor : Actors)
+	{
+		Cast<AGraphAsset>(Actor)->DrawGraph(Color, LifeTime, Thickness);
+	}
+}
+
+void AGlobalGraph::LoadGraph()
+{
+	for(auto& VertexData : VerticesSerialized)
+	{
+		Links.Add(MakeShared<Simulation::Vertex>(VertexData.Key, VertexData.Value));
+	}
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGraphAsset::StaticClass(), Actors);
+	LocalGraphs.Empty(LocalGraphs.Num());
+	for (auto& Actor : Actors)
+	{
+		auto CastedActor = Cast<AGraphAsset>(Actor);
+		if(!LocalGraphs.IsValidIndex(CastedActor->GetChunkIndex()-1))
+		{
+			LocalGraphs.SetNumZeroed(CastedActor->GetChunkIndex());
+			//LocalGraphs.Reserve(CastedActor->GetChunkIndex());
+		}
+		LocalGraphs[CastedActor->GetChunkIndex()-1] = CastedActor;
+		//LocalGraphs.Insert(CastedActor, CastedActor->GetChunkIndex()-1);
+		CastedActor->LoadGraph();
+	}
+}
+
+void AGlobalGraph::LoadObjects_Initial()
+{
+	for(auto& LocalGraph : LocalGraphs)
+	{
+		LocalGraph->LoadObjects_Initial();
+	}
+	SetActorTickEnabled(true);
+}
+
+void AGlobalGraph::LoadObjects_Save(USimulationState* Save)
+{
+	auto Profiles = Save->GetProfiles();
+	for(auto& Profile : Profiles)
+	{
+		//auto Obj = Cast<USimProfileBase>(UExposedFunctionLibrary::DeserializeObject(GetWorld(), Profile.ObjectData));
+		AddProfileOnGraph(Profile.Value, Profile.Key);
+		//Profile.Value->OnLoaded();
+	}
+	SetActorTickEnabled(true);
+}
+
+void AGlobalGraph::SaveObjects(USimulationState* Save)
+{
+	TMap<FSimVertexID, USimProfileBase*> ProfilesSerialized;
+	for(auto& Profile : ProfileHolders)
+	{
+		bool Success = false;
+		FSimVertexID VertexID = FSimVertexID::Invalid;
+		USimulationFunctionLibrary::AsVertex(Profile.Value, VertexID, Success);
+		if(!Success)
+		{
+			continue;
+		}
+		//FObjectSerialization Data;
+		//UExposedFunctionLibrary::SerializeObject(GetWorld(), Profile.Key, Data);
+		ProfilesSerialized.Add(VertexID, Profile.Key);
+	}
+	Save->SetProfiles(ProfilesSerialized);
+}
+
+void AGlobalGraph::UnloadGraph()
+{
+	Links.Empty();
+	for(auto& LocalGraph : LocalGraphs)
+	{
+		LocalGraph->UnloadGraph();
+	}
+}
+
+void AGlobalGraph::UnloadObjects()
+{
+	SetActorTickEnabled(false);
+	ProfileIDController->ClearAllProfiles();
+	Players.Empty();
+	for(auto& elem : ProfileHolders)
+	{
+		AActor* OnlineActor = elem.Key->GetOnlineActor();
+		if(IsValid(OnlineActor))
+		{
+			OnlineActor->Destroy();
+		}
+	}
+	ProfileHolders.Empty();
+	GEngine->ForceGarbageCollection(true);
+}
+
+/*float AGlobalGraph::GetMinimumDistance()
+{
+	return MinimumDistance;
+}
+
+float AGlobalGraph::GetDefaultDistance()
+{
+	return DefaultDistance;
+}
+
+float AGlobalGraph::GetMaximumDistance()
+{
+	return MaximumDistance;
+}*/
+
+FSimVertexID AGlobalGraph::GetProfileLocationOnGraph(USimProfileBase* Profile)
+{
+	FSimVertexID VertexID = {static_cast<uint16>(-1), static_cast<uint8>(-1), static_cast<uint16>(-1)};
+	while(!VertexID.IsValid())
+	{
+		auto Holder = ProfileHolders[Profile];
+		bool bSuccess = false;
+		USimulationFunctionLibrary::AsVertex(Holder, VertexID, bSuccess);
+		if(!bSuccess)
+		{
+			USimulationFunctionLibrary::AsProfile(Holder, Profile, bSuccess);
+			ensureMsgf(bSuccess, TEXT("Unable to get holder of profile [%s]"), *Profile->GetClass()->GetName());
+		}
+	}
+	return VertexID;
+}
+
+void AGlobalGraph::AddProfileOnGraph(USimProfileBase* Profile, const FSimVertexID& Vertex)
+{
+	UE_LOG(LogTemp, Log, TEXT("Add profile [%s] (global graph context = [%s])"), *Profile->GetName(), *GetPathName());
+	Profile->Rename(nullptr, GetWorld());
+	ProfileIDController->RegisterProfile(Profile);
+	ProfileHolders.Add(Profile, FSimProfileHolder::FromVertex(GetWorld(), Vertex));
+	Profile->OnRegistered();
+}
+
+void AGlobalGraph::RegisterChildProfile(USimProfileBase* Profile, USimProfileBase* Parent)
+{
+	UE_LOG(LogTemp, Log, TEXT("Add profile [%s] (global graph context = [%s])"), *Profile->GetName(), *GetPathName());
+	Profile->Rename(nullptr, GetWorld());
+	ProfileIDController->RegisterProfile(Profile);
+	ProfileHolders.Add(Profile, FSimProfileHolder::FromProfile(Parent));
+	Profile->OnRegistered();
+}
+
+TArray<USimProfileBase*> AGlobalGraph::GetProfilesByClass(TSubclassOf<USimProfileBase> Class)
+{
+	return ProfileIDController->GetProfiles(Class);
+}
+
+int AGlobalGraph::GetProfilesInChunk(int ChunkIndex, TArray<USimProfileBase*>& Profiles)
+{
+	Profiles.Empty();
+	for(auto& Profile : ProfileHolders)
+	{
+		if(GetProfileLocationOnGraph(Profile.Key).ChunkID == ChunkIndex)
+		{
+			Profiles.Add(Profile.Key);
+		}
+	}
+	return Profiles.Num();
+}
+
+void AGlobalGraph::SetProfileLocation_World(USimProfileBase* Profile, const FSimVertexID& Vertex)
+{
+	auto Holder = ProfileHolders.Find(Profile);
+	Profile->OnExit(*Holder);
+	*Holder = FSimProfileHolder::FromVertex(GetWorld(), Vertex);
+	Profile->OnEnter(*Holder);
+}
+
+void AGlobalGraph::SetProfileLocation_Child(USimProfileBase* Profile, USimProfileBase* Parent)
+{
+	auto Holder = ProfileHolders.Find(Profile);
+	Profile->OnExit(*Holder);
+	*Holder = FSimProfileHolder::FromProfile(Parent);
+	Profile->OnEnter(*Holder);
+}
+
+void AGlobalGraph::SetChunks(TArray<AActor*> Array)
+{
+	LocalGraphs.Empty();
+	for(auto& elem : Array)
+	{
+		LocalGraphs.Add(Cast<AGraphAsset>(elem));
+	}
+}
+
+void AGlobalGraph::AsyncLoadChunks()
+{
+	auto Level = UGameplayStatics::GetStreamingLevel(GetWorld(), LocalGraphs[LoadIndex]->GetCurrentLevel());
+	Level->OnLevelLoaded.AddDynamic(this, &AGlobalGraph::AsyncLoadChunksCompleted);
+	FLatentActionInfo info;
+	UGameplayStatics::LoadStreamLevel(GetWorld(), LocalGraphs[LoadIndex]->GetCurrentLevel(), true, false, info);
+}
+
+void AGlobalGraph::AsyncLoadChunksCompleted()
+{
+	++LoadIndex;
+	if(LoadIndex==LocalGraphs.Num())
+	{
+		return;
+	}
+	AsyncLoadChunks();
+}
+
+USquadTaskBase* AGlobalGraph::CreateNewTask(UAISimProfileSquad* Squad)
+{
+	auto NewTask = NewObject<USquadTask_MoveToCamp>(GetWorld());
+	auto Camps = GetProfilesByClass(USimProfileCamp::StaticClass());
+	if(!Camps.Num())
+	{
+		return nullptr;
+	}
+	NewTask->SetupTask(GetProfileLocationOnGraph(Squad), GetProfileLocationOnGraph(Camps[FMath::RandRange(0, Camps.Num()-1)]));
+	return NewTask;
+}
+
+// Called when the game starts
+void AGlobalGraph::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// ...
+	
+	//LoadGraph();
+	//LoadIndex = 0;
+	//AsyncLoadChunks(); // TODO: Remove temporary
+	//LoadObjects_Initial();
+	
+}
+
+void AGlobalGraph::BeginDestroy()
+{
+	Super::BeginDestroy();
+	UE_LOG(LogTemp, Log, TEXT("Destruction of global graph actor!"));
+}
+
+
+// Called every frame
+void AGlobalGraph::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
+	TArray<USimProfileBase*> Profiles;
+	int Num = GetProfiles(Profiles);
+	auto func = [&](int32 Index)
+	{
+		// TODO^ Fix normally player pawn simulation switching
+		if(Profiles[Index]->IsA(UAISimProfilePawn::StaticClass()))
+		{
+			Profiles[Index]->SetSimLevel(ESimulationLevels_Online);
+			return;
+		}
+		
+		float* Time = LastUpdatedDeltaTime.Find(Profiles[Index]);
+		if(!Time)
+		{
+			Time = &LastUpdatedDeltaTime.Add(Profiles[Index], 0);
+		}
+		*Time += DeltaTime;
+		FVector ProfileLocation = GetVertexLocationByID(GetProfileLocationOnGraph(Profiles[Index]));
+		FVector ClosestPlayerLocation;
+		APawn* PlayerPawn = nullptr;
+		for(TActorIterator<APlayerController> It(GetWorld()); It; ++It)
+		{
+			if(!PlayerPawn)
+			{
+				PlayerPawn = (*It)->GetPawn();
+				if(!IsValid(PlayerPawn))
+				{
+					continue;
+				}
+				ClosestPlayerLocation = PlayerPawn->GetActorLocation();
+				continue;
+			}
+			PlayerPawn = (*It)->GetPawn();
+			if(!IsValid(PlayerPawn))
+			{
+				continue;
+			}
+			if(FVector::DistSquared(ProfileLocation, ClosestPlayerLocation) > FVector::DistSquared(ProfileLocation, PlayerPawn->GetActorLocation()))
+			{
+				ClosestPlayerLocation = PlayerPawn->GetActorLocation();
+			}
+		}
+		if(!PlayerPawn)
+		{
+			return;
+		}
+		if(FVector::DistSquared(ProfileLocation, ClosestPlayerLocation) < FMath::Square(GetMutableDefault<USimulationSystemSettings>()->OnlineRadius))
+		{
+			if(Profiles[Index]->GetSimLevel() != ESimulationLevels_Online)
+			{
+				if(Profiles[Index]->GetSimLevel() == ESimulationLevels_Offline)
+				{
+					UE_LOG(LogTemp, Log, TEXT("Transfer profile %s from offline to online"), *Profiles[Index]->GetName());
+					Profiles[Index]->TransitOfflineOnline();
+				} else
+				{
+					UE_LOG(LogTemp, Log, TEXT("Transfer profile %s from buffered to online"), *Profiles[Index]->GetName());
+					Profiles[Index]->TransitBufferedOnline();
+				}
+				Profiles[Index]->SetSimLevel(ESimulationLevels_Online);
+			}
+		} else if (FVector::DistSquared(ProfileLocation, ClosestPlayerLocation) < FMath::Square(GetMutableDefault<USimulationSystemSettings>()->BufferedRadius))
+		{
+			if(Profiles[Index]->GetSimLevel() != ESimulationLevels_Buffered)
+			{
+				if(Profiles[Index]->GetSimLevel() == ESimulationLevels_Online)
+				{
+					UE_LOG(LogTemp, Log, TEXT("Transfer profile %s from online to buffered"), *Profiles[Index]->GetName());
+					Profiles[Index]->TransitOnlineBuffered();
+				} else
+				{
+					UE_LOG(LogTemp, Log, TEXT("Transfer profile %s from offline to buffered"), *Profiles[Index]->GetName());
+					Profiles[Index]->TransitOfflineBuffered();
+				}
+				Profiles[Index]->SetSimLevel(ESimulationLevels_Buffered);
+			}
+		} else
+		{
+			if(Profiles[Index]->GetSimLevel() != ESimulationLevels_Offline)
+			{
+				if(Profiles[Index]->GetSimLevel() == ESimulationLevels_Online)
+				{
+					UE_LOG(LogTemp, Log, TEXT("Transfer profile %s from online to offline"), *Profiles[Index]->GetName());
+					Profiles[Index]->TransitOnlineOffline();
+				} else
+				{
+					UE_LOG(LogTemp, Log, TEXT("Transfer profile %s from buffered to offline"), *Profiles[Index]->GetName());
+					Profiles[Index]->TransitBufferedOffline();
+				}
+				Profiles[Index]->SetSimLevel(ESimulationLevels_Offline);
+			}
+		}
+		constexpr int Tolerance = 1000;
+		switch (Profiles[Index]->GetSimLevel())
+		{
+		case ESimulationLevels_Offline:
+			{
+				if((int)((*Time * Tolerance)-(GetMutableDefault<USimulationSystemSettings>()->TickOffline * Tolerance)) < 0)
+				{
+					return;
+				}
+				ParallelTick(Profiles[Index], *Time);
+				*Time = (float)((int)(*Time*Tolerance)%(int)(GetMutableDefault<USimulationSystemSettings>()->TickOffline * Tolerance))/Tolerance;
+				break;
+			}
+		case ESimulationLevels_Buffered:
+			{
+				if((int)((*Time * Tolerance)-(GetMutableDefault<USimulationSystemSettings>()->TickBuffered * Tolerance)) < 0)
+				{
+					return;
+				}
+				ParallelTick(Profiles[Index], *Time);
+				*Time = (float)((int)(*Time*Tolerance)%(int)(GetMutableDefault<USimulationSystemSettings>()->TickBuffered * Tolerance))/Tolerance;
+				break;
+			}
+		case ESimulationLevels_Online:
+			{
+				ParallelTick(Profiles[Index], *Time);
+				*Time = 0;
+				break;
+			}
+		default:
+			{
+				UE_LOG(LogTemp, Fatal, TEXT("Profile [%s] has invalid simulation level active!"), *Profiles[Index]->GetName());
+			}
+		}
+	};
+#ifndef PARALLEL_SIM_PROCESS
+	for(int32 i = 0; i < Num; ++i)
+	{
+		func(i);
+	}
+#else
+	ParallelFor(Num, func);
+#endif
+	//ParallelFor(GetProfiles(Profiles), [&](int32 Index){ParallelTick(Profiles[Index], DeltaTime);});
+}
+
+void AGlobalGraph::ParallelTick(USimProfileBase* Profile, float DeltaTime)
+{
+	float Closest = -1;
+	for(auto& Player : Players)
+	{
+		float Dist = FVector::Dist(
+			GetVertexLocationByID(GetProfileLocationOnGraph(Profile)),
+			GetVertexLocationByID(GetProfileLocationOnGraph(Player))
+			);
+		if(Closest < 0 || Dist < Closest)
+		{
+			Closest = Dist;
+		}
+	}
+	if(Closest >= 0)
+	{
+		if(Closest <= GetMutableDefault<USimulationSystemSettings>()->OnlineRadius)
+		{
+			Profile->SetSimLevel(ESimulationLevels_Online);
+		}
+		else if(Closest <= GetMutableDefault<USimulationSystemSettings>()->BufferedRadius)
+		{
+			Profile->SetSimLevel(ESimulationLevels_Buffered);
+		}
+		else
+		{
+			Profile->SetSimLevel(ESimulationLevels_Offline);
+		}
+	}
+	Profile->Tick(DeltaTime);
+	/*switch (Profile->GetSimLevel())
+	{
+	case ESimulationLevels_Online:
+		{
+			TickOnline(Profile, DeltaTime);
+			break;
+		}
+	case ESimulationLevels_Buffered:
+		{
+			TickBuffered(Profile, DeltaTime);
+			break;
+		}
+	case ESimulationLevels_Offline:
+		{
+			TickOffline(Profile, DeltaTime);
+			break;
+		}
+	}*/
+}
+
+/*void AGlobalGraph::TickOffline(USimProfileBase* Profile, float DeltaTime)
+{
+	Profile->Tick(DeltaTime);
+}*/
+
