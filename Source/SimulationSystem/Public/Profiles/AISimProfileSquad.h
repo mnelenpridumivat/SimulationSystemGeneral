@@ -11,7 +11,7 @@ class UAISimProfilePawn;
 /**
  * 
  */
-UCLASS(EditInlineNew, DefaultToInstanced, CollapseCategories)
+UCLASS(EditInlineNew, DefaultToInstanced, CollapseCategories, Blueprintable)
 class SIMULATIONSYSTEM_API UAISimProfileSquad : public UAISimProfileBase, public ISimProfileContainer
 {
 public:

@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class SIMULATIONSYSTEM_API USimProfileItemContainer : public USimProfileItem, public ISimProfileContainer
 {
 public:

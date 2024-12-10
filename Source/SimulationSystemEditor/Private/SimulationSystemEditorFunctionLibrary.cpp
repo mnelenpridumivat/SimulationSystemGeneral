@@ -377,7 +377,7 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 					);
 			}
 		}
-		/*for(auto& Actor : ActorsInsideChunk)
+		for(auto& Actor : ActorsInsideChunk)
 		{
 			if(GetLayerName(Actor)!=Layers[i])
 			{
@@ -397,7 +397,7 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 					GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID()
 					);
 			}
-		}*/
+		}
 		SlowTaskL2.EnterProgressFrame(10.0f/Layers.Num());
 	}
 }

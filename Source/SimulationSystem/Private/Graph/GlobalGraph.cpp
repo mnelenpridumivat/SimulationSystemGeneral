@@ -31,7 +31,7 @@ void AGlobalGraph::PostInitializeComponents()
 	
 	LoadGraph();
 	LoadIndex = 0;
-	//AsyncLoadChunks(); // TODO: Remove temporary
+	AsyncLoadChunks(); // TODO: Remove temporary
 	LoadObjects_Initial();
 }
 
@@ -241,6 +241,7 @@ void AGlobalGraph::AddProfileOnGraph(USimProfileBase* Profile, const FSimVertexI
 
 void AGlobalGraph::RegisterChildProfile(USimProfileBase* Profile, USimProfileBase* Parent)
 {
+	ensureMsgf(IsValid(Profile), TEXT("Profile is not valid"));
 	UE_LOG(LogTemp, Log, TEXT("Add profile [%s] (global graph context = [%s])"), *Profile->GetName(), *GetPathName());
 	Profile->Rename(nullptr, GetWorld());
 	ProfileIDController->RegisterProfile(Profile);
@@ -294,8 +295,8 @@ void AGlobalGraph::SetChunks(TArray<AActor*> Array)
 void AGlobalGraph::AsyncLoadChunks()
 {
 	auto Level = UGameplayStatics::GetStreamingLevel(GetWorld(), LocalGraphs[LoadIndex]->GetCurrentLevel());
-	Level->OnLevelLoaded.AddDynamic(this, &AGlobalGraph::AsyncLoadChunksCompleted);
-	FLatentActionInfo info;
+	//Level->OnLevelLoaded.AddDynamic(this, &AGlobalGraph::AsyncLoadChunksCompleted);
+	FLatentActionInfo info(0, LoadUUID++, TEXT("AsyncLoadChunksCompleted"), this);
 	UGameplayStatics::LoadStreamLevel(GetWorld(), LocalGraphs[LoadIndex]->GetCurrentLevel(), true, false, info);
 }
 

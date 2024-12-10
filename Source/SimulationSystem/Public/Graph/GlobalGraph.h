@@ -101,6 +101,8 @@ public:
 
 protected:
 
+	int LoadUUID = 0;
+
 	UPROPERTY(Config)
 	TEnumAsByte<ECollisionChannel> LevelTraceChannel;
 

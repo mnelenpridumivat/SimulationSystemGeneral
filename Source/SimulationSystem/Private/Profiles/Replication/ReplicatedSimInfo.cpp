@@ -55,22 +55,6 @@ void AReplicatedSimInfo::RemoveChild(USimProfileBase* Profile)
 	ReplicatedInfoChildren.RemoveSwap(Profile->GetProfileID());
 }
 
-void AReplicatedSimInfo::BeginDestroy()
-{
-	Super::BeginDestroy();
-#if WITH_EDITOR
-	const auto IDController = USimulationFunctionLibrary::GetProfileIDController(GetWorld());
-	if(!IsValid(IDController))
-	{
-		UE_LOG(LogTemp, Error, TEXT("Unable to access global graph actor in world [%s]"), *(GetWorld() ? GetWorld()->GetName() : FString("null")));
-		return;
-	}
-	IDController->RemoveReplicatedSimInfo(this);
-#else
-	USimulationFunctionLibrary::GetProfileIDController(GetWorld())->RemoveReplicatedSimInfo(this);
-#endif
-}
-
 void AReplicatedSimInfo::BeginPlay()
 {
 	Super::BeginPlay();
@@ -84,6 +68,22 @@ void AReplicatedSimInfo::BeginPlay()
 	IDController->AddReplicatedSimInfo(this);
 #else
 	USimulationFunctionLibrary::GetProfileIDController(GetWorld())->AddReplicatedSimInfo(this);
+#endif
+}
+
+void AReplicatedSimInfo::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+#if WITH_EDITOR
+	const auto IDController = USimulationFunctionLibrary::GetProfileIDController(GetWorld());
+	if(!IsValid(IDController))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Unable to access global graph actor in world [%s]"), *(GetWorld() ? GetWorld()->GetName() : FString("null")));
+		return;
+	}
+	IDController->RemoveReplicatedSimInfo(this);
+#else
+	USimulationFunctionLibrary::GetProfileIDController(GetWorld())->RemoveReplicatedSimInfo(this);
 #endif
 }
 

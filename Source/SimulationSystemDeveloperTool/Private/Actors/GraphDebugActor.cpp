@@ -4,7 +4,7 @@
 #include "GraphDebugActor.h"
 
 #include "imgui.h"
-#include <imgui_internal.h>
+//#include <imgui_internal.h>
 
 #include "DrawDebugHelpers.h"
 #include "GlobalGraph.h"
@@ -269,7 +269,7 @@ void AGraphDebugActor::Tick(float DeltaTime)
 	ImGui::Begin("Simulation system debug tool", nullptr, ImGuiWindowFlags_MenuBar);
 	
 	ImGui::SetWindowCollapsed(true, ImGuiCond_Appearing);
-	
+
 	ImGui::SetWindowSize({ImGui::GetMainViewport()->Size.x/3, ImGui::GetMainViewport()->Size.y/3}, ImGuiCond_Appearing);
 	if(ImGui::BeginMenuBar())
 	{

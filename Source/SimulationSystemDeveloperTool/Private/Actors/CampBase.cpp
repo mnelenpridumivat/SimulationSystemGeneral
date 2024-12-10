@@ -7,6 +7,11 @@
 #include "ProfileComponentCamp.h"
 
 
+/*USimProfileBase* ACampBase::GetProfile()
+{
+	return ProfileComponent->InitProfile();
+}*/
+
 UProfileComponent* ACampBase::GetProfileComponent_Implementation()
 {
 	return ProfileComponent;

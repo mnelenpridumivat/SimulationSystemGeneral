@@ -10,7 +10,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class SIMULATIONSYSTEM_API USimProfileItemStack : public USimProfileItem, public ISimProfileStackable
 {
 public:

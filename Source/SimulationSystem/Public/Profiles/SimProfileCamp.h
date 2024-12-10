@@ -10,7 +10,7 @@ class UAISimProfileSquad;
 /**
  * 
  */
-UCLASS(EditInlineNew, DefaultToInstanced, CollapseCategories)
+UCLASS(EditInlineNew, DefaultToInstanced, CollapseCategories, Blueprintable)
 class SIMULATIONSYSTEM_API USimProfileCamp : public USimProfileBase, public ISimProfileContainer
 {
 public:

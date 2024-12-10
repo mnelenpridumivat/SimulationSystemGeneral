@@ -62,6 +62,7 @@ void USimProfileCamp::OnRegistered_Implementation()
 	Super::OnRegistered_Implementation();
 	
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
+	ensureMsgf((GlobalGraph != nullptr), TEXT("GlobalGraph cannot be null"));
 	for(auto& Squad : Squads)
 	{
 		GlobalGraph->RegisterChildProfile(Squad, this);

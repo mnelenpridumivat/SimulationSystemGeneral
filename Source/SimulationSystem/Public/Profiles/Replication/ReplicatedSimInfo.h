@@ -28,10 +28,11 @@ public:
 	
 	void AddChild(USimProfileBase* Profile);
 	void RemoveChild(USimProfileBase* Profile);
-	virtual void BeginDestroy() override;
+	//virtual void BeginDestroy() override;
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
 	GENERATED_BODY()

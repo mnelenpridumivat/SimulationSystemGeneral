@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EditorSimActor.h"
 #include "SimProfileID.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/SimActorInterface.h"
@@ -11,9 +12,12 @@
 class UProfileComponentCamp;
 
 UCLASS()
-class SIMULATIONSYSTEMDEVELOPERTOOL_API ACampBase : public AActor, public ISimActorInterface
+class SIMULATIONSYSTEMDEVELOPERTOOL_API ACampBase : public AActor, public ISimActorInterface, public IEditorSimActor
 {
 public:
+	//virtual USimProfileBase* GetProfile() override;
+	//virtual void DirectSetGraphVertex(const FSimVertexID& SimVertexID) override;
+
 	virtual UProfileComponent* GetProfileComponent_Implementation() override;
 
 private:

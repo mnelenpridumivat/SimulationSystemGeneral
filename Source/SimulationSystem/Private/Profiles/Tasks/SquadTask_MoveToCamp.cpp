@@ -52,7 +52,8 @@ void USquadTask_MoveToCamp::FinishTask_Offline_Implementation(UAISimProfileSquad
 
 bool USquadTask_MoveToCamp::CheckTaskFinished_Offline_Implementation(UAISimProfileSquad* Squad)
 {
-	return Way.GetCurrent() == Way.GetEnd();
+	bool Cond = Way.GetCurrent().Pin()->GetVertexID() == Way.GetEnd().Pin()->GetVertexID();
+	return Cond;
 }
 
 void USquadTask_MoveToCamp::BeginTask_Buffer_Implementation(UAISimProfileSquad* Squad)

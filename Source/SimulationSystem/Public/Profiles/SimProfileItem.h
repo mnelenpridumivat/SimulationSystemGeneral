@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(EditInlineNew, DefaultToInstanced, CollapseCategories)
+UCLASS(EditInlineNew, DefaultToInstanced, CollapseCategories, Blueprintable)
 class SIMULATIONSYSTEM_API USimProfileItem : public USimProfileBase
 {
 	GENERATED_BODY()

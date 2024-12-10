@@ -51,8 +51,7 @@ public class SimulationSystem : ModuleRules
 				"Slate",
 				"SlateCore",
 				"NavigationSystem",
-				"Settings",
-				"GameplayAbilities"
+				"Settings"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

@@ -10,7 +10,7 @@ class USimProfileItem;
 /**
  * 
  */
-UCLASS(EditInlineNew, DefaultToInstanced, CollapseCategories)
+UCLASS(EditInlineNew, DefaultToInstanced, CollapseCategories, Blueprintable)
 class SIMULATIONSYSTEM_API UAISimProfilePawn : public UAISimProfileBase, public ISimProfileContainer
 {
 public:
