@@ -32,7 +32,7 @@ USimProfileBase* UAISimProfileSquad::DeepCopyProfile()
 
 void UAISimProfileSquad::AddItem_Implementation(USimProfileBase* Profile)
 {
-	ensureMsgf(CanStoreItem(Profile), TEXT("Unable to put profile [%s] in profile [%s]"), *Profile->GetName(), *GetName());
+	ensureMsgf(ISimProfileContainer::Execute_CanStoreItem(this, Profile), TEXT("Unable to put profile [%s] in profile [%s]"), *Profile->GetName(), *GetName());
 	Members.Add(Cast<UAISimProfilePawn>(Profile));
 }
 
@@ -49,13 +49,13 @@ TArray<USimProfileBase*> UAISimProfileSquad::GetAllItems_Implementation()
 
 bool UAISimProfileSquad::HasItem_Implementation(USimProfileBase* Profile)
 {
-	ensureMsgf(CanStoreItem(Profile), TEXT("Profile [%s] cannot contain profile [%s] because cannot contain such class"), *GetName(), *Profile->GetName());
+	ensureMsgf(ISimProfileContainer::Execute_CanStoreItem(this, Profile), TEXT("Profile [%s] cannot contain profile [%s] because cannot contain such class"), *GetName(), *Profile->GetName());
 	return Members.Contains(Cast<UAISimProfilePawn>(Profile));
 }
 
 void UAISimProfileSquad::RemoveItem_Implementation(USimProfileBase* Profile)
 {
-	ensureMsgf(CanStoreItem(Profile), TEXT("Profile [%s] cannot contain profile [%s] because cannot contain such class"), *GetName(), *Profile->GetName());
+	ensureMsgf(ISimProfileContainer::Execute_CanStoreItem(this, Profile), TEXT("Profile [%s] cannot contain profile [%s] because cannot contain such class"), *GetName(), *Profile->GetName());
 	Members.Remove(Cast<UAISimProfilePawn>(Profile));
 }
 

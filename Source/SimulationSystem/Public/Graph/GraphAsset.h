@@ -78,7 +78,7 @@ private:
 	UPROPERTY()
 	FProfilesSerialized InitialProfiles;
 	
-	USimProfileBase* LoadProfile(int& Index);
+	USimProfileBase* LoadProfile(int& Index, int ChildrenNum = 0);
 
 	UPROPERTY()
 	int ChunkIndex;

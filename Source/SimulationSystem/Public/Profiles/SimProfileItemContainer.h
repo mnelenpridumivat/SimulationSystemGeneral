@@ -24,7 +24,7 @@ public:
 	virtual void OnRegistered_Implementation() override;
 	virtual void SetOnlineLocation(FVector Vector) override;
 
-	UPROPERTY(EditAnywhere, Instanced)
+	UPROPERTY(EditAnywhere, Instanced, Transient)
 	TArray<USimProfileItem*> StoredItems;
 
 private:

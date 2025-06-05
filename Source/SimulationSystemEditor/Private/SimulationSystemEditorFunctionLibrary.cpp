@@ -475,7 +475,7 @@ void USimulationSystemEditorFunctionLibrary::SaveProfile(USimProfileBase* Profil
 	Serialized.ObjectClass = Profile->GetClass();
 	Serialized.VertexLocation = VertexID;
 	USimulationFunctionLibrary::SaveObjectData(Profile, Serialized.ObjectData.SerializedObject);
-	/*if(Profile->GetClass()->ImplementsInterface(USimProfileContainer::StaticClass()))
+	if(Profile->GetClass()->ImplementsInterface(USimProfileContainer::StaticClass()))
 	{
 		auto ChildProfiles = ISimProfileContainer::Execute_GetAllItems(Profile);
 		Serialized.ChildrenNum = ChildProfiles.Num();
@@ -485,9 +485,9 @@ void USimulationSystemEditorFunctionLibrary::SaveProfile(USimProfileBase* Profil
 			SaveProfile(Child, ReturnProfiles);
 		}
 	} else
-	{*/
+	{
 		ReturnProfiles.Objects.Add(Serialized);
-	//}
+	}
 }
 
 void USimulationSystemEditorFunctionLibrary::FullRebuild()

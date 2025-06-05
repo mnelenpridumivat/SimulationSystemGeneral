@@ -43,7 +43,8 @@ void UProfileComponent::BeginPlay()
 
 USimProfileBase* UProfileComponent::CreateNewProfile_Implementation()
 {
-	return ProfileBase; //NewObject<USimProfileBase>(GetWorld(), ProfileBase->GetClass(), NAME_None, RF_NoFlags, ProfileBase);
+	//return ProfileBase;
+	return NewObject<USimProfileBase>(GetWorld(), ProfileBase->GetClass(), NAME_None, RF_NoFlags, ProfileBase);
 }
 
 

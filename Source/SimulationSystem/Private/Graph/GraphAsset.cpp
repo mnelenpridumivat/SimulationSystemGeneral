@@ -113,20 +113,22 @@ void AGraphAsset::Tick(float DeltaTime)
 
 void AGraphAsset::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	Super::EndPlay(EndPlayReason);
 	UnloadGraph();
 }
 
-USimProfileBase* AGraphAsset::LoadProfile(int& Index)
+USimProfileBase* AGraphAsset::LoadProfile(int& Index, int ChildrenNum)
 {
-	USimProfileBase* Profile = NewObject<USimProfileBase>(GetWorld(), InitialProfiles.Objects[Index].ObjectClass);
-	USimulationFunctionLibrary::LoadObjectData(Profile, InitialProfiles.Objects[Index].ObjectData.SerializedObject);
-	/*if(Profile->GetClass()->ImplementsInterface(USimProfileContainer::StaticClass()))
+	const auto& CurrentProfileData = InitialProfiles.Objects[Index];
+	USimProfileBase* Profile = NewObject<USimProfileBase>(GetWorld(), CurrentProfileData.ObjectClass);
+	USimulationFunctionLibrary::LoadObjectData(Profile, CurrentProfileData.ObjectData.SerializedObject);
+	if(Profile->GetClass()->ImplementsInterface(USimProfileContainer::StaticClass()))
 	{
-		for(uint32 i = 0; i < InitialProfiles.Objects[Index].ChildrenNum; ++i)
+		for(uint32 i = 0; i < CurrentProfileData.ChildrenNum; ++i)
 		{
 			ISimProfileContainer::Execute_AddItem(Profile, LoadProfile(++Index));
 		}
-	}*/
+	}
 	return Profile;
 }
 

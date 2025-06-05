@@ -36,7 +36,7 @@ private:
 
 protected:
 
-	UPROPERTY(EditAnywhere, Instanced)
+	UPROPERTY(EditAnywhere, Instanced, Transient)
 	TArray<UAISimProfilePawn*> Members;
 
 	UPROPERTY()

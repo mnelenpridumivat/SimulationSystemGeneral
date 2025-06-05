@@ -27,7 +27,7 @@ private:
 
 protected:
 
-	UPROPERTY(EditAnywhere, Instanced)
+	UPROPERTY(EditAnywhere, Instanced, Transient)
 	TArray<UAISimProfileSquad*> Squads;
 
 public:
