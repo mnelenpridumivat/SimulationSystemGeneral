@@ -20,8 +20,10 @@ USimProfileBase* USimProfileCamp::DeepCopyProfile()
 
 void USimProfileCamp::AddItem_Implementation(USimProfileBase* Profile)
 {
-	ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Unable to put profile [%s] in profile [%s]"), *Profile->GetName(), *GetName());
-	Squads.Add(Cast<UAISimProfileSquad>(Profile));
+	if (ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Unable to put profile [%s] in profile [%s]"), *Profile->GetName(), *GetName()))
+	{
+		Squads.Add(Cast<UAISimProfileSquad>(Profile));
+	}
 }
 
 TArray<USimProfileBase*> USimProfileCamp::GetAllItems_Implementation()
@@ -37,19 +39,28 @@ TArray<USimProfileBase*> USimProfileCamp::GetAllItems_Implementation()
 
 bool USimProfileCamp::HasItem_Implementation(USimProfileBase* Profile)
 {
-	ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Profile [%s] cannot contain profile [%s] because cannot contain such class"), *GetName(), *Profile->GetName());
-	return Squads.Contains(Cast<UAISimProfileSquad>(Profile));
+	if (ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Profile [%s] cannot contain profile [%s] because cannot contain such class"), *GetName(), *Profile->GetName()))
+	{
+		return Squads.Contains(Cast<UAISimProfileSquad>(Profile));
+	}
+	return false;
 }
 
 void USimProfileCamp::RemoveItem_Implementation(USimProfileBase* Profile)
 {
-	ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Profile [%s] cannot contain profile [%s] because cannot contain such class"), *GetName(), *Profile->GetName());
-	Squads.Remove(Cast<UAISimProfileSquad>(Profile));
+	if (ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Profile [%s] cannot contain profile [%s] because cannot contain such class"), *GetName(), *Profile->GetName()))
+	{
+		Squads.Remove(Cast<UAISimProfileSquad>(Profile));
+	}
 }
 
 bool USimProfileCamp::CanStoreItem_Implementation(USimProfileBase* Profile)
 {
-	return Profile->IsA(UAISimProfileSquad::StaticClass());
+	if (ensureMsgf(IsValid(Profile), TEXT("Attempt to check compatibility with null!")))
+	{
+		return Profile->IsA(UAISimProfileSquad::StaticClass());
+	}
+	return false;
 }
 
 bool USimProfileCamp::IsMovable_Implementation()
@@ -62,9 +73,11 @@ void USimProfileCamp::OnRegistered_Implementation()
 	Super::OnRegistered_Implementation();
 	
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
-	ensureMsgf((GlobalGraph != nullptr), TEXT("GlobalGraph cannot be null"));
-	for(auto& Squad : Squads)
+	if (ensureMsgf((GlobalGraph != nullptr), TEXT("GlobalGraph cannot be null")))
 	{
-		GlobalGraph->RegisterChildProfile(Squad, this);
+		for(auto& Squad : Squads)
+		{
+			GlobalGraph->RegisterChildProfile(Squad, this);
+		}
 	}
 }
