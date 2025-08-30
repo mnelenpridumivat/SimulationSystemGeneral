@@ -8,9 +8,13 @@
 #include "Profiles/SimProfileHolder.h"
 #include "SimulationFunctionLibrary.generated.h"
 
+class USimulationSystemSubsystem;
+class USimulationSystemFunctionsImplementation;
+class UAISimProfileSquad;
 class UNavHeuristic_Base;
 class USimProfileBase;
 class AGlobalGraph;
+
 /**
  * 
  */
@@ -47,6 +51,11 @@ public:
 
 	UFUNCTION(BlueprintPure, meta=(WorldContext=Context))
 	static FGraphWay FindWay(UObject* Context, const FSimVertexID& Start, const FSimVertexID& Dest, TSet<UNavHeuristic_Base*> Params);
+
+	static USimulationSystemSubsystem* GetSimulationSystemSubsystem(UObject* Context);
+	
+	UFUNCTION(BlueprintPure, meta=(WorldContext=Context))
+	static USimulationSystemFunctionsImplementation* GetFunctions(UObject* Context);
 
 	static void SaveObjectData(UObject* Object, TArray<uint8>& Data);
 	static void LoadObjectData(UObject* Object, const TArray<uint8>& Data);

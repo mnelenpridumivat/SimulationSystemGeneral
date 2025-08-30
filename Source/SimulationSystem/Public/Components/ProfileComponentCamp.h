@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ProfileComponent.h"
+#include "ProfileGeneratorSquad.h"
 #include "ProfileComponentCamp.generated.h"
 
 
@@ -22,8 +23,8 @@ protected:
 
 	virtual USimProfileBase* CreateNewProfile_Implementation() override;
 
-	UPROPERTY(EditAnywhere, Instanced)
-	TArray<USimProfileBase*> StartSquads;
+	UPROPERTY(EditAnywhere)
+	TArray<FSquadDataHandle> StartSquads;
 
 public:
 	// Called every frame

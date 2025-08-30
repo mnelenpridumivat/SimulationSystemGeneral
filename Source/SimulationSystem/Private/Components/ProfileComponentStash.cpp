@@ -30,13 +30,13 @@ void UProfileComponentStash::BeginPlay()
 
 USimProfileBase* UProfileComponentStash::CreateNewProfile_Implementation()
 {
-	auto Profile = Super::CreateNewProfile_Implementation();
-	ensureMsgf(Profile->IsA(USimProfileStash::StaticClass())||Profile->GetClass()->ImplementsInterface(USimProfileContainer::StaticClass()), TEXT("Invalid profile class [%s] for profile component [%s]"), *Profile->GetClass()->GetName(), *GetClass()->GetName());
+	auto NewProfile = Super::CreateNewProfile_Implementation();
+	ensureMsgf(NewProfile->IsA(USimProfileStash::StaticClass())||NewProfile->GetClass()->ImplementsInterface(USimProfileContainer::StaticClass()), TEXT("Invalid profile class [%s] for profile component [%s]"), *Profile->GetClass()->GetName(), *GetClass()->GetName());
 	for(auto& elem : StartContent)
 	{
-		ISimProfileContainer::Execute_AddItem(Profile, DuplicateObject(elem, GetWorld()));
+		ISimProfileContainer::Execute_AddItem(NewProfile, DuplicateObject(elem, GetWorld()));
 	}
-	return Profile;
+	return NewProfile;
 }
 
 

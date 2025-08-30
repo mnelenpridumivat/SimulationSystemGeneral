@@ -38,7 +38,9 @@ public class SimulationSystemEditor : ModuleRules
                 "InputCore",
                 "Projects",
                 "EditorScriptingUtilities",
-                "UnrealEd"
+                "UnrealEd",
+                "PropertyEditor",
+                "EditorSubsystem"
             }
         );
     }

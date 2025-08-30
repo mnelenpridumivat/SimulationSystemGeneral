@@ -5,7 +5,7 @@
 
 #include "GlobalGraph.h"
 #include "ProfileComponent.h"
-#include "ReplicatedSimInfo.h"
+#include "DEPRECATED_ReplicatedSimInfo.h"
 #include "SimActorInterface.h"
 #include "SimulationFunctionLibrary.h"
 
@@ -23,13 +23,13 @@ void USimProfileItemContainer::AddItem_Implementation(USimProfileBase* Profile)
 {
 	ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Unable to put profile [%s] in profile [%s]"), *Profile->GetName(), *GetName());
 	StoredItems.Add(Cast<USimProfileItem>(Profile));
-	if(IsValid(OnlineActor))
+	/*if(IsValid(OnlineActor))
 	{
 		ensureMsgf(OnlineActor->GetClass()->ImplementsInterface(USimActorInterface::StaticClass()),
 		           TEXT("Attempt to get profile from actor [%s], which doesn't implements SimActorInterface!"),
 		           *OnlineActor->GetName());
 		ISimActorInterface::Execute_GetProfileComponent(OnlineActor)->GetReplicatedInfo()->AddChild(Profile);
-	}
+	}*/
 }
 
 TArray<USimProfileBase*> USimProfileItemContainer::GetAllItems_Implementation()

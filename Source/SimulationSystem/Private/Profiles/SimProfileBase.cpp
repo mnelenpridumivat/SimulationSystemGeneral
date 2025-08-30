@@ -11,8 +11,9 @@
 #include "SimulationSystemSettings.h"
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
-#include "ReplicatedSimInfo.h"
+#include "DEPRECATED_ReplicatedSimInfo.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 
 void USimProfileBase::OnRegistered_Implementation()
 {
@@ -83,29 +84,8 @@ void USimProfileBase::TransitOnlineBuffered()
 
 void USimProfileBase::OnOnlineActorClassLoaded()
 {
-	//OnlineActor = GetWorld()->SpawnActor(OnlineActorClass.Get(), &OnlineLocation);
 	FNavLocation ProjectedPoint(OnlineLocation.GetLocation());
 	// TODO: Add switcher if force spawn on navmesh
-	/*auto Navigation = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
-	auto Project = [&](float ProjectDistance)
-	{
-		return Navigation->ProjectPointToNavigation(
-		OnlineLocation.GetLocation(),
-		ProjectedPoint,
-		FVector(ProjectDistance)
-		);
-	};
-	if(!Project(100.0f))
-	{
-		if(!Project(GetMutableDefault<USimulationSystemSettings>()->OnlineRadius/10))
-		{
-			if(!Project(GetMutableDefault<USimulationSystemSettings>()->OnlineRadius))
-			{
-				UE_LOG(LogTemp, Error, TEXT("Unable to find any projection on navmesh at location [%s]"), *OnlineLocation.ToString());
-				return;
-			}
-		}
-	}*/
 	FVector SpawnLocation = ProjectedPoint.Location;
 	FActorSpawnParameters params;
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
@@ -131,6 +111,15 @@ FTransform USimProfileBase::GetOnlineLocation() const
 		return OnlineActor->GetActorTransform();
 	}
 	return OnlineLocation;
+}
+
+void USimProfileBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	UObject::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(USimProfileBase, OnlineLocation);
+	DOREPLIFETIME(USimProfileBase, ProfileID);
+	DOREPLIFETIME(USimProfileBase, CurrentSimLevel);
+	DOREPLIFETIME(USimProfileBase, OnlineActor);
 }
 
 void USimProfileBase::Tick_Implementation(float DeltaTime)
@@ -160,7 +149,7 @@ void USimProfileBase::OnEnter_Implementation(const FSimProfileHolder& Location)
 	}
 }
 
-void USimProfileBase::SetupReplicatedData(AReplicatedSimInfo* ReplicatedInfo) const
+/*void USimProfileBase::SetupReplicatedData(ADEPRECATED_ReplicatedSimInfo* ReplicatedInfo) const
 {
 	ReplicatedInfo->SetProfileID(ProfileID);
-}
+}*/

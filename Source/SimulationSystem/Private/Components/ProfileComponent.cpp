@@ -10,13 +10,15 @@
 #include "SimulationFunctionLibrary.h"
 #include "SimulationSystemSettings.h"
 #include "Net/UnrealNetwork.h"
-#include "ReplicatedSimInfo.h"
+//#include "ReplicatedSimInfo.h"
 
 
 void UProfileComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(UProfileComponent, ReplicatedInfo);
+	//DOREPLIFETIME(UProfileComponent, ReplicatedInfo);
+	DOREPLIFETIME(UProfileComponent, ProfileID);
+	DOREPLIFETIME(UProfileComponent, Profile);
 }
 
 // Sets default values for this component's properties
@@ -25,6 +27,7 @@ UProfileComponent::UProfileComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	bReplicateUsingRegisteredSubObjectList = true;
 
 	ProfileID = UProfileIDController::InvalidID;
 
@@ -37,8 +40,26 @@ void UProfileComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	if (IsValid(Profile))
+	{
+		AddReplicatedSubObject(Profile);
+	} else
+	{
+		ensure(IsValid(Profile));
+	}
+}
+
+void UProfileComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (IsValid(Profile))
+	{
+		RemoveReplicatedSubObject(Profile);
+	} else
+	{
+		ensure(IsValid(Profile));
+	}
 }
 
 USimProfileBase* UProfileComponent::CreateNewProfile_Implementation()
@@ -60,8 +81,8 @@ void UProfileComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 void UProfileComponent::SetProfileID(const FSimProfileID& NewProfileID)
 {
 	ProfileID = NewProfileID;
-	ReplicatedInfo = GetWorld()->SpawnActor<AReplicatedSimInfo>(GetDefault<USimulationSystemSettings>()->ReplicatedSimInfoClass);
-	GetProfile()->SetupReplicatedData(ReplicatedInfo);
+	//ReplicatedInfo = GetWorld()->SpawnActor<AReplicatedSimInfo>(GetDefault<USimulationSystemSettings>()->ReplicatedSimInfoClass);
+	//GetProfile()->SetupReplicatedData(ReplicatedInfo);
 }
 
 USimProfileBase* UProfileComponent::InitProfile()
@@ -75,9 +96,9 @@ USimProfileBase* UProfileComponent::InitProfile()
 		GetMutableDefault<USim>()
 		)*/
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
-	auto Profile = CreateNewProfile();
-	ProfileID = GlobalGraph->GetProfileIDsController()->RegisterProfile(Profile);
-	return Profile;
+	auto NewProfile = CreateNewProfile();
+	ProfileID = GlobalGraph->GetProfileIDsController()->RegisterProfile(NewProfile);
+	return NewProfile;
 }
 
 USimProfileBase* UProfileComponent::GetProfile()
@@ -85,35 +106,4 @@ USimProfileBase* UProfileComponent::GetProfile()
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
 	return GlobalGraph->GetProfileIDsController()->GetProfile(ProfileID);
 }
-
-AReplicatedSimInfo* UProfileComponent::GetReplicatedInfo()
-{
-	return ReplicatedInfo;
-}
-
-/*USimProfileBase* UProfileComponent::CreateNewProfile()
-{
-	ensureMsgf(ConstructProfile.IsBound(),
-		TEXT("Unable to create new profile for actor [%s] because to function is bound to UProfileComponent::ConstructProfile"),
-		*GetOwner()->GetName());
-	USimProfileBase* NewProfile = ConstructProfile.Execute();
-	if(GetWorld()->WorldType == EWorldType::Editor)
-	{
-		return NewProfile;
-	}
-	
-}
-
-USimProfileBase* UProfileComponent::GetProfile()
-{
-	if(ProfileID==UProfileIDController::InvalidID)
-	{
-		ensureMsgf(ConstructProfile.IsBound(),
-			TEXT("Unable to create new profile for actor [%s] because to function is bound to UProfileComponent::ConstructProfile"),
-			*GetOwner()->GetName());
-		USimProfileBase* NewProfile = ConstructProfile.Execute();
-		USimulationFunctionLibrary::GetGlobalGraph(GetWorld())->AddProfileOnGraph()
-		ProfileID = NewProfile->GetProfileID();
-	}
-}*/
 

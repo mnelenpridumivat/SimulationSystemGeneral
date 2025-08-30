@@ -8,7 +8,7 @@
 #include "ProfileComponent.generated.h"
 
 
-class AReplicatedSimInfo;
+class ADEPRECATED_ReplicatedSimInfo;
 class UProfileGenerator;
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -17,6 +17,8 @@ class SIMULATIONSYSTEM_API UProfileComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
+
+	
 
 	DECLARE_DYNAMIC_DELEGATE_RetVal(USimProfileBase*, FConstructProfile);
 	
@@ -31,6 +33,7 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UFUNCTION(BlueprintNativeEvent)
 	USimProfileBase* CreateNewProfile();
@@ -42,7 +45,10 @@ protected:
 	FSimProfileID ProfileID;
 
 	UPROPERTY(BlueprintReadOnly, Replicated)
-	AReplicatedSimInfo* ReplicatedInfo;
+	TObjectPtr<USimProfileBase> Profile;
+
+	//UPROPERTY(BlueprintReadOnly, Replicated)
+	//AReplicatedSimInfo* ReplicatedInfo;
 
 public:
 	// Called every frame
@@ -60,7 +66,6 @@ public:
 	USimProfileBase* GetProfile();
 
 	// Getter of replicated profile info, exists both on server and clients
-	UFUNCTION(BlueprintPure)
-	AReplicatedSimInfo* GetReplicatedInfo();
-	
+	//UFUNCTION(BlueprintPure)
+	//AReplicatedSimInfo* GetReplicatedInfo();
 };

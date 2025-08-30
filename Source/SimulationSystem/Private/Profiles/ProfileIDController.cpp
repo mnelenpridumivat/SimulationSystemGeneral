@@ -3,7 +3,7 @@
 
 #include "ProfileIDController.h"
 
-#include "ReplicatedSimInfo.h"
+#include "DEPRECATED_ReplicatedSimInfo.h"
 #include "SimProfileBase.h"
 
 
@@ -79,17 +79,17 @@ TArray<USimProfileBase*> UProfileIDController::GetProfiles(TSubclassOf<USimProfi
 	return FoundProfiles;
 }
 
-void UProfileIDController::AddReplicatedSimInfo(AReplicatedSimInfo* ReplicatedSimInfo)
+/*void UProfileIDController::AddReplicatedSimInfo(ADEPRECATED_ReplicatedSimInfo* ReplicatedSimInfo)
 {
 	ReplicatedProfilesData.Add(ReplicatedSimInfo->GetProfileID(), ReplicatedSimInfo);
 }
 
-void UProfileIDController::RemoveReplicatedSimInfo(AReplicatedSimInfo* ReplicatedSimInfo)
+void UProfileIDController::RemoveReplicatedSimInfo(ADEPRECATED_ReplicatedSimInfo* ReplicatedSimInfo)
 {
 	ReplicatedProfilesData.Remove(ReplicatedSimInfo->GetProfileID());
 }
 
-AReplicatedSimInfo* UProfileIDController::GetReplicatedSimInfo(FSimProfileID ProfileID)
+ADEPRECATED_ReplicatedSimInfo* UProfileIDController::GetReplicatedSimInfo(FSimProfileID ProfileID)
 {
 	auto Info = ReplicatedProfilesData.Find(ProfileID);
 #if WITH_EDITOR
@@ -103,4 +103,4 @@ AReplicatedSimInfo* UProfileIDController::GetReplicatedSimInfo(FSimProfileID Pro
 #endif
 	
 	return *Info;
-}
+}*/

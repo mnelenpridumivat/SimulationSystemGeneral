@@ -7,7 +7,7 @@
 #include "SimProfileID.h"
 #include "ProfileIDController.generated.h"
 
-class AReplicatedSimInfo;
+class ADEPRECATED_ReplicatedSimInfo;
 class USimProfileBase;
 //struct FSimProfileID;
 
@@ -51,16 +51,16 @@ public:
 
 	void ClearAllProfiles(){ProfilesByID.Empty();MaxUsedIDByClass.Empty();FreeIDs.Empty();}
 
-	void AddReplicatedSimInfo(AReplicatedSimInfo* ReplicatedSimInfo);
-	void RemoveReplicatedSimInfo(AReplicatedSimInfo* ReplicatedSimInfo);
+	//void AddReplicatedSimInfo(ADEPRECATED_ReplicatedSimInfo* ReplicatedSimInfo);
+	//void RemoveReplicatedSimInfo(ADEPRECATED_ReplicatedSimInfo* ReplicatedSimInfo);
 
-	UFUNCTION(BlueprintPure)
-	AReplicatedSimInfo* GetReplicatedSimInfo(FSimProfileID ProfileID);
+	//UFUNCTION(BlueprintPure)
+	//ADEPRECATED_ReplicatedSimInfo* GetReplicatedSimInfo(FSimProfileID ProfileID);
 
 protected:
 
-	UPROPERTY()
-	TMap<FSimProfileID, AReplicatedSimInfo*> ReplicatedProfilesData; 
+	//UPROPERTY()
+	//TMap<FSimProfileID, ADEPRECATED_ReplicatedSimInfo*> ReplicatedProfilesData; 
 
 	UPROPERTY()
 	TMap<TSubclassOf<USimProfileBase>, FSimProfilesByID> ProfilesByID;

@@ -5,14 +5,14 @@
 #include "CoreMinimal.h"
 #include "ProfileComponent.h"
 #include "GameFramework/Info.h"
-#include "ReplicatedSimInfo.generated.h"
+#include "DEPRECATED_ReplicatedSimInfo.generated.h"
 
 /**
  * A class for data, which needs to be replicated while in online. It doesn't replicate if profile is offline.
  * This class created in order to not replicate all profiles to client and restrict clients from server-side info. 
  */
-UCLASS()
-class SIMULATIONSYSTEM_API AReplicatedSimInfo : public AInfo
+UCLASS(Deprecated)
+class SIMULATIONSYSTEM_API ADEPRECATED_ReplicatedSimInfo : public AInfo
 {
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

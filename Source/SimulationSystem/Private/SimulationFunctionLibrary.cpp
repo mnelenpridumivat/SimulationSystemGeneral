@@ -8,6 +8,8 @@
 #include "SimulationSystemSettings.h"
 #include "NativePriorityQueue.h"
 #include "ProfileIDController.h"
+#include "SimulationSystemFunctionsImplementation.h"
+#include "SimulationSystemSubsystem.h"
 #include "Vertex.h"
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -17,20 +19,8 @@
 
 AGlobalGraph* USimulationFunctionLibrary::GetGlobalGraph(UObject* Context)
 {
-	//UE_LOG(LogTemp, Log, TEXT("Iteration global graph actors"));
-	//for(TActorIterator<AActor> it(Context->GetWorld(), AGlobalGraph::StaticClass()); it; ++it)
-	//{
-	//	UE_LOG(LogTemp, Log, TEXT("Actor [%s] on level (context = [%s])"), *(*it)->GetName(), *Context->GetPathName());
-	//}
-	
 	static AGlobalGraph* GraphPtr = nullptr; // TODO: remove this fix and fix normally!
 	TArray<AActor*> Graphs;
-	//UGameplayStatics::GetAllActorsOfClass(Context, AActor::StaticClass(), Graphs);
-	//for(auto& elem : Graphs)
-	//{
-	//	UE_LOG(LogTemp, Log, TEXT("Actor [%s] on level"), *elem->GetName());
-	//}
-	//Graphs.Empty();
 	UGameplayStatics::GetAllActorsOfClass(Context, AGlobalGraph::StaticClass(), Graphs);
 	if(!Graphs.Num() && GraphPtr){
 		return GraphPtr;
@@ -182,6 +172,22 @@ FGraphWay USimulationFunctionLibrary::FindWay(UObject* Context, const FSimVertex
 		NewWay.GetWay().Push(Stack.Pop());
 	}
 	return NewWay;
+}
+
+USimulationSystemSubsystem* USimulationFunctionLibrary::GetSimulationSystemSubsystem(UObject* Context)
+{
+	auto GI = UGameplayStatics::GetGameInstance(Context);
+	return GI->GetSubsystem<USimulationSystemSubsystem>();
+}
+
+USimulationSystemFunctionsImplementation* USimulationFunctionLibrary::GetFunctions(UObject* Context)
+{
+	auto Functions = GetSimulationSystemSubsystem(Context)->GetSimulationSystemFunctions();
+	if (ensureMsgf(IsValid(Functions), TEXT("Unable to get SimulationSystemFunctions from subsystem!")))
+	{
+		return Functions;
+	}
+	return nullptr;
 }
 
 void USimulationFunctionLibrary::SaveObjectData(UObject* Object, TArray<uint8>& Data)

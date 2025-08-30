@@ -3,8 +3,13 @@
 
 #include "ProfileComponentCamp.h"
 
+#include "AISimProfileSquad.h"
 #include "SimProfileBase.h"
 #include "SimProfileCamp.h"
+#include "SimulationFunctionLibrary.h"
+#include "SimulationSystemSettings.h"
+#include "SimulationSystemSubsystem.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values for this component's properties
@@ -29,13 +34,20 @@ void UProfileComponentCamp::BeginPlay()
 
 USimProfileBase* UProfileComponentCamp::CreateNewProfile_Implementation()
 {
-	auto Profile = Super::CreateNewProfile_Implementation();
-	ensureMsgf(Profile->IsA(USimProfileCamp::StaticClass())||Profile->GetClass()->ImplementsInterface(USimProfileContainer::StaticClass()), TEXT("Invalid profile class [%s] for profile component [%s]"), *Profile->GetClass()->GetName(), *GetClass()->GetName());
+	auto NewProfile = Super::CreateNewProfile_Implementation();
+	ensureMsgf(NewProfile->IsA(
+		USimProfileCamp::StaticClass())
+		||NewProfile->GetClass()->ImplementsInterface(USimProfileContainer::StaticClass()),
+		TEXT("Invalid profile class [%s] for profile component [%s]"), *Profile->GetClass()->GetName(), *GetClass()->GetName());
+	const auto FunctionSubsystem = USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld());
 	for(auto& elem : StartSquads)
 	{
-		ISimProfileContainer::Execute_AddItem(Profile, DuplicateObject(elem, GetWorld()));
+		FGeneratorHandleSquad handle;
+		handle.GeneratorClass = UProfileGeneratorSquad::StaticClass();
+		handle.SquadName = elem;
+		ISimProfileContainer::Execute_AddItem(NewProfile, FunctionSubsystem->ExecuteGenerator(GetWorld(), handle));
 	}
-	return Profile;
+	return NewProfile;
 }
 
 

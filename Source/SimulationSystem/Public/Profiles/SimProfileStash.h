@@ -27,7 +27,7 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere, Instanced, Transient)
+	UPROPERTY(EditAnywhere, Instanced)
 	TArray<USimProfileItem*> StoredItems;
 
 private:

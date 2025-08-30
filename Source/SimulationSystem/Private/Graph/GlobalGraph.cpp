@@ -165,8 +165,6 @@ void AGlobalGraph::SaveObjects(USimulationState* Save)
 		{
 			continue;
 		}
-		//FObjectSerialization Data;
-		//UExposedFunctionLibrary::SerializeObject(GetWorld(), Profile.Key, Data);
 		ProfilesSerialized.Add(VertexID, Profile.Key);
 	}
 	Save->SetProfiles(ProfilesSerialized);
@@ -197,21 +195,6 @@ void AGlobalGraph::UnloadObjects()
 	ProfileHolders.Empty();
 	GEngine->ForceGarbageCollection(true);
 }
-
-/*float AGlobalGraph::GetMinimumDistance()
-{
-	return MinimumDistance;
-}
-
-float AGlobalGraph::GetDefaultDistance()
-{
-	return DefaultDistance;
-}
-
-float AGlobalGraph::GetMaximumDistance()
-{
-	return MaximumDistance;
-}*/
 
 FSimVertexID AGlobalGraph::GetProfileLocationOnGraph(USimProfileBase* Profile)
 {

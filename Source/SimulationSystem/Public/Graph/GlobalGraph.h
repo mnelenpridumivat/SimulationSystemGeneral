@@ -6,7 +6,7 @@
 #include "AISimProfileSquad.h"
 #include "GameFramework/Actor.h"
 #include "Edge.h"
-#include "ReplicatedSimInfo.h"
+#include "DEPRECATED_ReplicatedSimInfo.h"
 #include "SimProfileID.h"
 #include "SimVertexID.h"
 #include "Profiles/SimProfileHolder.h"

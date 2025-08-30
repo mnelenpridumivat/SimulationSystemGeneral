@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Replication/ReplicatedSimInfo.h"
+#include "Replication/DEPRECATED_ReplicatedSimInfo.h"
 
 #include "GlobalGraph.h"
 #include "ProfileIDController.h"
@@ -9,19 +9,19 @@
 #include "SimulationFunctionLibrary.h"
 #include "Net/UnrealNetwork.h"
 
-void AReplicatedSimInfo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void ADEPRECATED_ReplicatedSimInfo::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AReplicatedSimInfo, ProfileID);
-	DOREPLIFETIME(AReplicatedSimInfo, ReplicatedInfoChildren);
+	DOREPLIFETIME(ADEPRECATED_ReplicatedSimInfo, ProfileID);
+	DOREPLIFETIME(ADEPRECATED_ReplicatedSimInfo, ReplicatedInfoChildren);
 }
 
-void AReplicatedSimInfo::GetChildren(TArray<FSimProfileID>& ChildrenArray) const
+void ADEPRECATED_ReplicatedSimInfo::GetChildren(TArray<FSimProfileID>& ChildrenArray) const
 {
 	ChildrenArray = ReplicatedInfoChildren;
 }
 
-void AReplicatedSimInfo::SetProfileID(FSimProfileID NewProfileID)
+void ADEPRECATED_ReplicatedSimInfo::SetProfileID(FSimProfileID NewProfileID)
 {
 #if WITH_EDITOR
 	if(GetNetMode() == NM_Client)
@@ -38,24 +38,24 @@ void AReplicatedSimInfo::SetProfileID(FSimProfileID NewProfileID)
 	Multicast_SetProfileID(ReplicatedProfileID);
 }
 
-FSimProfileID AReplicatedSimInfo::GetProfileID() const
+FSimProfileID ADEPRECATED_ReplicatedSimInfo::GetProfileID() const
 {
 	return ProfileID;
 }
 
-void AReplicatedSimInfo::AddChild(USimProfileBase* Profile)
+void ADEPRECATED_ReplicatedSimInfo::AddChild(USimProfileBase* Profile)
 {
 	ensureMsgf(!ReplicatedInfoChildren.Contains(Profile->GetProfileID()), TEXT("Attempt to add profile [%s] second time in [%s]!"),
 	           *Profile->GetName(), *GetName());
 	ReplicatedInfoChildren.Add(Profile->GetProfileID());
 }
 
-void AReplicatedSimInfo::RemoveChild(USimProfileBase* Profile)
+void ADEPRECATED_ReplicatedSimInfo::RemoveChild(USimProfileBase* Profile)
 {
 	ReplicatedInfoChildren.RemoveSwap(Profile->GetProfileID());
 }
 
-void AReplicatedSimInfo::BeginPlay()
+void ADEPRECATED_ReplicatedSimInfo::BeginPlay()
 {
 	Super::BeginPlay();
 #if WITH_EDITOR
@@ -65,13 +65,13 @@ void AReplicatedSimInfo::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("Unable to access global graph actor in world [%s]"), *(GetWorld() ? GetWorld()->GetName() : FString("null")));
 		return;
 	}
-	IDController->AddReplicatedSimInfo(this);
+	//IDController->AddReplicatedSimInfo(this);
 #else
 	USimulationFunctionLibrary::GetProfileIDController(GetWorld())->AddReplicatedSimInfo(this);
 #endif
 }
 
-void AReplicatedSimInfo::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void ADEPRECATED_ReplicatedSimInfo::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 #if WITH_EDITOR
@@ -81,13 +81,13 @@ void AReplicatedSimInfo::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		UE_LOG(LogTemp, Error, TEXT("Unable to access global graph actor in world [%s]"), *(GetWorld() ? GetWorld()->GetName() : FString("null")));
 		return;
 	}
-	IDController->RemoveReplicatedSimInfo(this);
+	//IDController->RemoveReplicatedSimInfo(this);
 #else
 	USimulationFunctionLibrary::GetProfileIDController(GetWorld())->RemoveReplicatedSimInfo(this);
 #endif
 }
 
-void AReplicatedSimInfo::Multicast_SetProfileID_Implementation(FReplicatedSimProfileID ReplicatedProfileID)
+void ADEPRECATED_ReplicatedSimInfo::Multicast_SetProfileID_Implementation(FReplicatedSimProfileID ReplicatedProfileID)
 {
 	ProfileID.Class = ReplicatedProfileID.Class;
 	ProfileID.ProfileID = *reinterpret_cast<uint32*>(&ReplicatedProfileID.ProfileID);

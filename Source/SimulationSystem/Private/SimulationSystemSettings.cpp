@@ -7,35 +7,53 @@
 void USimulationSystemSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	UObject::PostEditChangeProperty(PropertyChangedEvent);
-	if(CharacteristicLevelMax <= CharacteristicLevelMin)
+
+	FName PropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+
+	// Characteristics
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(USimulationSystemSettings, CharacteristicLevelMin)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(USimulationSystemSettings, CharacteristicLevelMax))
 	{
-		CharacteristicLevelMax = CharacteristicLevelMin+1;
+		if(CharacteristicLevelMax <= CharacteristicLevelMin)
+		{
+			CharacteristicLevelMax = CharacteristicLevelMin+1;
+		}
+		for(auto& elem : CharacteristicsList)
+		{
+			if(elem.Value > CharacteristicLevelMax)
+			{
+				elem.Value = CharacteristicLevelMax;
+			}
+			if(elem.Value < CharacteristicLevelMin)
+			{
+				elem.Value = CharacteristicLevelMin;
+			}
+		}
 	}
-	for(auto& elem : CharacteristicsList)
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(USimulationSystemSettings, PointsLevelMax)
+		|| PropertyName == GET_MEMBER_NAME_CHECKED(USimulationSystemSettings, PointsLevelMin))
 	{
-		if(elem.Value > CharacteristicLevelMax)
+		if(PointsLevelMax <= PointsLevelMin)
 		{
-			elem.Value = CharacteristicLevelMax;
+			PointsLevelMax = PointsLevelMin+1;
 		}
-		if(elem.Value < CharacteristicLevelMin)
+		for(auto& elem : PointsList)
 		{
-			elem.Value = CharacteristicLevelMin;
+			if(elem.Value > PointsLevelMax)
+			{
+				elem.Value = PointsLevelMax;
+			}
+			if(elem.Value < PointsLevelMin)
+			{
+				elem.Value = PointsLevelMin;
+			}
 		}
 	}
-	if(PointsLevelMax <= PointsLevelMin)
+
+	// Functions
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(USimulationSystemSettings, SimulationSystemFunctions))
 	{
-		PointsLevelMax = PointsLevelMin+1;
-	}
-	for(auto& elem : PointsList)
-	{
-		if(elem.Value > PointsLevelMax)
-		{
-			elem.Value = PointsLevelMax;
-		}
-		if(elem.Value < PointsLevelMin)
-		{
-			elem.Value = PointsLevelMin;
-		}
+		OnFunctionsPropertyChanged.Broadcast();
 	}
 }
 #endif

@@ -25,10 +25,14 @@ class SIMULATIONSYSTEM_API ISimActorInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
+	// Get profile component
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	UProfileComponent* GetProfileComponent();
 
+	// If this actor works with simulation system
 	virtual bool UseInSimulation(){return true;}
+
+	// Use only for editor actors without UProfileComponent
 	virtual void DirectSetGraphVertex(const FSimVertexID& SimVertexID){}
 	
 };

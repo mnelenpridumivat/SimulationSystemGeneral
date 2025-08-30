@@ -7,7 +7,20 @@
 //#include "Engine/DataAsset.h"
 #include "ProfileGenerator.generated.h"
 
+class UProfileGenerator;
 class USimProfileBase;
+
+USTRUCT(BlueprintType)
+struct SIMULATIONSYSTEM_API FGeneratorHandleBase
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UProfileGenerator> GeneratorClass;
+	
+	virtual ~FGeneratorHandleBase() = default;
+	virtual void SetupGenerator(UProfileGenerator* Generator) const {}
+};
 
 /**
  * 
@@ -20,14 +33,7 @@ public:
 
 	virtual USimProfileBase* GenerateProfile();
 
-	TSubclassOf<USimProfileBase> GetProfileClass(){return ProfileClass;}
-
 private:
 	GENERATED_BODY()
-
-protected:
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<USimProfileBase> ProfileClass;
 	
 };

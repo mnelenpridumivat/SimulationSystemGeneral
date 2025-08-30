@@ -14,8 +14,6 @@
 #include "UObject/Object.h"
 #include "SimProfileBase.generated.h"
 
-class AReplicatedSimInfo;
-
 /**
  * 
  */
@@ -108,8 +106,8 @@ public:
 	 * Using during loading from save, do not use!
 	 */
 	void SetOnlineActor(AActor* Actor){OnlineActor = Actor;}
-	
-	virtual void SetupReplicatedData(AReplicatedSimInfo* ReplicatedInfo) const;
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual bool IsSupportedForNetworking() const override {return true;}
 
 protected:
 
