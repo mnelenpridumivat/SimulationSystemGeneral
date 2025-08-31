@@ -30,7 +30,7 @@ private:
 
 protected:
 
-	UPROPERTY(EditAnywhere, Instanced, Transient)
+	UPROPERTY(Transient)
 	TArray<USimProfileItem*> Inventory;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, EditFixedSize, Category="Characteristics")

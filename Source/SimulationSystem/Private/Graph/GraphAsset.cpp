@@ -119,6 +119,7 @@ void AGraphAsset::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 USimProfileBase* AGraphAsset::LoadProfile(int& Index, int ChildrenNum)
 {
+	// TODO: Think about serialization for non-default containers (like Zone17 NPC)
 	const auto& CurrentProfileData = InitialProfiles.Objects[Index];
 	USimProfileBase* Profile = NewObject<USimProfileBase>(GetWorld(), CurrentProfileData.ObjectClass);
 	USimulationFunctionLibrary::LoadObjectData(Profile, CurrentProfileData.ObjectData.SerializedObject);
