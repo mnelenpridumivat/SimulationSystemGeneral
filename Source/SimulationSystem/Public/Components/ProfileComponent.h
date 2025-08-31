@@ -39,7 +39,7 @@ protected:
 	UPROPERTY(EditAnywhere, Instanced)
 	USimProfileBase* ProfileBase;
 
-	UPROPERTY(BlueprintReadOnly, Replicated)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated)
 	FSimProfileID ProfileID;
 
 	UPROPERTY(BlueprintReadOnly, Replicated)

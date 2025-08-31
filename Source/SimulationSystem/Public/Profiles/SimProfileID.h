@@ -28,10 +28,10 @@ struct SIMULATIONSYSTEM_API FSimProfileID
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TSubclassOf<USimProfileBase> Class;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	uint32 ProfileID;
 
 	FSimProfileID(TSubclassOf<USimProfileBase> NewClass, uint32 NewProfileID): Class(NewClass), ProfileID(NewProfileID) {}

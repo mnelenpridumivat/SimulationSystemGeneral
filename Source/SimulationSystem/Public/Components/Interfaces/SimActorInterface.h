@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SimProfileID.h"
 #include "SimVertexID.h"
 #include "UObject/Interface.h"
 #include "SimActorInterface.generated.h"
@@ -36,5 +37,8 @@ public:
 	// Use only for editor actors without UProfileComponent
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void DirectSetGraphVertex(const FSimVertexID& SimVertexID);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void SetProfileID(const FSimProfileID& ID);
 	
 };

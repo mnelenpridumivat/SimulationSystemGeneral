@@ -6,6 +6,7 @@
 #include "GlobalGraph.h"
 #include "ProfileGenerator.h"
 #include "ProfileIDController.h"
+#include "SimActorInterface.h"
 #include "SimProfileBase.h"
 #include "SimulationFunctionLibrary.h"
 #include "SimulationSystemSettings.h"
@@ -40,6 +41,17 @@ void UProfileComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
+	if (!ensureMsgf(IsValid(GlobalGraph), TEXT("Unable to access GlobalGraph!")))
+	{
+		return;
+	}
+	
+	if (ProfileID != UProfileIDController::InvalidID)
+	{
+		Profile = GlobalGraph->GetProfileIDsController()->GetProfile(ProfileID);
+	}
+
 	if (ensure(IsValid(Profile)))
 	{
 		AddReplicatedSubObject(Profile);
@@ -58,7 +70,6 @@ void UProfileComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 USimProfileBase* UProfileComponent::CreateNewProfile_Implementation()
 {
-	//return ProfileBase;
 	return NewObject<USimProfileBase>(GetWorld(), ProfileBase->GetClass(), NAME_None, RF_NoFlags, ProfileBase);
 }
 
@@ -75,20 +86,10 @@ void UProfileComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 void UProfileComponent::SetProfileID(const FSimProfileID& NewProfileID)
 {
 	ProfileID = NewProfileID;
-	//ReplicatedInfo = GetWorld()->SpawnActor<AReplicatedSimInfo>(GetDefault<USimulationSystemSettings>()->ReplicatedSimInfoClass);
-	//GetProfile()->SetupReplicatedData(ReplicatedInfo);
 }
 
 USimProfileBase* UProfileComponent::InitProfile()
 {
-	/*FName Layer;
-	FVector OwnerLocation;
-	FHitResult Hit;
-	GetWorld()->LineTraceSingleByChannel(Hit,
-		OwnerLocation+FVector(0.0f, 0.0f, 10.0f),
-		OwnerLocation-FVector(0.0f, 0.0f, 10.0f),
-		GetMutableDefault<USim>()
-		)*/
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
 	auto NewProfile = CreateNewProfile();
 	ProfileID = GlobalGraph->GetProfileIDsController()->RegisterProfile(NewProfile);

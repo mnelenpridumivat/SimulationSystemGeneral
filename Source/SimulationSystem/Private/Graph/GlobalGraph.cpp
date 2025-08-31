@@ -19,8 +19,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Profiles/SimProfileBase.h"
 #include "Profiles/AISimProfileSquad.h"
-#include "..\..\Public\Profiles\Tasks\SimAIController.h"
-#include "Kismet/KismetStringLibrary.h"
 
 
 void AGlobalGraph::PostInitializeComponents()
@@ -55,10 +53,6 @@ void AGlobalGraph::OnConstruction(const FTransform& Transform)
 	{
 		ProfileIDController = NewObject<UProfileIDController>(this);
 	}
-	//if(!IsValid(TasksController))
-	//{
-	//	TasksController = NewObject<USimAIController>(this);
-	//}
 }
 
 TWeakPtr<Simulation::Vertex> AGlobalGraph::GetVertexByID(const FSimVertexID& ID)
@@ -89,7 +83,6 @@ void AGlobalGraph::DrawGraph(FColor Color, float LifeTime, float Thickness)
 {
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGraphAsset::StaticClass(), Actors);
-	//LocalGraphs.Empty(Actors.Num());
 	for (auto& Actor : Actors)
 	{
 		Cast<AGraphAsset>(Actor)->DrawGraph(Color, LifeTime, Thickness);
@@ -111,10 +104,8 @@ void AGlobalGraph::LoadGraph()
 		if(!LocalGraphs.IsValidIndex(CastedActor->GetChunkIndex()-1))
 		{
 			LocalGraphs.SetNumZeroed(CastedActor->GetChunkIndex());
-			//LocalGraphs.Reserve(CastedActor->GetChunkIndex());
 		}
 		LocalGraphs[CastedActor->GetChunkIndex()-1] = CastedActor;
-		//LocalGraphs.Insert(CastedActor, CastedActor->GetChunkIndex()-1);
 		CastedActor->LoadGraph();
 	}
 }
@@ -133,9 +124,7 @@ void AGlobalGraph::LoadObjects_Save(USimulationState* Save)
 	auto Profiles = Save->GetProfiles();
 	for(auto& Profile : Profiles)
 	{
-		//auto Obj = Cast<USimProfileBase>(UExposedFunctionLibrary::DeserializeObject(GetWorld(), Profile.ObjectData));
 		AddProfileOnGraph(Profile.Value, Profile.Key);
-		//Profile.Value->OnLoaded();
 	}
 	SetActorTickEnabled(true);
 }
@@ -275,7 +264,6 @@ void AGlobalGraph::SetChunks(TArray<AActor*> Array)
 void AGlobalGraph::AsyncLoadChunks()
 {
 	auto Level = UGameplayStatics::GetStreamingLevel(GetWorld(), LocalGraphs[LoadIndex]->GetCurrentLevel());
-	//Level->OnLevelLoaded.AddDynamic(this, &AGlobalGraph::AsyncLoadChunksCompleted);
 	FLatentActionInfo info(0, LoadUUID++, TEXT("AsyncLoadChunksCompleted"), this);
 	UGameplayStatics::LoadStreamLevel(GetWorld(), LocalGraphs[LoadIndex]->GetCurrentLevel(), true, false, info);
 }
@@ -463,7 +451,6 @@ void AGlobalGraph::Tick(float DeltaTime)
 #else
 	ParallelFor(Num, func);
 #endif
-	//ParallelFor(GetProfiles(Profiles), [&](int32 Index){ParallelTick(Profiles[Index], DeltaTime);});
 }
 
 void AGlobalGraph::ParallelTick(USimProfileBase* Profile, float DeltaTime)
@@ -496,28 +483,5 @@ void AGlobalGraph::ParallelTick(USimProfileBase* Profile, float DeltaTime)
 		}
 	}
 	Profile->Tick(DeltaTime);
-	/*switch (Profile->GetSimLevel())
-	{
-	case ESimulationLevels_Online:
-		{
-			TickOnline(Profile, DeltaTime);
-			break;
-		}
-	case ESimulationLevels_Buffered:
-		{
-			TickBuffered(Profile, DeltaTime);
-			break;
-		}
-	case ESimulationLevels_Offline:
-		{
-			TickOffline(Profile, DeltaTime);
-			break;
-		}
-	}*/
 }
-
-/*void AGlobalGraph::TickOffline(USimProfileBase* Profile, float DeltaTime)
-{
-	Profile->Tick(DeltaTime);
-}*/
 
