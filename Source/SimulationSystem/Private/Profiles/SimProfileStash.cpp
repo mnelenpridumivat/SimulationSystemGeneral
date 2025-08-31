@@ -34,8 +34,10 @@ bool USimProfileStash::IsMovable_Implementation()
 
 void USimProfileStash::AddItem_Implementation(USimProfileBase* Profile)
 {
-	ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Unable to put profile [%s] in profile [%s]"), *Profile->GetName(), *GetName());
-	StoredItems.Add(Cast<USimProfileItem>(Profile));
+	if (ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Unable to put profile [%s] in profile [%s]"), *Profile->GetName(), *GetName()))
+	{
+		StoredItems.Add(Cast<USimProfileItem>(Profile));
+	}
 }
 
 TArray<USimProfileBase*> USimProfileStash::GetAllItems_Implementation()
@@ -51,17 +53,26 @@ TArray<USimProfileBase*> USimProfileStash::GetAllItems_Implementation()
 
 bool USimProfileStash::HasItem_Implementation(USimProfileBase* Profile)
 {
-	ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Profile [%s] cannot contain profile [%s] because cannot contain such class"), *GetName(), *Profile->GetName());
+	if (!ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Profile [%s] cannot contain profile [%s] because cannot contain such class"), *GetName(), *Profile->GetName()))
+	{
+		return false;
+	}
 	return StoredItems.Contains(Cast<USimProfileItem>(Profile));
 }
 
 void USimProfileStash::RemoveItem_Implementation(USimProfileBase* Profile)
 {
-	ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Profile [%s] cannot contain profile [%s] because cannot contain such class"), *GetName(), *Profile->GetName());
-	StoredItems.Remove(Cast<USimProfileItem>(Profile));
+	if (ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Profile [%s] cannot contain profile [%s] because cannot contain such class"), *GetName(), *Profile->GetName()))
+	{
+		StoredItems.Remove(Cast<USimProfileItem>(Profile));
+	}
 }
 
 bool USimProfileStash::CanStoreItem_Implementation(USimProfileBase* Profile)
 {
+	if (!ensure(IsValid(Profile)))
+	{
+		return false;
+	}
 	return Profile->IsA(USimProfileItem::StaticClass());
 }

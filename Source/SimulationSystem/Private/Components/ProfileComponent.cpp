@@ -41,6 +41,11 @@ void UProfileComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (GetOwner()->IsEditorOnly())
+	{
+		return;
+	}
+
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
 	if (!ensureMsgf(IsValid(GlobalGraph), TEXT("Unable to access GlobalGraph!")))
 	{
@@ -50,11 +55,10 @@ void UProfileComponent::BeginPlay()
 	if (ProfileID != UProfileIDController::InvalidID)
 	{
 		Profile = GlobalGraph->GetProfileIDsController()->GetProfile(ProfileID);
-	}
-
-	if (ensure(IsValid(Profile)))
-	{
-		AddReplicatedSubObject(Profile);
+		if (ensure(IsValid(Profile)))
+		{
+			AddReplicatedSubObject(Profile);
+		}
 	}
 }
 
@@ -62,7 +66,12 @@ void UProfileComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	if (ensure(IsValid(Profile)))
+	if (GetOwner()->IsEditorOnly())
+	{
+		return;
+	}
+
+	if (ProfileID != UProfileIDController::InvalidID && ensure(IsValid(Profile)))
 	{
 		RemoveReplicatedSubObject(Profile);
 	}
