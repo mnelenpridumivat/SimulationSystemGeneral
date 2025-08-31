@@ -207,7 +207,7 @@ void AGlobalGraph::AddProfileOnGraph(USimProfileBase* Profile, const FSimVertexI
 {
 	UE_LOG(LogTemp, Log, TEXT("Add profile [%s] (global graph context = [%s])"), *Profile->GetName(), *GetPathName());
 	Profile->Rename(nullptr, GetWorld());
-	ProfileIDController->RegisterProfile(Profile);
+	Profile->SetProfileID(ProfileIDController->RegisterProfile(Profile));
 	ProfileHolders.Add(Profile, FSimProfileHolder::FromVertex(GetWorld(), Vertex));
 	Profile->OnRegistered();
 }
@@ -217,7 +217,7 @@ void AGlobalGraph::RegisterChildProfile(USimProfileBase* Profile, USimProfileBas
 	ensureMsgf(IsValid(Profile), TEXT("Profile is not valid"));
 	UE_LOG(LogTemp, Log, TEXT("Add profile [%s] (global graph context = [%s])"), *Profile->GetName(), *GetPathName());
 	Profile->Rename(nullptr, GetWorld());
-	ProfileIDController->RegisterProfile(Profile);
+	Profile->SetProfileID(ProfileIDController->RegisterProfile(Profile));
 	ProfileHolders.Add(Profile, FSimProfileHolder::FromProfile(Parent));
 	Profile->OnRegistered();
 }

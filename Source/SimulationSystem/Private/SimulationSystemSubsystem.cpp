@@ -4,6 +4,7 @@
 #include "SimulationSystemSubsystem.h"
 
 #include "GlobalGraph.h"
+#include "ProfileIDController.h"
 #include "SimulationFunctionLibrary.h"
 #include "SimulationSystemFunctionsImplementation.h"
 #include "SimulationSystemSettings.h"
@@ -78,6 +79,11 @@ USimProfileBase* FGeneratorPool::ExecuteGenerator(UObject* Context, const FGener
 	{
 		return nullptr;
 	}
+	//auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(Context);
+	//if (!ensureMsgf(IsValid(GlobalGraph), TEXT("Cannot find GlobalGraph on level!")))
+	//{
+	//	return nullptr;
+	//}
 	auto Class = handle.GeneratorClass;
 
 	UProfileGenerator* Generator = nullptr;
@@ -92,6 +98,7 @@ USimProfileBase* FGeneratorPool::ExecuteGenerator(UObject* Context, const FGener
 
 	handle.SetupGenerator(Generator);
 	auto NewProfile = Generator->GenerateProfile();
+	//NewProfile->SetProfileID(GlobalGraph->GetProfileIDsController()->RegisterProfile(NewProfile));
 	return NewProfile;
 }
 

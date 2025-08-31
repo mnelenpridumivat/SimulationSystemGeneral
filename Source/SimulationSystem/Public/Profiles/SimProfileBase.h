@@ -55,7 +55,10 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE FSimProfileID GetProfileID(){return ProfileID;}
 
-	FORCEINLINE void SetProfileID(const FSimProfileID& NewID){ProfileID = NewID;}
+	void SetProfileID(const FSimProfileID& NewID)
+	{
+		ProfileID = NewID;
+	}
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE TEnumAsByte<ESimulationLevels> GetSimLevel(){return CurrentSimLevel;}

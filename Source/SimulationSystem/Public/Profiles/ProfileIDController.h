@@ -62,13 +62,13 @@ protected:
 	//UPROPERTY()
 	//TMap<FSimProfileID, ADEPRECATED_ReplicatedSimInfo*> ReplicatedProfilesData; 
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	TMap<TSubclassOf<USimProfileBase>, FSimProfilesByID> ProfilesByID;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	TMap<TSubclassOf<USimProfileBase>, uint32> MaxUsedIDByClass;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	TMap<TSubclassOf<USimProfileBase>, FFreeProfileIDArray> FreeIDs;
 	
 };

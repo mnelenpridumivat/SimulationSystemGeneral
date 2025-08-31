@@ -40,12 +40,9 @@ void UProfileComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (IsValid(Profile))
+	if (ensure(IsValid(Profile)))
 	{
 		AddReplicatedSubObject(Profile);
-	} else
-	{
-		ensure(IsValid(Profile));
 	}
 }
 
@@ -53,12 +50,9 @@ void UProfileComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	if (IsValid(Profile))
+	if (ensure(IsValid(Profile)))
 	{
 		RemoveReplicatedSubObject(Profile);
-	} else
-	{
-		ensure(IsValid(Profile));
 	}
 }
 
@@ -98,6 +92,7 @@ USimProfileBase* UProfileComponent::InitProfile()
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
 	auto NewProfile = CreateNewProfile();
 	ProfileID = GlobalGraph->GetProfileIDsController()->RegisterProfile(NewProfile);
+	NewProfile->SetProfileID(ProfileID);
 	return NewProfile;
 }
 

@@ -350,8 +350,8 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 				continue;
 			}
 			NewProfile->SetOnlineLocation(Actor->GetActorLocation());
-			auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(World);
-			NewProfile->SetProfileID(GlobalGraph->GetProfileIDsController()->RegisterProfile(NewProfile));
+			//auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(World);
+			//NewProfile->SetProfileID(GlobalGraph->GetProfileIDsController()->RegisterProfile(NewProfile));
 			if(IsValid(NewProfile)){
 				SaveProfile(
 					NewProfile,
