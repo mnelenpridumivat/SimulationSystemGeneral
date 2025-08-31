@@ -11,6 +11,7 @@ UCLASS()
 class SIMULATIONSYSTEM_API ADefSimCharacter : public ACharacter, public ISimActorInterface
 {
 public:
+	virtual bool UseInSimulation_Implementation() override {return true;}
 	virtual UProfileComponent* GetProfileComponent_Implementation() override {return ProfileComponent;};
 
 private:

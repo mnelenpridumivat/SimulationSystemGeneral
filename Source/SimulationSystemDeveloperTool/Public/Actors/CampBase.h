@@ -18,6 +18,7 @@ public:
 	//virtual USimProfileBase* GetProfile() override;
 	//virtual void DirectSetGraphVertex(const FSimVertexID& SimVertexID) override;
 
+	virtual bool UseInSimulation_Implementation() override {return true;}
 	virtual UProfileComponent* GetProfileComponent_Implementation() override;
 
 private:

@@ -18,8 +18,6 @@ class SIMULATIONSYSTEM_API UProfileComponent : public UActorComponent
 
 public:
 
-	
-
 	DECLARE_DYNAMIC_DELEGATE_RetVal(USimProfileBase*, FConstructProfile);
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -41,7 +39,7 @@ protected:
 	UPROPERTY(EditAnywhere, Instanced)
 	USimProfileBase* ProfileBase;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Replicated)
 	FSimProfileID ProfileID;
 
 	UPROPERTY(BlueprintReadOnly, Replicated)

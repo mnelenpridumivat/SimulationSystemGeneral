@@ -308,7 +308,7 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 	}
 	Actors.Empty();
 	TSet<AActor*> ActorsInsideChunk = {};
-	UGameplayStatics::GetAllActorsWithInterface(World, UEditorSimActor::StaticClass(), Actors);
+	UGameplayStatics::GetAllActorsWithInterface(World, USimActorInterface::StaticClass(), Actors);
 	for(auto& Actor: Actors)
 	{
 		if(UKismetMathLibrary::IsPointInBox(Actor->GetActorLocation(), LocalGraph->GetActorLocation(), LocalGraph->GetZoneSize()))
@@ -325,18 +325,8 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 		for(auto& Edge : ChunkGraphs[i].Value)
 		{
 			ReturnGraph.Edges.Add({Edge.Get()->GetVertexOne().Pin()->GetVertexID(), Edge.Get()->GetVertexTwo().Pin()->GetVertexID()});
-			/*DrawDebugLine(
-				World,
-				Edge.Get()->GetVertexOne().Pin()->GetLocation(),
-				Edge.Get()->GetVertexTwo().Pin()->GetLocation(),
-				FColor::Blue,
-				false,
-				30.0f,
-				0,
-				10
-				);*/
 		}
-		for(auto& Actor : ActorsInsideChunk)
+		/*for(auto& Actor : ActorsInsideChunk)
 		{
 			if(GetLayerName(Actor)!=Layers[i])
 			{
@@ -350,8 +340,6 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 				continue;
 			}
 			NewProfile->SetOnlineLocation(Actor->GetActorLocation());
-			//auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(World);
-			//NewProfile->SetProfileID(GlobalGraph->GetProfileIDsController()->RegisterProfile(NewProfile));
 			if(IsValid(NewProfile)){
 				SaveProfile(
 					NewProfile,
@@ -359,26 +347,29 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 					GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID()
 					);
 			}
-		}
+		}*/
 		for(auto& Actor : ActorsInsideChunk)
 		{
 			if(GetLayerName(Actor)!=Layers[i])
 			{
 				continue;
 			}
-			TArray<UActorComponent*> Components;
-			Actor->GetComponents(UProfileComponent::StaticClass(), Components);
-			ISimActorInterface* Inter = Cast<ISimActorInterface>(Actor);
-			if(!Components.Num()&&Inter->UseInSimulation())
+			FEditorScriptExecutionGuard ScriptGuard;
+			if (ISimActorInterface::Execute_UseInSimulation(Actor))
 			{
-				Inter->DirectSetGraphVertex(GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID());
-			} else {
-				UProfileComponent* Component = Cast<UProfileComponent>(Components[0]);
-				SaveProfile(
-					Component->InitProfile(),
-					ReturnProfiles,
-					GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID()
-					);
+				auto Component = ISimActorInterface::Execute_GetProfileComponent(Actor);
+				if (!IsValid(Component))
+				{
+					ISimActorInterface::Execute_DirectSetGraphVertex(
+						Actor, GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID());
+				} else
+				{
+					SaveProfile(
+						Component->InitProfile(),
+						ReturnProfiles,
+						GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID()
+						);
+				}
 			}
 		}
 		SlowTaskL2.EnterProgressFrame(10.0f/Layers.Num());

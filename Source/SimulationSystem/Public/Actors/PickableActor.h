@@ -14,6 +14,7 @@ UCLASS()
 class SIMULATIONSYSTEM_API APickableActor : public AActor, public ISimActorInterface
 {
 public:
+	virtual bool UseInSimulation_Implementation() override {return true;}
 	virtual UProfileComponent* GetProfileComponent_Implementation() override;
 
 private:

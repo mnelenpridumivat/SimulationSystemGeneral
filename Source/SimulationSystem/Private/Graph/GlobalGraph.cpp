@@ -205,6 +205,10 @@ FSimVertexID AGlobalGraph::GetProfileLocationOnGraph(USimProfileBase* Profile)
 
 void AGlobalGraph::AddProfileOnGraph(USimProfileBase* Profile, const FSimVertexID& Vertex)
 {
+	if (!ensureMsgf(IsValid(Profile), TEXT("Profile is not valid")))
+	{
+		return;
+	}
 	UE_LOG(LogTemp, Log, TEXT("Add profile [%s] (global graph context = [%s])"), *Profile->GetName(), *GetPathName());
 	Profile->Rename(nullptr, GetWorld());
 	Profile->SetProfileID(ProfileIDController->RegisterProfile(Profile));
@@ -214,7 +218,10 @@ void AGlobalGraph::AddProfileOnGraph(USimProfileBase* Profile, const FSimVertexI
 
 void AGlobalGraph::RegisterChildProfile(USimProfileBase* Profile, USimProfileBase* Parent)
 {
-	ensureMsgf(IsValid(Profile), TEXT("Profile is not valid"));
+	if (!ensureMsgf(IsValid(Profile), TEXT("Profile is not valid")))
+	{
+		return;
+	}
 	UE_LOG(LogTemp, Log, TEXT("Add profile [%s] (global graph context = [%s])"), *Profile->GetName(), *GetPathName());
 	Profile->Rename(nullptr, GetWorld());
 	Profile->SetProfileID(ProfileIDController->RegisterProfile(Profile));

@@ -10,10 +10,11 @@
 #include "SimPlayerStart.generated.h"
 
 UCLASS()
-class SIMULATIONSYSTEM_API ASimPlayerStart : public APlayerStart, public IEditorSimActor
+class SIMULATIONSYSTEM_API ASimPlayerStart : public APlayerStart, public ISimActorInterface
 {
 public:
-	virtual void DirectSetGraphVertex(const FSimVertexID& SimVertexID) override;
+	virtual bool UseInSimulation_Implementation() override {return true;}
+	virtual void DirectSetGraphVertex_Implementation(const FSimVertexID& SimVertexID) override;
 
 private:
 	GENERATED_BODY()

@@ -30,9 +30,11 @@ public:
 	UProfileComponent* GetProfileComponent();
 
 	// If this actor works with simulation system
-	virtual bool UseInSimulation(){return true;}
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	bool UseInSimulation();
 
 	// Use only for editor actors without UProfileComponent
-	virtual void DirectSetGraphVertex(const FSimVertexID& SimVertexID){}
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void DirectSetGraphVertex(const FSimVertexID& SimVertexID);
 	
 };

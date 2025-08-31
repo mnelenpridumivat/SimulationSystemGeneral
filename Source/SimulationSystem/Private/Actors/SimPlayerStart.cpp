@@ -6,7 +6,7 @@
 #include "ProfileComponent.h"
 
 
-void ASimPlayerStart::DirectSetGraphVertex(const FSimVertexID& SimVertexID)
+void ASimPlayerStart::DirectSetGraphVertex_Implementation(const FSimVertexID& SimVertexID)
 {
 	SpawnVertexID = SimVertexID;
 }
