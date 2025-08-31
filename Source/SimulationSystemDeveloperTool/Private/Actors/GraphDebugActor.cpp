@@ -76,7 +76,7 @@ void AGraphDebugActor::ImGuiStats()
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
 	ImGui::Text("Show stats for profile class: ");
 	ImGui::SameLine();
-	if(ImGui::BeginCombo("Profile classes", TCHAR_TO_ANSI(*USimProfileBase::StaticClass()->GetName()))){
+	if(ImGui::BeginCombo("Profile classes", TCHAR_TO_ANSI(*SelectedProfileClass->GetName()))){
 		for(auto& elem : AvalableClassArr)
 		{
 			bool IsSelected = elem == SelectedProfileClass;
@@ -246,6 +246,10 @@ void AGraphDebugActor::ImGuiProfilesList(const TArray<USimProfileBase*>& Profile
 	ImGui::BeginChild("Profiles");
 	for(auto& Profile : Profiles)
 	{
+		if (!Profile->IsA(SelectedProfileClass))
+		{
+			continue;
+		}
 		FString TotalProfiles = Profile->GetName();
 		ImGui::Text(TCHAR_TO_ANSI(*TotalProfiles));
 		ProfileToResearch = nullptr;
