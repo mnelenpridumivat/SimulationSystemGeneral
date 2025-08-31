@@ -74,27 +74,14 @@ TWeakPtr<Simulation::Vertex> AGlobalGraph::GetVertexByID(const FSimVertexID& ID)
 
 FVector AGlobalGraph::GetVertexLocationByID(const FSimVertexID& ID)
 {
-	ensureMsgf(ID.IsValid(),
-		TEXT("Accessed invalid SimVertexID"));
+	if (!ensureMsgf(ID.IsValid(), TEXT("Accessed invalid SimVertexID")))
+	{
+		return FVector::ZeroVector;
+	}
 	if(!ID.ChunkID)
 	{
 		return VerticesSerialized[ID];
 	}
-	/*if(!LocalGraphs.IsValidIndex(ID.ChunkID-1))
-	{
-		TArray<AActor*> Actors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGraphAsset::StaticClass(), Actors);
-		LocalGraphs.Empty(Actors.Num());
-		for (auto& Actor : Actors)
-		{
-			auto CastedActor = Cast<AGraphAsset>(Actor);
-			if(!LocalGraphs.IsValidIndex(CastedActor->GetChunkIndex()-1))
-			{
-				LocalGraphs.Reserve(CastedActor->GetChunkIndex());
-			}
-			LocalGraphs.Insert(CastedActor, CastedActor->GetChunkIndex()-1);
-		}
-	}*/
 	return LocalGraphs[ID.ChunkID-1]->GetVertexLocationByID(ID);
 }
 
@@ -207,7 +194,10 @@ FSimVertexID AGlobalGraph::GetProfileLocationOnGraph(USimProfileBase* Profile)
 		if(!bSuccess)
 		{
 			USimulationFunctionLibrary::AsProfile(Holder, Profile, bSuccess);
-			ensureMsgf(bSuccess, TEXT("Unable to get holder of profile [%s]"), *Profile->GetClass()->GetName());
+			if (!ensureMsgf(bSuccess, TEXT("Unable to get holder of profile [%s]"), *Profile->GetClass()->GetName()))
+			{
+				break;
+			}
 		}
 	}
 	return VertexID;

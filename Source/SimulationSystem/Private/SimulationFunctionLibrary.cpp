@@ -176,8 +176,7 @@ FGraphWay USimulationFunctionLibrary::FindWay(UObject* Context, const FSimVertex
 
 USimulationSystemSubsystem* USimulationFunctionLibrary::GetSimulationSystemSubsystem(UObject* Context)
 {
-	auto GI = UGameplayStatics::GetGameInstance(Context);
-	return GI->GetSubsystem<USimulationSystemSubsystem>();
+	return GEngine->GetEngineSubsystem<USimulationSystemSubsystem>();
 }
 
 USimulationSystemFunctionsImplementation* USimulationFunctionLibrary::GetFunctions(UObject* Context)

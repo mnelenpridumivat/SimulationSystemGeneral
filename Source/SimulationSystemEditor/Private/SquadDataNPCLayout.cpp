@@ -19,15 +19,15 @@
 #include "ProfileGeneratorSquad.h"
 #include "Widgets/SToolTip.h"
 #include "PropertyCustomizationHelpers.h"
-#include "SimulationSystemEditorSubsystem.h"
 #include "SimulationSystemSettings.h"
+#include "SimulationSystemSubsystem.h"
 
 #define LOCTEXT_NAMESPACE "FSquadDataNPCLayout"
 
 void FSquadDataNPCLayout::OnGetAvalableNPCs(TArray<TSharedPtr<FString>>& Strings, TArray<TSharedPtr<SToolTip>>& Shareds,
 	TArray<bool>& Array)
 {
-	auto Subsystem = GEditor->GetEditorSubsystem<USimulationSystemEditorSubsystem>();
+	auto Subsystem = GEngine->GetEngineSubsystem<USimulationSystemSubsystem>();
 	TArray<FName> Classes;
 	Subsystem->GetAllPawnClasses(Classes);
 	

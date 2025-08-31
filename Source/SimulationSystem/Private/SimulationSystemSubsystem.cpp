@@ -3,22 +3,76 @@
 
 #include "SimulationSystemSubsystem.h"
 
+#include "GlobalGraph.h"
+#include "SimulationFunctionLibrary.h"
 #include "SimulationSystemFunctionsImplementation.h"
 #include "SimulationSystemSettings.h"
 
 void USimulationSystemSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-	auto Settings = GetDefault<USimulationSystemSettings>();
-	if (ensureMsgf(!Settings->SimulationSystemFunctions.IsNull(), TEXT("Simulation system function not set!")))
+	auto Settings = GetMutableDefault<USimulationSystemSettings>();
+	if (!Settings->SimulationSystemFunctions.IsNull())
 	{
 		SimulationSystemFunctions = NewObject<USimulationSystemFunctionsImplementation>(
-			Settings->SimulationSystemFunctions.LoadSynchronous());
+			this,
+			Settings->SimulationSystemFunctions.LoadSynchronous()
+			);
 		SimulationSystemFunctions->PreprocessPawnData(ClassComposedData);
+	} else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Simulation system function not set!"));
 	}
+#if WITH_EDITOR
+	Settings->OnFunctionsPropertyChanged.AddLambda([this, Settings]()
+	{
+		SimulationSystemFunctions = nullptr;
+		if (!Settings->SimulationSystemFunctions.IsNull())
+		{
+			SimulationSystemFunctions = NewObject<USimulationSystemFunctionsImplementation>(
+			this,
+			Settings->SimulationSystemFunctions.LoadSynchronous()
+			);
+			SimulationSystemFunctions->PreprocessPawnData(ClassComposedData);
+		} else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Simulation system function not set!"));
+		}
+	});
+	Settings->ReprocessNPCClassesDelegate.AddLambda([this, Settings]()
+	{
+		ClassComposedData.Empty();
+		if (!SimulationSystemFunctions)
+		{
+			if (!Settings->SimulationSystemFunctions.IsNull())
+			{
+				SimulationSystemFunctions = NewObject<USimulationSystemFunctionsImplementation>(
+			this,
+				Settings->SimulationSystemFunctions.LoadSynchronous()
+				);
+			} else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Simulation system function not set!"));
+				return;
+			}
+		}
+		SimulationSystemFunctions->PreprocessPawnData(ClassComposedData);
+	});
+#endif
 }
 
 USimProfileBase* USimulationSystemSubsystem::ExecuteGenerator(UObject* Context, const FGeneratorHandleBase& handle)
+{
+	FScopeLock Lock(&GeneratorMutex);
+	return GeneratorPool.ExecuteGenerator(Context, handle);
+}
+
+void USimulationSystemSubsystem::GetAllPawnClasses(TArray<FName>& OutPawnClasses)
+{
+	ClassComposedData.GetKeys(OutPawnClasses);
+}
+
+USimProfileBase* FGeneratorPool::ExecuteGenerator(UObject* Context, const FGeneratorHandleBase& handle)
 {
 	if (!ensure(IsValid(Context)))
 	{
@@ -26,7 +80,6 @@ USimProfileBase* USimulationSystemSubsystem::ExecuteGenerator(UObject* Context, 
 	}
 	auto Class = handle.GeneratorClass;
 
-	FScopeLock Lock(&GeneratorMutex);
 	UProfileGenerator* Generator = nullptr;
 	if (auto It = Generators.Find(Class))
 	{
@@ -38,5 +91,12 @@ USimProfileBase* USimulationSystemSubsystem::ExecuteGenerator(UObject* Context, 
 	ensure(Generator);
 
 	handle.SetupGenerator(Generator);
-	return Generator->GenerateProfile();
+	auto NewProfile = Generator->GenerateProfile();
+	return NewProfile;
+}
+
+FName USimulationSystemSubsystem::GetRandomNPCOfClass(FName NPCClass)
+{
+	auto it = ClassComposedData.Find(NPCClass);
+	return it ? it->Variations[FMath::RandRange(0, it->Variations.Num() - 1)] : NAME_None;
 }

@@ -4,6 +4,7 @@
 #include "ProfileComponentCamp.h"
 
 #include "AISimProfileSquad.h"
+#include "GlobalGraph.h"
 #include "SimProfileBase.h"
 #include "SimProfileCamp.h"
 #include "SimulationFunctionLibrary.h"
@@ -40,12 +41,18 @@ USimProfileBase* UProfileComponentCamp::CreateNewProfile_Implementation()
 		||NewProfile->GetClass()->ImplementsInterface(USimProfileContainer::StaticClass()),
 		TEXT("Invalid profile class [%s] for profile component [%s]"), *Profile->GetClass()->GetName(), *GetClass()->GetName());
 	const auto FunctionSubsystem = USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld());
-	for(auto& elem : StartSquads)
+	const auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
+	if (ensure(GlobalGraph))
 	{
-		FGeneratorHandleSquad handle;
-		handle.GeneratorClass = UProfileGeneratorSquad::StaticClass();
-		handle.SquadName = elem;
-		ISimProfileContainer::Execute_AddItem(NewProfile, FunctionSubsystem->ExecuteGenerator(GetWorld(), handle));
+		for(auto& elem : StartSquads)
+		{
+			FGeneratorHandleSquad handle;
+			handle.GeneratorClass = UProfileGeneratorSquad::StaticClass();
+			handle.SquadName = elem;
+			auto NewSquad = FunctionSubsystem->ExecuteGenerator(GetWorld(), handle);
+			GlobalGraph->RegisterChildProfile(NewSquad, NewProfile);
+			ISimProfileContainer::Execute_AddItem(NewProfile, NewSquad);
+		}
 	}
 	return NewProfile;
 }

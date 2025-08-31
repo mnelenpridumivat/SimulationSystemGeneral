@@ -25,7 +25,7 @@ public:
 	 * Spawning new profile of pawn
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	UAISimProfilePawn* SpawnPawn(FName PawnName);
+	UAISimProfilePawn* SpawnPawn(UObject* Outer, FName PawnName);
 
 	/*
 	 * Compose from data table all pawn variations for each pawn class

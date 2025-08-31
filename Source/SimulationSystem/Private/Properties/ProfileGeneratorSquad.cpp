@@ -42,7 +42,7 @@ USimProfileBase* UProfileGeneratorSquad::GenerateProfile()
 		{
 			const auto& NPCs = SquadData->NPCs;
 			auto NPC = NPCs[FMath::RandRange(0, NPCs.Num()-1)].Name;
-			auto Pawn = USimulationFunctionLibrary::GetFunctions(GetWorld())->SpawnPawn(NPC);
+			auto Pawn = USimulationFunctionLibrary::GetFunctions(GetWorld())->SpawnPawn(GetWorld(), NPC);
 			if (ensureMsgf(IsValid(Pawn), TEXT("Unable to spawn pawn [%s]"), *NPC.ToString()))
 			{
 				ISimProfileContainer::Execute_AddItem(NewSquad, Pawn);
@@ -52,7 +52,7 @@ USimProfileBase* UProfileGeneratorSquad::GenerateProfile()
 	{
 		for (auto NPC : SquadData->NPCs)
 		{
-			auto Pawn = USimulationFunctionLibrary::GetFunctions(GetWorld())->SpawnPawn(NPC.Name);
+			auto Pawn = USimulationFunctionLibrary::GetFunctions(GetWorld())->SpawnPawn(GetWorld(), NPC.Name);
 			if (ensureMsgf(IsValid(Pawn), TEXT("Unable to spawn pawn [%s]"), *NPC.Name.ToString()))
 			{
 				ISimProfileContainer::Execute_AddItem(NewSquad, Pawn);

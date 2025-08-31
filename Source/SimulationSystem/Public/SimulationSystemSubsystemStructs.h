@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "SimulationSystemSubsystemStructs.generated.h"
 
+struct FGeneratorHandleBase;
 class USimProfileBase;
 class UProfileGenerator;
 class USimulationSystemFunctionsImplementation;
@@ -18,4 +19,18 @@ struct SIMULATIONSYSTEM_API FPawnsOfClass
 
 	UPROPERTY(BlueprintReadWrite)
 	TArray<FName> Variations;
+};
+
+// Generators
+
+USTRUCT()
+struct SIMULATIONSYSTEM_API FGeneratorPool
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TMap<TSubclassOf<UProfileGenerator>, TObjectPtr<UProfileGenerator>> Generators = {};
+
+	USimProfileBase* ExecuteGenerator(UObject* Context, const FGeneratorHandleBase& handle);
+	
 };

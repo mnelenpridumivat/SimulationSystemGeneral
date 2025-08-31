@@ -116,14 +116,14 @@ protected:
 	UPROPERTY()
 	UProfileIDController* ProfileIDController;
 	
-	UPROPERTY()
+	UPROPERTY(Transient)
 	TMap<USimProfileBase*, FSimProfileHolder> ProfileHolders;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	TMap<USimProfileBase*, float> LastUpdatedDeltaTime;
 
 	TArray<TSharedPtr<Simulation::Vertex>> Links;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	TSet<UAISimProfileBase*> Players;
 };

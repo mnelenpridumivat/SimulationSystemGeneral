@@ -8,7 +8,7 @@
 #include "ProfileGeneratorSquad.h"
 #include "SimulationSystemSettings.h"
 
-UAISimProfilePawn* USimulationSystemFunctionsImplementation::SpawnPawn_Implementation(FName PawnName)
+UAISimProfilePawn* USimulationSystemFunctionsImplementation::SpawnPawn_Implementation(UObject* Outer, FName PawnName)
 {
 	ensureMsgf(false, TEXT("SpawnPawn not implemented!"));
 	return nullptr;

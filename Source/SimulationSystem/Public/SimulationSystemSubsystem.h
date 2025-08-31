@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "ProfileGenerator.h"
-#include "Subsystems/GameInstanceSubsystem.h"
 #include "SimulationSystemSubsystemStructs.h"
 #include "SimulationSystemSubsystem.generated.h"
 
@@ -16,7 +15,7 @@ class USimulationSystemFunctionsImplementation;
  * 
  */
 UCLASS()
-class SIMULATIONSYSTEM_API USimulationSystemSubsystem : public UGameInstanceSubsystem
+class SIMULATIONSYSTEM_API USimulationSystemSubsystem : public UEngineSubsystem
 {
 	GENERATED_BODY()
 
@@ -24,7 +23,7 @@ class SIMULATIONSYSTEM_API USimulationSystemSubsystem : public UGameInstanceSubs
 	USimulationSystemFunctionsImplementation* SimulationSystemFunctions = nullptr;
 
 	UPROPERTY()
-	TMap<TSubclassOf<UProfileGenerator>, TObjectPtr<UProfileGenerator>> Generators = {};
+	FGeneratorPool GeneratorPool;
 	FCriticalSection GeneratorMutex;
 
 	UPROPERTY()
@@ -35,4 +34,7 @@ public:
 
 	USimulationSystemFunctionsImplementation* GetSimulationSystemFunctions() const {return SimulationSystemFunctions;}
 	USimProfileBase* ExecuteGenerator(UObject* Context, const FGeneratorHandleBase& handle);
+
+	void GetAllPawnClasses(TArray<FName>& OutPawnClasses);
+	FName GetRandomNPCOfClass(FName NPCClass);
 };
