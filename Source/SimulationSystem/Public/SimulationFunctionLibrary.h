@@ -8,6 +8,7 @@
 #include "Profiles/SimProfileHolder.h"
 #include "SimulationFunctionLibrary.generated.h"
 
+struct FBytesSerialization;
 class USimulationSystemSubsystem;
 class USimulationSystemFunctionsImplementation;
 class UAISimProfileSquad;
@@ -57,7 +58,7 @@ public:
 	UFUNCTION(BlueprintPure, meta=(WorldContext=Context))
 	static USimulationSystemFunctionsImplementation* GetFunctions(UObject* Context);
 
-	static void SaveObjectData(UObject* Object, TArray<uint8>& Data);
-	static void LoadObjectData(UObject* Object, const TArray<uint8>& Data);
+	static void SaveObjectData(UObject* Object, FBytesSerialization& Data);
+	static void LoadObjectData(UObject* Object, const FBytesSerialization& Data);
 	
 };

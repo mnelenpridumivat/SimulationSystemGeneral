@@ -45,6 +45,7 @@ public:
 #if WITH_EDITOR
 	void SetGraph(const FGraphSerialized& GraphSerialized){Graph = GraphSerialized;}
 	void SetInitialProfiles(const FProfilesSerialized& ProfilesSerialized){InitialProfiles = ProfilesSerialized;}
+	FProfilesSerialized& GetMutableInitialProfiles(){return InitialProfiles;}
 #endif
 	
 	FVector GetVertexLocationByID(const FSimVertexID& ID);
@@ -78,7 +79,7 @@ private:
 	UPROPERTY()
 	FProfilesSerialized InitialProfiles;
 	
-	USimProfileBase* LoadProfile(int& Index, int ChildrenNum = 0);
+	USimProfileBase* LoadProfile(FSerializedProfile& Data);
 
 	UPROPERTY()
 	int ChunkIndex;

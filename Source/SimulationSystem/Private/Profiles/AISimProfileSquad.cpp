@@ -4,8 +4,10 @@
 #include "..\..\Public\Profiles\AISimProfileSquad.h"
 
 #include "GlobalGraph.h"
+#include "GraphSerialized.h"
 #include "SimulationFunctionLibrary.h"
 #include "SquadTaskBase.h"
+#include "EntitySystem/MovieSceneEntityManager.h"
 #include "Profiles/AISimProfilePawn.h"
 
 void UAISimProfileSquad::OnCreated_Implementation()
@@ -80,6 +82,50 @@ void UAISimProfileSquad::SetOnlineLocation(FVector Vector)
 	for(auto& Member : Members)
 	{
 		Member->SetOnlineLocation(Vector);
+	}
+}
+
+void UAISimProfileSquad::Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data)
+{
+	Super::Save_Implementation(VertexID, Data);
+	Data.GetElem().NextSet();
+	for(auto Item : Members)
+	{
+		Item->Save(VertexID, Data.GetElem().AddChild());
+	}
+	Data.GetElem().NextSet();
+	if (CurrentTask)
+	{
+		CurrentTask->Save(Data.GetElem().AddChild());
+	}
+}
+
+void UAISimProfileSquad::Load_Implementation(FSerializedProfile& Data)
+{
+	Super::Load_Implementation(Data);
+	{
+		FProfilesSerializedView Children;
+		Data.ExtractFirstChildren(Children);
+		for(auto elem : Children.Objects)
+		{
+			auto Member = NewObject<UAISimProfilePawn>(GetWorld(), elem->ObjectClass);
+			Member->Load(*elem);
+			Execute_AddItem(this, Member);
+		}
+	}
+	{
+		FProfilesSerializedView Children;
+		Data.ExtractFirstChildren(Children);
+		if(ensure(Children.Objects.Num() <= 1) && Children.Objects.Num() == 1)
+		{			
+			if(const auto TaskData = Children.Objects[0];
+				ensure(TaskData->ObjectClass->IsChildOf(USquadTaskBase::StaticClass())))
+			{
+				auto NewTask = NewObject<USquadTaskBase>(TaskData->ObjectClass);
+				USimulationFunctionLibrary::LoadObjectData(NewTask, TaskData->ObjectData);
+				SetCurrentTask(NewTask);
+			}
+		}		
 	}
 }
 

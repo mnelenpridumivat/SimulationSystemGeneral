@@ -23,7 +23,7 @@ class SIMULATIONSYSTEM_API USimulationState : public USaveGame
 	//TMap<FSimVertexID, USimProfileBase*> Profiles;
 
 	void SaveProfile(USimProfileBase* Profile, /*uint32 ParentIndex, uint32& Counter, */FSimVertexID VertexID = FSimVertexID::Invalid);
-	USimProfileBase* LoadProfile(int& Index);
+	USimProfileBase* LoadProfile(int Index);
 
 public:
 

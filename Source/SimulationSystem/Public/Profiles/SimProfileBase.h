@@ -14,6 +14,8 @@
 #include "UObject/Object.h"
 #include "SimProfileBase.generated.h"
 
+struct FSerializedProfileView;
+struct FSerializedProfile;
 /**
  * 
  */
@@ -24,6 +26,18 @@ class SIMULATIONSYSTEM_API USimProfileBase : public UObject
 
 public:
 	USimProfileBase();
+	
+	/*
+	 * Called when saving
+	 */
+	UFUNCTION(BlueprintNativeEvent)
+	void Save(FSimVertexID VertexID, FSerializedProfileView Data);
+
+	/*
+	 * Called when loading
+	 */
+	UFUNCTION(BlueprintNativeEvent)
+	void Load(FSerializedProfile& Data);
 
 	/*
 	 * Called when profile added to global graph (as standalone profile or as child of other profile)

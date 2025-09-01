@@ -4,6 +4,7 @@
 #include "Profiles/AISimProfilePawn.h"
 
 #include "GlobalGraph.h"
+#include "GraphSerialized.h"
 #include "SimulationFunctionLibrary.h"
 #include "Profiles/SimProfileItem.h"
 
@@ -84,5 +85,28 @@ void UAISimProfilePawn::SetOnlineLocation(FVector Vector)
 	for(auto& Item : Inventory)
 	{
 		Item->SetOnlineLocation(Vector);
+	}
+}
+
+void UAISimProfilePawn::Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data)
+{
+	Super::Save_Implementation(VertexID, Data);
+	Data.GetElem().NextSet();
+	for(auto Item : Inventory)
+	{
+		Item->Save(VertexID, Data.GetElem().AddChild());
+	}
+}
+
+void UAISimProfilePawn::Load_Implementation(FSerializedProfile& Data)
+{
+	Super::Load_Implementation(Data);
+	FProfilesSerializedView Children;
+	Data.ExtractFirstChildren(Children);
+	for(auto& elem : Children.Objects)
+	{
+		auto Item = NewObject<USimProfileItem>(GetWorld(), elem->ObjectClass);
+		Item->Load(*elem);
+		Execute_AddItem(this, Item);
 	}
 }

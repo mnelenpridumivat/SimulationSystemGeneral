@@ -4,6 +4,8 @@
 #include "..\..\..\Public\Profiles\Tasks\SquadTaskBase.h"
 
 #include "AISimProfileSquad.h"
+#include "GraphSerialized.h"
+#include "SimulationFunctionLibrary.h"
 
 void USquadTaskBase::BeginTask(UAISimProfileSquad* Squad)
 {
@@ -96,6 +98,12 @@ bool USquadTaskBase::CheckTaskFinished(UAISimProfileSquad* Squad)
 		}
 	}
 	return true;
+}
+
+void USquadTaskBase::Save_Implementation(FSerializedProfileView Data)
+{
+	Data.GetElem().ObjectClass = GetClass();
+	USimulationFunctionLibrary::SaveObjectData(this, Data.GetElem().ObjectData);
 }
 
 void USquadTaskBase::AbortTask_Implementation(UAISimProfileSquad* Squad)

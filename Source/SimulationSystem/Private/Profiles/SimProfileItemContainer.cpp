@@ -6,6 +6,7 @@
 #include "GlobalGraph.h"
 #include "ProfileComponent.h"
 #include "DEPRECATED_ReplicatedSimInfo.h"
+#include "GraphSerialized.h"
 #include "SimActorInterface.h"
 #include "SimulationFunctionLibrary.h"
 
@@ -76,5 +77,28 @@ void USimProfileItemContainer::SetOnlineLocation(FVector Vector)
 	for(auto& Item : StoredItems)
 	{
 		Item->SetOnlineLocation(Vector);
+	}
+}
+
+void USimProfileItemContainer::Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data)
+{
+	Super::Save_Implementation(VertexID, Data);
+	Data.GetElem().NextSet();
+	for(auto Item : StoredItems)
+	{
+		Item->Save(VertexID, Data.GetElem().AddChild());
+	}
+}
+
+void USimProfileItemContainer::Load_Implementation(FSerializedProfile& Data)
+{
+	Super::Load_Implementation(Data);
+	FProfilesSerializedView Children;
+	Data.ExtractFirstChildren(Children);
+	for(auto elem : Children.Objects)
+	{
+		auto Item = NewObject<USimProfileItem>(GetWorld(), elem->ObjectClass);
+		Item->Load(*elem);
+		Execute_AddItem(this, Item);
 	}
 }

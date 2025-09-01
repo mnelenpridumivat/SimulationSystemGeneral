@@ -6,6 +6,7 @@
 #include "AISimProfileBase.h"
 #include "AISimProfileSquad.generated.h"
 
+struct FSerializedProfileView;
 class USquadTaskBase;
 class UAISimProfilePawn;
 /**
@@ -28,6 +29,9 @@ public:
 
 	virtual void OnRegistered_Implementation() override;
 	virtual void SetOnlineLocation(FVector Vector) override;
+	
+	virtual void Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data) override;
+	virtual void Load_Implementation(FSerializedProfile& Data) override;
 
 private:
 	GENERATED_BODY()

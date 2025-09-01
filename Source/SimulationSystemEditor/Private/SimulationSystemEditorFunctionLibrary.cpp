@@ -46,13 +46,6 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 		FVector(ZoneLocation.X, ZoneLocation.Y, ZoneLocation.Z-ZoneSize.Z),
 		UEngineTypes::ConvertToTraceType(GetMutableDefault<USimulationSystemDeveloperSettings>()->SimPointsTraceChannel),
 		true, {}, EDrawDebugTrace::Persistent, OutHits, false);
-	/*World->LineTraceMultiByChannel(
-		OutHits,
-		FVector(ZoneLocation.X, ZoneLocation.Y, ZoneSize.Z-ZoneLocation.Z),
-		FVector(ZoneLocation.X, ZoneLocation.Y, ZoneLocation.Z-ZoneSize.Z),
-		GetMutableDefault<USimulationSystemDeveloperSettings>()->SimPointsTraceChannel,
-		Params
-	);*/
 	TArray<FName> Layers = {};
 	for(auto& Hit : OutHits)
 	{
@@ -326,35 +319,14 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 		{
 			ReturnGraph.Edges.Add({Edge.Get()->GetVertexOne().Pin()->GetVertexID(), Edge.Get()->GetVertexTwo().Pin()->GetVertexID()});
 		}
-		/*for(auto& Actor : ActorsInsideChunk)
-		{
-			if(GetLayerName(Actor)!=Layers[i])
-			{
-				continue;
-			}
-			IEditorSimActor* Inter = Cast<IEditorSimActor>(Actor);
-			Inter->DirectSetGraphVertex(GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID());
-			auto NewProfile = Inter->GetProfile();
-			if(!NewProfile)
-			{
-				continue;
-			}
-			NewProfile->SetOnlineLocation(Actor->GetActorLocation());
-			if(IsValid(NewProfile)){
-				SaveProfile(
-					NewProfile,
-					ReturnProfiles,
-					GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID()
-					);
-			}
-		}*/
+		FEditorScriptExecutionGuard ScriptGuard;
+		TArray<TPair<USimProfileBase*, FSimVertexID>> CreatedProfiles = {}; // Maybe it's not a fix, but if is, idk wtf
 		for(auto& Actor : ActorsInsideChunk)
 		{
 			if(GetLayerName(Actor)!=Layers[i])
 			{
 				continue;
 			}
-			FEditorScriptExecutionGuard ScriptGuard;
 			if (ISimActorInterface::Execute_UseInSimulation(Actor))
 			{
 				auto Component = ISimActorInterface::Execute_GetProfileComponent(Actor);
@@ -364,13 +336,17 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 						Actor, GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID());
 				} else
 				{
-					SaveProfile(
-						Component->InitProfile(),
-						ReturnProfiles,
-						GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID()
-						);
+					CreatedProfiles.Add(
+						{
+							Component->InitProfile(),
+							GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID()
+						});
 				}
 			}
+		}
+		for (auto& elem : CreatedProfiles)
+		{
+			SaveProfile(elem.Key, ReturnProfiles, elem.Value);
 		}
 		SlowTaskL2.EnterProgressFrame(10.0f/Layers.Num());
 	}
@@ -445,23 +421,9 @@ TWeakPtr<Simulation::Vertex> USimulationSystemEditorFunctionLibrary::GetClosestV
 void USimulationSystemEditorFunctionLibrary::SaveProfile(USimProfileBase* Profile, FProfilesSerialized& ReturnProfiles,
 	FSimVertexID VertexID)
 {
-	FSerializedProfile Serialized;
-	Serialized.ObjectClass = Profile->GetClass();
-	Serialized.VertexLocation = VertexID;
-	USimulationFunctionLibrary::SaveObjectData(Profile, Serialized.ObjectData.SerializedObject);
-	if(Profile->GetClass()->ImplementsInterface(USimProfileContainer::StaticClass()))
-	{
-		auto ChildProfiles = ISimProfileContainer::Execute_GetAllItems(Profile);
-		Serialized.ChildrenNum = ChildProfiles.Num();
-		ReturnProfiles.Objects.Add(Serialized);
-		for(auto& Child : ChildProfiles)
-		{
-			SaveProfile(Child, ReturnProfiles);
-		}
-	} else
-	{
-		ReturnProfiles.Objects.Add(Serialized);
-	}
+	auto Data = ReturnProfiles.AddLast();
+	Data.GetElem().GlobalParent = &ReturnProfiles;
+	Profile->Save(VertexID, Data);
 }
 
 void USimulationSystemEditorFunctionLibrary::FullRebuild()
@@ -497,10 +459,9 @@ void USimulationSystemEditorFunctionLibrary::FullRebuild()
 		auto LocalGraph = Cast<AGraphAsset>(Actors[i]);
 		LocalGraph->SetChunkIndex(i+1);
 		FGraphSerialized Graph;
-		FProfilesSerialized Profiles;
-		RebuildSelectedLocalGraph(World, LocalGraph, Links, Graph, Profiles);
+		LocalGraph->GetMutableInitialProfiles().Objects.Empty();
+		RebuildSelectedLocalGraph(World, LocalGraph, Links, Graph, LocalGraph->GetMutableInitialProfiles());
 		LocalGraph->SetGraph(Graph);
-		LocalGraph->SetInitialProfiles(Profiles);
 		SlowTaskL1.EnterProgressFrame(80.0f/Actors.Num());
 	}
 	GlobalGraph->GetProfileIDsController()->ClearAllProfiles();

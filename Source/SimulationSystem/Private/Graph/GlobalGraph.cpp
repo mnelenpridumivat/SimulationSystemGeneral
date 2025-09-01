@@ -20,6 +20,58 @@
 #include "Profiles/SimProfileBase.h"
 #include "Profiles/AISimProfileSquad.h"
 
+void FSerializedProfile::ExtractFirstChildren(FProfilesSerializedView& ExtractedChildren)
+{
+	ExtractedChildren.Objects.Empty();
+	if(!ensure(Children.IsValidIndex(0))
+		|| !ensure(GlobalParent))
+	{
+		return;
+	}
+	ExtractedChildren.Objects.Reserve(Children[0].Children.Num());
+	for (auto Child : Children[0].Children)
+	{
+		ExtractedChildren.Objects.Add(&GlobalParent->Objects[Child]);
+	}
+	Children.RemoveAt(0);
+}
+
+FSerializedProfileView FSerializedProfile::AddChild()
+{
+	if (!ensure(GlobalParent))
+	{
+		return FSerializedProfileView();
+	}
+	auto NewElemView = GlobalParent->AddLast();
+	Children.Last().Children.Add(NewElemView.Index);
+	auto& NewChild = NewElemView.GetElem();
+	NewChild.Parent = this;
+	NewChild.GlobalParent = GlobalParent;
+	return NewElemView;
+}
+
+void FSerializedProfile::NextSet()
+{
+	Children.Add({});
+}
+
+FSerializedProfile& FSerializedProfileView::GetElem()
+{
+	if (!ensure(GlobalParent) || !ensure(GlobalParent->Objects.IsValidIndex(Index)))
+	{
+		static FSerializedProfile Invalid;
+		return Invalid;
+	}
+	return GlobalParent->Objects[Index];
+}
+
+FSerializedProfileView FProfilesSerialized::AddLast()
+{
+	FSerializedProfileView ReturnProfile;
+	ReturnProfile.GlobalParent = this;
+	ReturnProfile.Index = Objects.Add({});
+	return ReturnProfile;
+}
 
 void AGlobalGraph::PostInitializeComponents()
 {

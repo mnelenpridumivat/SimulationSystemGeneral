@@ -5,6 +5,7 @@
 
 #include "EngineUtils.h"
 #include "GlobalGraph.h"
+#include "GraphSerialized.h"
 #include "SimulationSystemSettings.h"
 #include "NativePriorityQueue.h"
 #include "ProfileIDController.h"
@@ -189,16 +190,16 @@ USimulationSystemFunctionsImplementation* USimulationFunctionLibrary::GetFunctio
 	return nullptr;
 }
 
-void USimulationFunctionLibrary::SaveObjectData(UObject* Object, TArray<uint8>& Data)
+void USimulationFunctionLibrary::SaveObjectData(UObject* Object, FBytesSerialization& Data)
 {
-	FMemoryWriter MemoryWriter(Data, true);
+	FMemoryWriter MemoryWriter(Data.SerializedObject, true);
 	FObjectAndNameAsStringProxyArchive SaveArchive(MemoryWriter, false);
 	Object->Serialize(SaveArchive);
 }
 
-void USimulationFunctionLibrary::LoadObjectData(UObject* Object, const TArray<uint8>& Data)
+void USimulationFunctionLibrary::LoadObjectData(UObject* Object, const FBytesSerialization& Data)
 {
-	FMemoryReader MemoryReader(Data, true);
+	FMemoryReader MemoryReader(Data.SerializedObject, true);
 	FObjectAndNameAsStringProxyArchive SaveArchive(MemoryReader, false);
 	Object->Serialize(SaveArchive);
 }

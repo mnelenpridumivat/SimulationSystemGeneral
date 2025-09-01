@@ -24,6 +24,9 @@ public:
 	virtual bool HasItem_Implementation(USimProfileBase* Profile) override;
 	virtual void RemoveItem_Implementation(USimProfileBase* Profile) override;
 	virtual bool CanStoreItem_Implementation(USimProfileBase* Profile) override;
+	
+	virtual void Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data) override;
+	virtual void Load_Implementation(FSerializedProfile& Data) override;
 
 protected:
 

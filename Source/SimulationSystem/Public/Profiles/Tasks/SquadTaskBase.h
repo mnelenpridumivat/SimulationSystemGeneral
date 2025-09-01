@@ -7,6 +7,8 @@
 #include "UObject/Object.h"
 #include "SquadTaskBase.generated.h"
 
+struct FSerializedProfileView;
+struct FSerializedProfile;
 /**
  * 
  */
@@ -77,5 +79,11 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	bool CheckTaskFinished_Buffer(UAISimProfileSquad* Squad);
+	
+	/*
+	 * Called when saving
+	 */
+	UFUNCTION(BlueprintNativeEvent)
+	void Save(FSerializedProfileView Data);
 	
 };

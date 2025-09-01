@@ -4,6 +4,7 @@
 #include "Profiles/SimProfileCamp.h"
 
 #include "GlobalGraph.h"
+#include "GraphSerialized.h"
 #include "SimulationFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Profiles/AISimProfileSquad.h"
@@ -79,5 +80,28 @@ void USimProfileCamp::OnRegistered_Implementation()
 		{
 			GlobalGraph->RegisterChildProfile(Squad, this);
 		}
+	}
+}
+
+void USimProfileCamp::Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data)
+{
+	Super::Save_Implementation(VertexID, Data);
+	Data.GetElem().NextSet();
+	for(auto Squad : Squads)
+	{
+		Squad->Save(VertexID, Data.GetElem().AddChild());
+	}
+}
+
+void USimProfileCamp::Load_Implementation(FSerializedProfile& Data)
+{
+	Super::Load_Implementation(Data);
+	FProfilesSerializedView Children;
+	Data.ExtractFirstChildren(Children);
+	for(auto SquadData : Children.Objects)
+	{
+		auto Squad = NewObject<UAISimProfileSquad>(GetWorld(), SquadData->ObjectClass);
+		Squad->Load(*SquadData);
+		Execute_AddItem(this, Squad);
 	}
 }

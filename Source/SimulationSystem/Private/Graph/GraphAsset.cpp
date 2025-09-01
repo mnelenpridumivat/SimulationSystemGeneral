@@ -63,13 +63,25 @@ void AGraphAsset::LoadObjects_Save()
 void AGraphAsset::LoadObjects_Initial()
 {
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
-	for(int i = 0 ; i < InitialProfiles.Objects.Num(); ++i)
+	for (auto& elem : InitialProfiles.Objects)
 	{
-		auto& VertexID = InitialProfiles.Objects[i].VertexLocation;
-		auto Profile = LoadProfile(i);
-		GlobalGraph->AddProfileOnGraph(Profile, VertexID);
-		//GlobalGraph->AddProfileOnGraph(Profile->DeepCopyProfile(), VertexID);
-		//Profile->OnCreated();
+		elem.GlobalParent = &InitialProfiles;
+		for (auto& Chunk : elem.Children)
+		{
+			for (int Index : Chunk.Children)
+			{
+				InitialProfiles.Objects[Index].Parent = &elem;
+			}
+		}
+	}
+	for (auto& elem : InitialProfiles.Objects)
+	{
+		if (!elem.Parent)
+		{
+			auto& VertexID = elem.VertexLocation;
+			auto Profile = LoadProfile(elem);
+			GlobalGraph->AddProfileOnGraph(Profile, VertexID);
+		}
 	}
 }
 
@@ -117,19 +129,11 @@ void AGraphAsset::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	UnloadGraph();
 }
 
-USimProfileBase* AGraphAsset::LoadProfile(int& Index, int ChildrenNum)
+USimProfileBase* AGraphAsset::LoadProfile(FSerializedProfile& Data)
 {
-	// TODO: Think about serialization for non-default containers (like Zone17 NPC)
-	const auto& CurrentProfileData = InitialProfiles.Objects[Index];
-	USimProfileBase* Profile = NewObject<USimProfileBase>(GetWorld(), CurrentProfileData.ObjectClass);
-	USimulationFunctionLibrary::LoadObjectData(Profile, CurrentProfileData.ObjectData.SerializedObject);
-	if(Profile->GetClass()->ImplementsInterface(USimProfileContainer::StaticClass()))
-	{
-		for(uint32 i = 0; i < CurrentProfileData.ChildrenNum; ++i)
-		{
-			ISimProfileContainer::Execute_AddItem(Profile, LoadProfile(++Index));
-		}
-	}
+	USimProfileBase* Profile = NewObject<USimProfileBase>(GetWorld(), Data.ObjectClass);
+	USimulationFunctionLibrary::LoadObjectData(Profile, Data.ObjectData);
+	Profile->Load(Data);
 	return Profile;
 }
 

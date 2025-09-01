@@ -12,8 +12,45 @@
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
 #include "DEPRECATED_ReplicatedSimInfo.h"
+#include "GraphSerialized.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+
+void USimProfileBase::Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data)
+{
+	Data.GetElem().ObjectClass = GetClass();
+	Data.GetElem().VertexLocation = VertexID;
+	USimulationFunctionLibrary::SaveObjectData(this, Data.GetElem().ObjectData);
+	if(HasOnlineActor() && GetSimLevel() == ESimulationLevels_Online)
+	{
+		auto Actor = GetOnlineActor();
+		if(ensure(Actor))
+		{
+			Data.GetElem().NextSet();
+			auto OnlineDataSingle = Data.GetElem().AddChild();
+			OnlineDataSingle.GetElem().VertexLocation = VertexID;
+			OnlineDataSingle.GetElem().ObjectClass = Actor->GetClass();
+			USimulationFunctionLibrary::SaveObjectData(Actor, OnlineDataSingle.GetElem().ObjectData);
+		}
+	}
+}
+
+void USimProfileBase::Load_Implementation(FSerializedProfile& Data)
+{
+	if(HasOnlineActor() && GetSimLevel() == ESimulationLevels_Online)
+	{
+		FProfilesSerializedView OnlineData;
+		Data.ExtractFirstChildren(OnlineData);
+		if(const auto ActorData = OnlineData.Objects[0];
+			ensure(ActorData->ObjectClass->IsChildOf(AActor::StaticClass())))
+		{
+			static FActorSpawnParameters SpawnParams;
+			SpawnParams.bNoFail = true;
+			auto NewActor = GetWorld()->SpawnActor(ActorData->ObjectClass, nullptr, nullptr, SpawnParams);
+			USimulationFunctionLibrary::LoadObjectData(NewActor, ActorData->ObjectData);
+		}
+	}
+}
 
 void USimProfileBase::OnRegistered_Implementation()
 {

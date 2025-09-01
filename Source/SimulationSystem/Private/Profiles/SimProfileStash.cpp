@@ -4,6 +4,7 @@
 #include "Profiles/SimProfileStash.h"
 
 #include "GlobalGraph.h"
+#include "GraphSerialized.h"
 #include "SimulationFunctionLibrary.h"
 #include "Profiles/SimProfileItem.h"
 
@@ -75,4 +76,27 @@ bool USimProfileStash::CanStoreItem_Implementation(USimProfileBase* Profile)
 		return false;
 	}
 	return Profile->IsA(USimProfileItem::StaticClass());
+}
+
+void USimProfileStash::Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data)
+{
+	Super::Save_Implementation(VertexID, Data);
+	Data.GetElem().NextSet();
+	for(auto Item : StoredItems)
+	{
+		Item->Save(VertexID, Data.GetElem().AddChild());
+	}
+}
+
+void USimProfileStash::Load_Implementation(FSerializedProfile& Data)
+{
+	Super::Load_Implementation(Data);
+	FProfilesSerializedView Children;
+	Data.ExtractFirstChildren(Children);
+	for(auto elem : Children.Objects)
+	{
+		auto Item = NewObject<USimProfileItem>(GetWorld(), elem->ObjectClass);
+		Item->Load(*elem);
+		Execute_AddItem(this, Item);
+	}
 }
