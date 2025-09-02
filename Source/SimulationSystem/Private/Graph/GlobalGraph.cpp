@@ -229,7 +229,12 @@ FSimVertexID AGlobalGraph::GetProfileLocationOnGraph(USimProfileBase* Profile)
 	FSimVertexID VertexID = {static_cast<uint16>(-1), static_cast<uint8>(-1), static_cast<uint16>(-1)};
 	while(!VertexID.IsValid())
 	{
-		auto Holder = ProfileHolders[Profile];
+		auto HolderIt = ProfileHolders.Find(Profile);
+		if (!ensure(HolderIt))
+		{
+			break;
+		}
+		auto Holder = *HolderIt;
 		bool bSuccess = false;
 		USimulationFunctionLibrary::AsVertex(Holder, VertexID, bSuccess);
 		if(!bSuccess)
