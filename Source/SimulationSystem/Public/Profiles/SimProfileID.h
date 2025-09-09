@@ -39,6 +39,8 @@ struct SIMULATIONSYSTEM_API FSimProfileID
 	FSimProfileID(): Class(nullptr), ProfileID(static_cast<uint32>(-1)) {}
 
 	bool IsValid() const;
+
+	FString ToString() const;
 };
 
 bool SIMULATIONSYSTEM_API operator==(const FSimProfileID& A, const FSimProfileID& B);

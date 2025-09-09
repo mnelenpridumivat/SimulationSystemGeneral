@@ -1,7 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-//#define PARALLEL_SIM_PROCESS
-
 #include "GlobalGraph.h"
 
 #include "AISimProfileBase.h"
@@ -168,6 +166,12 @@ void AGlobalGraph::LoadObjects_Initial()
 	{
 		LocalGraph->LoadObjects_Initial();
 	}
+	TArray<USimProfileBase*> Profiles;
+	int Num = GetProfiles(Profiles);
+	for (auto Profile : Profiles)
+	{
+		Profile->OnPostRegistered();
+	}
 	SetActorTickEnabled(true);
 }
 
@@ -177,6 +181,10 @@ void AGlobalGraph::LoadObjects_Save(USimulationState* Save)
 	for(auto& Profile : Profiles)
 	{
 		AddProfileOnGraph(Profile.Value, Profile.Key);
+	}
+	for (auto& Profile : Profiles)
+	{
+		Profile.Value->OnPostRegistered();
 	}
 	SetActorTickEnabled(true);
 }
@@ -351,13 +359,6 @@ USquadTaskBase* AGlobalGraph::CreateNewTask(UAISimProfileSquad* Squad)
 void AGlobalGraph::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
-	//LoadGraph();
-	//LoadIndex = 0;
-	//AsyncLoadChunks(); // TODO: Remove temporary
-	//LoadObjects_Initial();
 	
 }
 
@@ -383,13 +384,9 @@ void AGlobalGraph::Tick(float DeltaTime)
 			Profiles[Index]->SetSimLevel(ESimulationLevels_Online);
 			return;
 		}
-		
-		float* Time = LastUpdatedDeltaTime.Find(Profiles[Index]);
-		if(!Time)
-		{
-			Time = &LastUpdatedDeltaTime.Add(Profiles[Index], 0);
-		}
-		*Time += DeltaTime;
+
+		float& Time = Profiles[Index]->TimeSinceLastTick;
+		Time += DeltaTime;
 		FVector ProfileLocation = GetVertexLocationByID(GetProfileLocationOnGraph(Profiles[Index]));
 		FVector ClosestPlayerLocation;
 		APawn* PlayerPawn = nullptr;
@@ -470,28 +467,35 @@ void AGlobalGraph::Tick(float DeltaTime)
 		{
 		case ESimulationLevels_Offline:
 			{
-				if((int)((*Time * Tolerance)-(GetMutableDefault<USimulationSystemSettings>()->TickOffline * Tolerance)) < 0)
+				auto MinDeltaTime = GetDefault<USimulationSystemSettings>()->TickOffline * Profiles[Index]->GetTickOfflineCoeff();
+				if((int)((Time * Tolerance)-(MinDeltaTime * Tolerance)) < 0)
 				{
 					return;
 				}
-				ParallelTick(Profiles[Index], *Time);
-				*Time = (float)((int)(*Time*Tolerance)%(int)(GetMutableDefault<USimulationSystemSettings>()->TickOffline * Tolerance))/Tolerance;
+				ParallelTick(Profiles[Index], Time);
+				Time = (float)((int)(Time*Tolerance)%(int)(MinDeltaTime * Tolerance))/Tolerance;
 				break;
 			}
 		case ESimulationLevels_Buffered:
 			{
-				if((int)((*Time * Tolerance)-(GetMutableDefault<USimulationSystemSettings>()->TickBuffered * Tolerance)) < 0)
+				auto MinDeltaTime = GetDefault<USimulationSystemSettings>()->TickBuffered * Profiles[Index]->GetTickBufferedCoeff();
+				if((int)((Time * Tolerance)-(MinDeltaTime * Tolerance)) < 0)
 				{
 					return;
 				}
-				ParallelTick(Profiles[Index], *Time);
-				*Time = (float)((int)(*Time*Tolerance)%(int)(GetMutableDefault<USimulationSystemSettings>()->TickBuffered * Tolerance))/Tolerance;
+				ParallelTick(Profiles[Index], Time);
+				Time = (float)((int)(Time*Tolerance)%(int)(MinDeltaTime * Tolerance))/Tolerance;
 				break;
 			}
 		case ESimulationLevels_Online:
 			{
-				ParallelTick(Profiles[Index], *Time);
-				*Time = 0;
+				auto MinDeltaTime = GetDefault<USimulationSystemSettings>()->TickOnline * Profiles[Index]->GetTickOnlineCoeff();
+				if((int)((Time * Tolerance)-(MinDeltaTime * Tolerance)) < 0)
+				{
+					return;
+				}
+				ParallelTick(Profiles[Index], Time);
+				Time = (float)((int)(Time*Tolerance)%(int)(MinDeltaTime * Tolerance))/Tolerance;
 				break;
 			}
 		default:
@@ -500,14 +504,15 @@ void AGlobalGraph::Tick(float DeltaTime)
 			}
 		}
 	};
-#ifndef PARALLEL_SIM_PROCESS
-	for(int32 i = 0; i < Num; ++i)
+	if constexpr (constexpr bool PARALLEL_SIM_PROCESS = true)
 	{
-		func(i);
+		for(int32 i = 0; i < Num; ++i)
+		{
+			func(i);
+		}
+	} else {
+		ParallelFor(Num, func);
 	}
-#else
-	ParallelFor(Num, func);
-#endif
 }
 
 void AGlobalGraph::ParallelTick(USimProfileBase* Profile, float DeltaTime)

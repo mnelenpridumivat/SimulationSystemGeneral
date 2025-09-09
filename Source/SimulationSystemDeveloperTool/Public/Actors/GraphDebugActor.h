@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DebugData.h"
 #include "GameFramework/Actor.h"
 #include "GraphDebugActor.generated.h"
 
+struct DebugDataElemBase;
 class UTaskDebugBase;
 class USquadTaskBase;
 class USimProfileBase;
@@ -44,10 +46,14 @@ protected:
 	UClass* SelectedProfileClass = nullptr;
 
 	UPROPERTY()
+	USimProfileBase* NewSelectedProfile = nullptr;
+
+	UPROPERTY()
 	AGraphAsset* SelectedChunk = nullptr;
 
 	UPROPERTY()
 	USimProfileBase* ProfileToResearch = nullptr;
+	FDebugDataMain Data;
 
 	UPROPERTY()
 	TArray<UClass*> AvalableClassArr;
@@ -64,6 +70,9 @@ protected:
 	void ImGuiChunks();
 
 	void ImGuiProfilesList(const TArray<USimProfileBase*>& Profiles);
+	void ImGuiUpdateProfileToResearch(USimProfileBase* Profile);
+	void ImGuiDoResearch();
+	void ImGuiDoResearchRec(DebugDataElemBase* Elem, int Tabs = 0);
 
 public:
 	// Called every frame

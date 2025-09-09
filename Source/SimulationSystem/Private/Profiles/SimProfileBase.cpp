@@ -14,6 +14,7 @@
 #include "DEPRECATED_ReplicatedSimInfo.h"
 #include "GraphSerialized.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetStringLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 void USimProfileBase::Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data)
@@ -65,6 +66,10 @@ bool USimProfileBase::IsMovable_Implementation()
 USimProfileBase::USimProfileBase()
 {
 	ProfileID = UProfileIDController::InvalidID;
+}
+
+void USimProfileBase::OnPostRegistered_Implementation()
+{
 }
 
 void USimProfileBase::OnCreated_Implementation()
@@ -158,6 +163,177 @@ void USimProfileBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>
 	DOREPLIFETIME(USimProfileBase, CurrentSimLevel);
 	DOREPLIFETIME(USimProfileBase, OnlineActor);
 }
+
+void USimProfileBase::GetDebugData(FDebugDataMain& Data)
+{
+	Data.Elems.Empty();
+	for (auto PropIt : TFieldRange<FProperty>(GetClass()))
+	{
+		AddPropFunc({NAME_None,PropIt, this}, Data.Elems);
+	}
+}
+
+void USimProfileBase::AddPropFunc(DebugDataPropertyHandle Prop, TArray<DebugDataElemBase*>& Arr)
+{
+	if (Prop.Type->IsA(FArrayProperty::StaticClass()))
+	{
+		AddArrayPropFunc(Prop, Arr);
+	}
+	else if (Prop.Type->IsA(FSetProperty::StaticClass()))
+	{
+		AddSetPropFunc(Prop, Arr);
+	}
+	else if (Prop.Type->IsA(FMapProperty::StaticClass()))
+	{
+		AddMapPropFunc(Prop, Arr);
+	}
+	else if (Prop.Type->IsA(FStructProperty::StaticClass()))
+	{
+		AddStructPropFunc(Prop, Arr);
+	}
+	else
+	{
+		AddSinglePropFunc(Prop, Arr);
+	}
+}
+
+void USimProfileBase::AddArrayPropFunc(DebugDataPropertyHandle Property, TArray<DebugDataElemBase*>& Arr)
+{
+	auto Ptr = new DebugDataElemNested();
+	Ptr->key = Property.GetName();
+
+	auto CastedType = CastField<FArrayProperty>(Property.Type);
+	FScriptArrayHelper ArrayHelper(CastedType, Property.Context);
+	
+	auto ArrayTypeProp = CastedType->Inner;
+	for (SIZE_T i = 0; i < ArrayHelper.Num(); ++i)
+	{
+		auto ElemValue = ArrayHelper.GetElementPtr(i);
+		AddPropFunc({*FString::FromInt(i), ArrayTypeProp, ElemValue}, Ptr->values);
+	}
+
+	Arr.Add(Ptr);
+}
+
+void USimProfileBase::AddSetPropFunc(DebugDataPropertyHandle Property, TArray<DebugDataElemBase*>& Arr)
+{
+	auto Ptr = new DebugDataElemNested();
+	Ptr->key = Property.GetName();
+
+	auto CastedType = CastField<FSetProperty>(Property.Type);
+	FScriptSetHelper ArrayHelper(CastedType, Property.Context);
+
+	auto SetTypeProp = CastedType->ElementProp;
+	for (SIZE_T i = 0; i < ArrayHelper.Num(); ++i)
+	{
+		auto ElemValue = ArrayHelper.GetElementPtr(i);
+		AddPropFunc({*FString::FromInt(i), SetTypeProp, ElemValue}, Ptr->values);
+	}
+
+	Arr.Add(Ptr);
+}
+
+void USimProfileBase::AddMapPropFunc(DebugDataPropertyHandle Property, TArray<DebugDataElemBase*>& Arr)
+{
+	auto Ptr = new DebugDataElemNested();
+	Ptr->key = Property.GetName();
+
+	auto CastedType = CastField<FMapProperty>(Property.Type);
+	FScriptMapHelper helper(CastedType, Property.Context);
+	
+	for (SIZE_T i = 0; i < helper.Num(); ++i)
+	{
+		auto elemPtr = new DebugDataElemNested();
+		
+		void* KeyPtr = helper.GetKeyPtr(i);
+		AddPropFunc({"Key", helper.KeyProp, KeyPtr}, elemPtr->values);
+		void* ValuePtr = helper.GetValuePtr(i);
+		AddPropFunc({"Key", helper.ValueProp, ValuePtr}, elemPtr->values);
+
+		Arr.Add(elemPtr);
+	}
+
+	Arr.Add(Ptr);
+}
+
+void USimProfileBase::AddSinglePropFunc(DebugDataPropertyHandle Property, TArray<DebugDataElemBase*>& Arr)
+{
+	if (Property.Type->IsA(FObjectProperty::StaticClass()))
+	{
+		auto Casted = CastField<FObjectProperty>(Property.Type);
+		auto Ptr = new DebugDataElemKeyObject();
+		Ptr->key = Property.GetName();
+		Ptr->object = Casted->GetObjectPropertyValue(Casted->ContainerPtrToValuePtr<void>(Property.Context));
+		if (IsValid(Ptr->object))
+		{
+			Ptr->object->GetFName();
+		}
+		Arr.Add(Ptr);
+	} 
+	else if (Property.Type->IsA(FSoftObjectProperty::StaticClass()))
+	{
+		auto Casted = CastField<FSoftObjectProperty>(Property.Type);
+		auto Ptr = new DebugDataElemKeyObject();
+		Ptr->key = Property.GetName();
+		Ptr->object = Casted->GetObjectPropertyValue(Casted->ContainerPtrToValuePtr<void>(Property.Context));
+		if (IsValid(Ptr->object))
+		{
+			Ptr->object->GetFName();
+		}
+		Arr.Add(Ptr);
+	} else
+	{
+		auto Ptr = new DebugDataElemKeyValue();
+		Ptr->key = Property.GetName();
+		Ptr->value = "Invalid";
+		if (Property.Type->IsA(FStrProperty::StaticClass()))
+		{
+			auto Casted = CastField<FStrProperty>(Property.Type);
+			Ptr->value = *Casted->ContainerPtrToValuePtr<FString>(Property.Context);
+		}
+		else if (Property.Type->IsA(FNameProperty::StaticClass()))
+		{
+			auto Casted = CastField<FNameProperty>(Property.Type);
+			Ptr->value = Casted->ContainerPtrToValuePtr<FName>(Property.Context)->ToString();
+		}
+		else if (Property.Type->IsA(FBoolProperty::StaticClass()))
+		{
+			auto Casted = CastField<FBoolProperty>(Property.Type);
+			Ptr->value = UKismetStringLibrary::Conv_BoolToString(*Casted->ContainerPtrToValuePtr<bool>(Property.Context));
+		}
+		else if (Property.Type->IsA(FNumericProperty::StaticClass()))
+		{
+			if (auto EnumCasted = CastField<FByteProperty>(Property.Type))
+			{
+				auto Enum = EnumCasted->GetIntPropertyEnum();
+				Ptr->value = Enum->GetNameByValue(*EnumCasted->ContainerPtrToValuePtr<int64>(Property.Context)).ToString();
+			} else
+			{
+				auto Casted = CastField<FNumericProperty>(Property.Type);
+				Ptr->value = Casted->GetNumericPropertyValueToString(Casted->ContainerPtrToValuePtr<void>(Property.Context));
+			}
+		}
+		else
+		{
+			checkf(false, TEXT("Unsupported property type [%s] for property [%s] in [%s]"), *Property.Type->GetClass()->GetName(), *Property.GetName().ToString(), *GetName());
+		}
+		Arr.Add(Ptr);
+	}
+}
+
+void USimProfileBase::AddStructPropFunc(DebugDataPropertyHandle Property, TArray<DebugDataElemBase*>& Arr)
+{
+	auto Ptr = new DebugDataElemNested();
+	Ptr->key = Property.GetName();
+
+	auto Casted = CastField<FStructProperty>(Property.Type);
+	for (auto PropIt : TFieldRange<FProperty>(Casted->Struct))
+	{
+		AddPropFunc({NAME_None, PropIt, Casted->ContainerPtrToValuePtr<void>(Property.Context)}, Ptr->values);
+	}
+		
+	Arr.Add(Ptr);
+};
 
 void USimProfileBase::Tick_Implementation(float DeltaTime)
 {

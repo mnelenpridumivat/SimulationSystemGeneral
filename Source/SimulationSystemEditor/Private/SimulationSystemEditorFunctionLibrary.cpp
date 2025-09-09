@@ -320,7 +320,8 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 			ReturnGraph.Edges.Add({Edge.Get()->GetVertexOne().Pin()->GetVertexID(), Edge.Get()->GetVertexTwo().Pin()->GetVertexID()});
 		}
 		FEditorScriptExecutionGuard ScriptGuard;
-		TArray<TPair<USimProfileBase*, FSimVertexID>> CreatedProfiles = {}; // Maybe it's not a fix, but if is, idk wtf
+		TArray<TTuple<USimProfileBase*, FSimVertexID, AActor*>> CreatedProfiles = {};
+		//TArray<TPair<USimProfileBase*, FSimVertexID>> CreatedProfiles = {}; // Maybe it's not a fix, but if is, idk wtf
 		for(auto& Actor : ActorsInsideChunk)
 		{
 			if(GetLayerName(Actor)!=Layers[i])
@@ -339,14 +340,19 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 					CreatedProfiles.Add(
 						{
 							Component->InitProfile(),
-							GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID()
+							GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID(),
+							Actor
 						});
 				}
 			}
 		}
+		for(auto& elem : CreatedProfiles)
+		{
+			ISimActorInterface::Execute_PostProfileInit(elem.Get<2>(), elem.Get<1>(), elem.Get<0>());
+		}
 		for (auto& elem : CreatedProfiles)
 		{
-			SaveProfile(elem.Key, ReturnProfiles, elem.Value);
+			SaveProfile(elem.Get<0>(), ReturnProfiles, elem.Get<1>());
 		}
 		SlowTaskL2.EnterProgressFrame(10.0f/Layers.Num());
 	}

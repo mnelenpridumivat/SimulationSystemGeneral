@@ -5,6 +5,7 @@
 #define NoSimEnsureMessage
 
 #include "CoreMinimal.h"
+#include "DebugData.h"
 #include "SimProfileID.h"
 #include "Containers/Union.h"
 #include "Interfaces/SimProfileContainer.h"
@@ -44,6 +45,12 @@ public:
 	 */
 	UFUNCTION(BlueprintNativeEvent)
 	void OnRegistered();
+
+	/*
+	 * Called after all profiles from save added to graph
+	 */
+	UFUNCTION(BlueprintNativeEvent)
+	void OnPostRegistered();
 
 	/*
 	 * Called when profile loaded from save
@@ -126,6 +133,29 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual bool IsSupportedForNetworking() const override {return true;}
 
+	UFUNCTION(BlueprintPure)
+	float GetTickOfflineCoeff(){return TickOfflineCoeff;}
+
+	UFUNCTION(BlueprintPure)
+	float GetTickBufferedCoeff(){return TickBufferedCoeff;}
+
+	UFUNCTION(BlueprintPure)
+	float GetTickOnlineCoeff(){return TickOnlineCoeff;}
+
+	void GetDebugData(FDebugDataMain& Data);
+
+private:
+	void AddPropFunc(DebugDataPropertyHandle Prop, TArray<DebugDataElemBase*>& Arr);
+	void AddArrayPropFunc(DebugDataPropertyHandle Property, TArray<DebugDataElemBase*>& Arr);
+	void AddSetPropFunc(DebugDataPropertyHandle Property, TArray<DebugDataElemBase*>& Arr);
+	void AddMapPropFunc(DebugDataPropertyHandle Property, TArray<DebugDataElemBase*>& Arr);
+	void AddSinglePropFunc(DebugDataPropertyHandle Property, TArray<DebugDataElemBase*>& Arr);
+	void AddStructPropFunc(DebugDataPropertyHandle Property, TArray<DebugDataElemBase*>& Arr);
+	
+public:
+
+	float TimeSinceLastTick = 0.0f;
+
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -144,4 +174,15 @@ protected:
 	AActor* OnlineActor = nullptr;
 
 	TSharedPtr<FStreamableHandle> StreamableHandle = nullptr;
+
+	// coeffs of delta between ticks for each sim state (less number - more often updates)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TickOfflineCoeff = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TickBufferedCoeff = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TickOnlineCoeff = 1.0f;
+	
 };

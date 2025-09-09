@@ -6,6 +6,7 @@
 #include "imgui.h"
 //#include <imgui_internal.h>
 
+#include "DebugData.h"
 #include "DrawDebugHelpers.h"
 #include "GlobalGraph.h"
 #include "GraphAsset.h"
@@ -250,19 +251,110 @@ void AGraphDebugActor::ImGuiProfilesList(const TArray<USimProfileBase*>& Profile
 		{
 			continue;
 		}
-		FString TotalProfiles = Profile->GetName();
-		ImGui::Text(TCHAR_TO_ANSI(*TotalProfiles));
-		ProfileToResearch = nullptr;
-        if (ImGui::IsItemHovered())
-        {
-        	ImGui::BeginTooltip();
-        	if(ImGui::Button("More...")){
-        		ProfileToResearch = Profile;
-        	}
-        	ImGui::EndTooltip();
-        }
+		FString ProfileName = Profile->GetName();
+		if (ImGui::Button(TCHAR_TO_ANSI(*ProfileName)) || Profile == NewSelectedProfile)
+		{
+			ImGuiUpdateProfileToResearch(Profile);
+			NewSelectedProfile = nullptr;
+		}
+	}
+	if (IsValid(SelectedProfileClass))
+	{
+		ImGuiDoResearch();
 	}
 	ImGui::EndChild();
+	//if (IsValid(ProfileToResearch))
+	//{
+	//	ImGuiDoResearch();
+	//}
+}
+
+void AGraphDebugActor::ImGuiUpdateProfileToResearch(USimProfileBase* Profile)
+{
+	auto OldData = Data;
+	ProfileToResearch = Profile;
+	ProfileToResearch->GetDebugData(Data);
+	ImGui::OpenPopup("Research");
+}
+
+void AGraphDebugActor::ImGuiDoResearch()
+{
+	if (ImGui::BeginPopup("Research"))
+	{
+		ImGui::BeginTable("Research Table", 2);
+		for (auto elem : Data.Elems)
+		{
+			ImGuiDoResearchRec(elem);
+		}
+		ImGui::EndTable();
+		ImGui::EndPopup();
+	}
+}
+
+void AGraphDebugActor::ImGuiDoResearchRec(DebugDataElemBase* Elem, int Tabs)
+{
+	ImGui::TableNextRow();
+	switch (Elem->GetType())
+	{
+	case EDebugDataType::KeyValue:
+		{
+			auto Casted = static_cast<DebugDataElemKeyValue*>(Elem);
+			ImGui::TableSetColumnIndex(0);
+			ImGui::TreeNodeEx(StringCast<ANSICHAR>(*Casted->key.ToString()).Get(), ImGuiTreeNodeFlags_Leaf);
+			ImGui::TreePop();
+			//ImGuiDoResearchDrawKey(Casted->key.ToString(), Tabs);
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text(StringCast<ANSICHAR>(*Casted->value).Get());
+			
+			break;
+		}
+	case EDebugDataType::Nested:
+		{
+			auto Casted = static_cast<DebugDataElemNested*>(Elem);
+			ImGui::TableSetColumnIndex(0);
+			if (ImGui::TreeNodeEx(StringCast<ANSICHAR>(*Casted->key.ToString()).Get()))
+			{
+				//ImGuiDoResearchDrawKey(Casted->key.ToString(), Tabs);
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%d", Casted->values.Num());
+				for (auto Child : Casted->values)
+				{
+					ImGuiDoResearchRec(Child, Tabs + 1);
+				}
+				ImGui::TreePop();
+			}
+			break;
+		}
+	case EDebugDataType::KeyObject:
+		{
+			auto Casted = static_cast<DebugDataElemKeyObject*>(Elem);
+			ImGui::TableSetColumnIndex(0);
+			ImGui::TreeNodeEx(StringCast<ANSICHAR>(*Casted->key.ToString()).Get(), ImGuiTreeNodeFlags_Leaf);
+			ImGui::TreePop();
+			//ImGuiDoResearchDrawKey(Casted->key.ToString(), Tabs);
+			ImGui::TableSetColumnIndex(1);
+			const ANSICHAR* AnsiName = nullptr;
+			if (Casted->object)
+			{
+				AnsiName = StringCast<ANSICHAR>(*Casted->object->GetName()).Get();
+			} else
+			{
+				AnsiName = "none";
+			}
+			if (auto Profile = Cast<USimProfileBase>(Casted->object); IsValid(Profile))
+			{
+				if (ImGui::Button(AnsiName))
+				{
+					NewSelectedProfile = Profile;
+				}
+			} else
+			{
+				ImGui::Text(AnsiName);
+			}
+			break;
+		}
+	default: ensure(false);
+	}
 }
 
 // Called every frame

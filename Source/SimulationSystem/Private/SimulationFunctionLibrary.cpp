@@ -18,6 +18,12 @@
 #include "NavHeuristics/NavHeuristic_Base.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
+const TCHAR* USimulationFunctionLibrary::GetWorldTcharNameChecked(UObject* Context)
+{
+	return *(Context ? (Context->GetWorld() ? Context->GetWorld()->GetName() : FString("null")) : FString(
+				   "null (context)"));
+}
+
 AGlobalGraph* USimulationFunctionLibrary::GetGlobalGraph(UObject* Context)
 {
 	static AGlobalGraph* GraphPtr = nullptr; // TODO: remove this fix and fix normally!
@@ -32,21 +38,24 @@ AGlobalGraph* USimulationFunctionLibrary::GetGlobalGraph(UObject* Context)
 	return GraphPtr;
 }
 
-UProfileIDController* USimulationFunctionLibrary::GetProfileIDController(UObject* Context)
+USimProfileBase* USimulationFunctionLibrary::GetProfile(UObject* Context, const FSimProfileID& ProfileID)
 {
-#if WITH_EDITOR
-	const auto Graph = GetGlobalGraph(Context);
-	if(!IsValid(Graph))
+	auto ProfileIDControllerPtr = GetProfileIDController(Context);
+	if (!ensure(IsValid(ProfileIDControllerPtr)))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Unable to access global graph actor in world [%s]"),
-		       *(Context ? (Context->GetWorld() ? Context->GetWorld()->GetName() : FString("null")) : FString(
-			       "null (context)")));
 		return nullptr;
 	}
-	return Graph->GetProfileIDsController();
-#else
-	return GetGlobalGraph(Context)->GetProfileIDsController();
-#endif
+	return ProfileIDControllerPtr->GetProfile(ProfileID);
+}
+
+UProfileIDController* USimulationFunctionLibrary::GetProfileIDController(UObject* Context)
+{
+	const auto GlobalGraph = GetGlobalGraph(Context);
+	if (!ensureMsgf(IsValid(GlobalGraph), TEXT("Unable to access global graph actor in world [%s]"), GetWorldTcharNameChecked(Context)))
+	{
+		return nullptr;
+	}
+	return GlobalGraph->GetProfileIDsController();
 }
 
 void USimulationFunctionLibrary::AsProfile(const FSimProfileHolder& Holder, USimProfileBase*& Profile, bool& Success)

@@ -131,11 +131,11 @@ void UAISimProfileSquad::Load_Implementation(FSerializedProfile& Data)
 
 void UAISimProfileSquad::RefreshSquadCharacteristics()
 {
-	for(auto& Value : Characteristics)
+	for(auto& Value : CharacteristicsList)
 	{
 		Value.Value = 0;
 	}
-	for(auto& Value : Points)
+	for(auto& Value : PointsList)
 	{
 		Value.Value = 0;
 	}
@@ -146,21 +146,21 @@ void UAISimProfileSquad::RefreshSquadCharacteristics()
 	for(auto& Member : Members)
 	{
 		auto& MemberChars = Member->GetCharacteristics();
-		for(auto& Value : Characteristics)
+		for(auto& Value : CharacteristicsList)
 		{
 			Value.Value += MemberChars[Value.Key];
 		}
 		auto& MemberPoints = Member->GetPoints();
-		for(auto& Value : Points)
+		for(auto& Value : PointsList)
 		{
 			Value.Value += MemberPoints[Value.Key];
 		}
 	}
-	for(auto& Value : Characteristics)
+	for(auto& Value : CharacteristicsList)
 	{
 		Value.Value = static_cast<int>(FMath::Floor(static_cast<float>(Value.Value) / Members.Num()));
 	}
-	for(auto& Value : Points)
+	for(auto& Value : PointsList)
 	{
 		Value.Value = FMath::Floor(Value.Value / Members.Num());
 	}

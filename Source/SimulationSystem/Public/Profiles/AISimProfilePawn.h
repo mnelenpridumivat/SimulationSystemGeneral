@@ -36,10 +36,4 @@ protected:
 	UPROPERTY(Transient)
 	TArray<USimProfileItem*> Inventory;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, EditFixedSize, Category="Characteristics")
-	TMap<FName, int> CharacteristicsList;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, EditFixedSize, Category="Characteristics")
-	TMap<FName, float> PointsList;
-	
 };

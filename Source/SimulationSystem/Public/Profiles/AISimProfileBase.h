@@ -16,18 +16,18 @@ public:
 	virtual void OnRegistered_Implementation() override;
 	virtual void OnCreated_Implementation() override;
 
-	FORCEINLINE const TMap<FName, int>& GetCharacteristics(){return Characteristics;};
-	FORCEINLINE const TMap<FName, float>& GetPoints(){return Points;};
+	FORCEINLINE const TMap<FName, int>& GetCharacteristics(){return CharacteristicsList;};
+	FORCEINLINE const TMap<FName, float>& GetPoints(){return PointsList;};
 
 private:
 	GENERATED_BODY()
 
 protected:
 	
-	UPROPERTY()
-	TMap<FName, int> Characteristics;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, EditFixedSize, Category="Characteristics")
+	TMap<FName, int> CharacteristicsList;
 	
-	UPROPERTY()
-	TMap<FName, float> Points;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, EditFixedSize, Category="Characteristics")
+	TMap<FName, float> PointsList;
     
 };

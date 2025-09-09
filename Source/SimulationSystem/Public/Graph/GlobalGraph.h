@@ -119,9 +119,6 @@ protected:
 	UPROPERTY(Transient)
 	TMap<USimProfileBase*, FSimProfileHolder> ProfileHolders;
 
-	UPROPERTY(Transient)
-	TMap<USimProfileBase*, float> LastUpdatedDeltaTime;
-
 	TArray<TSharedPtr<Simulation::Vertex>> Links;
 
 	UPROPERTY(Transient)

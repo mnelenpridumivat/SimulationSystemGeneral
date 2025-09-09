@@ -41,10 +41,13 @@ public:
 	float BufferedRadius = 7000;
 	
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="SimulationLevel")
-	float TickOffline = 0.5f;
+	float TickOffline = 1.0f;
 	
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="SimulationLevel")
-	float TickBuffered = 0.1f;
+	float TickBuffered = 0.5f;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="SimulationLevel")
+	float TickOnline = 0.1f;
 	
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="Characteristics", meta=(ClampMin="0"))
 	int CharacteristicLevelMin = 0;

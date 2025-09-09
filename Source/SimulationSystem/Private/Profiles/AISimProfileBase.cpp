@@ -13,14 +13,14 @@ void UAISimProfileBase::OnRegistered_Implementation()
 void UAISimProfileBase::OnCreated_Implementation()
 {
 	Super::OnCreated_Implementation();
-	auto& CharacteristicsList = USimulationSystemSettings::StaticClass()->GetDefaultObject<USimulationSystemSettings>()->CharacteristicsList;
-	auto& PointsList = USimulationSystemSettings::StaticClass()->GetDefaultObject<USimulationSystemSettings>()->PointsList;
-	for(auto& Characteristic : CharacteristicsList)
+	auto& CharacteristicsListRef = USimulationSystemSettings::StaticClass()->GetDefaultObject<USimulationSystemSettings>()->CharacteristicsList;
+	auto& PointsListRef = USimulationSystemSettings::StaticClass()->GetDefaultObject<USimulationSystemSettings>()->PointsList;
+	for(auto& Characteristic : CharacteristicsListRef)
 	{
-		Characteristics.Add(Characteristic);
+		CharacteristicsList.Add(Characteristic);
 	}
-	for(auto& Point : PointsList)
+	for(auto& Point : PointsListRef)
 	{
-		Points.Add(Point);
+		PointsList.Add(Point);
 	}
 }

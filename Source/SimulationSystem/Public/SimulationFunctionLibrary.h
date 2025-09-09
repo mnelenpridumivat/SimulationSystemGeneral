@@ -8,6 +8,8 @@
 #include "Profiles/SimProfileHolder.h"
 #include "SimulationFunctionLibrary.generated.h"
 
+class UProfileIDController;
+struct FSimProfileID;
 struct FBytesSerialization;
 class USimulationSystemSubsystem;
 class USimulationSystemFunctionsImplementation;
@@ -24,10 +26,21 @@ class SIMULATIONSYSTEM_API USimulationFunctionLibrary : public UBlueprintFunctio
 {
 	GENERATED_BODY()
 
+	static const TCHAR* GetWorldTcharNameChecked(UObject* Context);
+
 public:
 
 	UFUNCTION(BlueprintPure, meta=(WorldContext="Context"))
 	static AGlobalGraph* GetGlobalGraph(UObject* Context);
+
+	UFUNCTION(BlueprintPure, meta=(WorldContext="Context"))
+	static USimProfileBase* GetProfile(UObject* Context, const FSimProfileID& ProfileID);
+
+	template<typename T>
+	static T* GetProfileCasted(UObject* Context, const FSimProfileID& ProfileID)
+	{
+		return Cast<T>(GetProfile(Context, ProfileID));
+	}
 
 	UFUNCTION(BlueprintPure, meta=(WorldContext="Context"))
 	static UProfileIDController* GetProfileIDController(UObject* Context);

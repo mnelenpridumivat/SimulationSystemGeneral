@@ -24,6 +24,16 @@ bool FSimProfileID::IsValid() const
 		&& ProfileID!=static_cast<uint32>(-1);
 }
 
+FString FSimProfileID::ToString() const
+{
+	FString Result = "{ Class: ";
+	Result.Append(Class ? Class->GetName() : "");
+	Result.Append(", ID: ");
+	Result.AppendInt(ProfileID);
+	Result.Append(" }");
+	return Result;
+}
+
 bool operator==(const FSimProfileID& A, const FSimProfileID& B)
 {
 	return A.Class == B.Class && A.ProfileID == B.ProfileID;

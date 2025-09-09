@@ -40,5 +40,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void SetProfileID(const FSimProfileID& ID);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void PostProfileInit(const FSimVertexID& Vertex, USimProfileBase* Profile);
 	
 };
