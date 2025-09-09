@@ -56,7 +56,7 @@ public:
 	// Called on online actor spawn
 	void SetProfileID(const FSimProfileID& NewProfileID);
 	
-	// Called on initial spawn
+	// Called on editor compile
 	USimProfileBase* InitProfile();
 
 	// Server-only getter of profile of online actor

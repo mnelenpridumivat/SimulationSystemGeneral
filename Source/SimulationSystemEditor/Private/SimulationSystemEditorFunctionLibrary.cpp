@@ -25,6 +25,7 @@
 #include "Misc/ScopedSlowTask.h"
 #include "SimProfileContainer.h"
 #include "EditorSimActor.h"
+#include "SimPlayerStart.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
 void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* World,
@@ -471,6 +472,20 @@ void USimulationSystemEditorFunctionLibrary::FullRebuild()
 		SlowTaskL1.EnterProgressFrame(80.0f/Actors.Num());
 	}
 	GlobalGraph->GetProfileIDsController()->ClearAllProfiles();
+
+	/*TArray<AActor*> PlayerStarts;
+	UGameplayStatics::GetAllActorsWithInterface(World, ASimPlayerStart::StaticClass(), PlayerStarts);
+	for (auto Actor : PlayerStarts)
+	{
+		if (!ensure(IsValid(Actor) && Actor->IsA(ASimPlayerStart::StaticClass())))
+		{
+			continue;
+		}
+		auto CastedActor = Cast<ASimPlayerStart>(Actor);
+		ISimActorInterface::Execute_DirectSetGraphVertex(
+			Actor, GetClosestVertex(Actor->GetActorLocation(), CastedActor->InAsset, 0).Pin()->GetVertexID());
+	}*/
+	
 	DebugDrawGraphEditor();
 }
 

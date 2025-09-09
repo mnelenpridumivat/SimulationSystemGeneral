@@ -15,7 +15,7 @@ FSimProfileID UProfileIDController::RegisterProfile(USimProfileBase* SimProfileB
 	if(ID!=InvalidID)
 	{
 		auto ClassMap = ProfilesByID.Find(SimProfileBase->GetProfileID().Class);
-		ensureMsgf(!ClassMap || !ClassMap->Profiles.Contains(ID.ProfileID), TEXT("Duplicated ProfileID found!"));
+		ensureMsgf(!ClassMap || !ClassMap->Profiles.Contains(ID.ProfileID), TEXT("Duplicated ProfileID found [%s]!"), *ID.ToString());
 		if(!ClassMap)
 		{
 			ClassMap = &ProfilesByID.Add(ID.Class, FSimProfilesByID());

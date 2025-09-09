@@ -4,6 +4,11 @@
 #include "ISimSystemUtilityModule.h"
 #include "Modules/ModuleManager.h"
 
+/*
+ * If you need to display extension hooks, go to 'Edit->Editor Preferences->General->Miscellaneous->Developer Tools'
+ * and toggle 'Display UI Extension Points'
+ */
+
 class FSimulationSystemUtilityModule : public ISimSystemUtilityModule
 {
 public:

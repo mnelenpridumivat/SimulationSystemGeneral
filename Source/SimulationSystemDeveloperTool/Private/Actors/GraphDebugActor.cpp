@@ -281,6 +281,7 @@ void AGraphDebugActor::ImGuiDoResearch()
 {
 	if (ImGui::BeginPopup("Research"))
 	{
+		ImGui::Text(StringCast<ANSICHAR>(*ProfileToResearch->GetFName().ToString()).Get());
 		ImGui::BeginTable("Research Table", 2);
 		for (auto elem : Data.Elems)
 		{
@@ -312,11 +313,11 @@ void AGraphDebugActor::ImGuiDoResearchRec(DebugDataElemBase* Elem, int Tabs)
 		{
 			auto Casted = static_cast<DebugDataElemNested*>(Elem);
 			ImGui::TableSetColumnIndex(0);
-			if (ImGui::TreeNodeEx(StringCast<ANSICHAR>(*Casted->key.ToString()).Get()))
+			bool TreeOpened = ImGui::TreeNodeEx(StringCast<ANSICHAR>(*Casted->key.ToString()).Get());
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%d", Casted->values.Num());
+			if (TreeOpened)
 			{
-				//ImGuiDoResearchDrawKey(Casted->key.ToString(), Tabs);
-				ImGui::TableSetColumnIndex(1);
-				ImGui::Text("%d", Casted->values.Num());
 				for (auto Child : Casted->values)
 				{
 					ImGuiDoResearchRec(Child, Tabs + 1);

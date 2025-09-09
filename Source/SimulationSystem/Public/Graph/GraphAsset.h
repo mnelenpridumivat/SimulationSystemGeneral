@@ -47,8 +47,12 @@ public:
 	void SetInitialProfiles(const FProfilesSerialized& ProfilesSerialized){InitialProfiles = ProfilesSerialized;}
 	FProfilesSerialized& GetMutableInitialProfiles(){return InitialProfiles;}
 #endif
+
+	UFUNCTION(BlueprintPure)
+	int GetLayersNum(){return ChunkGraphs.Num();}
 	
 	FVector GetVertexLocationByID(const FSimVertexID& ID);
+	FSimVertexID FindClosestVertex(const FVector& Location, int LayerIndex);
 	void DrawGraph(FColor Color, float LifeTime, float Thickness);
 
 protected:

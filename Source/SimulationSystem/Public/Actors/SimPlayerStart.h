@@ -9,6 +9,8 @@
 #include "Interfaces/EditorSimActor.h"
 #include "SimPlayerStart.generated.h"
 
+class AGraphAsset;
+
 UCLASS()
 class SIMULATIONSYSTEM_API ASimPlayerStart : public APlayerStart, public ISimActorInterface
 {
@@ -25,6 +27,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE FSimVertexID GetSimVertexID(){return SpawnVertexID;}
+
+	UPROPERTY(EditInstanceOnly)
+	AGraphAsset* InAsset = nullptr;
 
 protected:
 	// Called when the game starts or when spawned

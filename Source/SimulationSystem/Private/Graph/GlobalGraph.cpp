@@ -107,8 +107,10 @@ void AGlobalGraph::OnConstruction(const FTransform& Transform)
 
 TWeakPtr<Simulation::Vertex> AGlobalGraph::GetVertexByID(const FSimVertexID& ID)
 {
-	ensureMsgf(ID.IsValid(),
-		TEXT("Accessed invalid SimVertexID"));
+	if (!ensureMsgf(ID.IsValid(), TEXT("Accessed invalid SimVertexID")))
+	{
+		return nullptr;
+	}
 	if(!ID.ChunkID)
 	{
 		return Links[ID.VertexID];

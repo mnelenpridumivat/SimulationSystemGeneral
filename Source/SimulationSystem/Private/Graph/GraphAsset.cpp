@@ -45,6 +45,38 @@ FVector AGraphAsset::GetVertexLocationByID(const FSimVertexID& ID)
 	return Graph.Vertices[ID];
 }
 
+FSimVertexID AGraphAsset::FindClosestVertex(const FVector& Location, int LayerIndex)
+{
+	if (!ensureMsgf(
+		ChunkGraphs.IsValidIndex(LayerIndex),
+		TEXT("Attempt to search closest vertex in chunk [%s] in invalid layer [%d]"),
+		*GetFName().ToString(), LayerIndex))
+	{
+		return FSimVertexID::Invalid;
+	}
+	TWeakPtr<Simulation::Vertex> ClosestVertex = ChunkGraphs[LayerIndex].Key[0];
+	long double ClosestDistanceSq = FVector::DistSquared(Location, ClosestVertex.Pin()->GetLocation());
+	bool FoundCloser;
+	do
+	{
+		FoundCloser = false;
+		auto NewCloser = ClosestVertex;
+		for(auto& Edge : ClosestVertex.Pin()->GetEdges())
+		{
+			auto Opposite = Edge.Pin()->GetOpposite(ClosestVertex);
+			float OppositeDistanceSq = FVector::DistSquared(Opposite.Pin()->GetLocation(), Location);
+			if(OppositeDistanceSq < ClosestDistanceSq)
+			{
+				FoundCloser = true;
+				ClosestDistanceSq = OppositeDistanceSq;
+				NewCloser = Opposite;
+			}
+		}
+		ClosestVertex = NewCloser;
+	} while (FoundCloser);
+	return ClosestVertex.Pin()->GetVertexID();
+}
+
 // Called when the game starts or when spawned
 void AGraphAsset::BeginPlay()
 {
