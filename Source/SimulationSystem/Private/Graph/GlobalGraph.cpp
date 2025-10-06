@@ -12,6 +12,7 @@
 #include "SimulationFunctionLibrary.h"
 #include "SimulationState.h"
 #include "SimulationSystemSettings.h"
+#include "SimulationSystemSubsystem.h"
 #include "SquadTask_MoveToCamp.h"
 #include "Engine/LevelStreaming.h"
 #include "Kismet/GameplayStatics.h"
@@ -304,13 +305,22 @@ TArray<USimProfileBase*> AGlobalGraph::GetProfilesByClass(TSubclassOf<USimProfil
 	return ProfileIDController->GetProfiles(Class);
 }
 
-AGraphAsset* AGlobalGraph::GetChunkByID(const FSimVertexID& ID)
+AGraphAsset* AGlobalGraph::GetChunkByID(const FSimVertexID& VertexID)
 {
-	if (!ensure(ID.IsValid()) || !ID.ChunkID || !ensure(LocalGraphs.IsValidIndex(ID.ChunkID - 1)))
+	if (!ensure(VertexID.IsValid()))
 	{
 		return nullptr;
 	}
-	return LocalGraphs[ID.ChunkID - 1];
+	return GetChunkByID(VertexID.ChunkID);
+}
+
+AGraphAsset* AGlobalGraph::GetChunkByID(int ChunkID)
+{
+	if (!ChunkID || !ensure(LocalGraphs.IsValidIndex(ChunkID - 1)))
+	{
+		return nullptr;
+	}
+	return LocalGraphs[ChunkID - 1];
 }
 
 int AGlobalGraph::GetProfilesInChunk(int ChunkIndex, TArray<USimProfileBase*>& Profiles)
@@ -402,13 +412,21 @@ USquadTaskBase* AGlobalGraph::CreateNewTask(UAISimProfileSquad* Squad)
 void AGlobalGraph::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	auto Subsystem = USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld());
+	if (ensure(Subsystem))
+	{
+		Subsystem->SetGlobalGraph(this);
+	}
 }
 
 void AGlobalGraph::BeginDestroy()
 {
 	Super::BeginDestroy();
-	UE_LOG(LogTemp, Log, TEXT("Destruction of global graph actor!"));
+	auto Subsystem = USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld());
+	if (ensure(Subsystem))
+	{
+		Subsystem->SetGlobalGraph(nullptr);
+	}
 }
 
 

@@ -5,6 +5,7 @@
 
 #include "EngineUtils.h"
 #include "GlobalGraph.h"
+#include "GraphAsset.h"
 #include "GraphSerialized.h"
 #include "SimulationSystemSettings.h"
 #include "NativePriorityQueue.h"
@@ -26,6 +27,19 @@ const TCHAR* USimulationFunctionLibrary::GetWorldTcharNameChecked(UObject* Conte
 
 AGlobalGraph* USimulationFunctionLibrary::GetGlobalGraph(UObject* Context)
 {
+	if (!ensureMsgf(
+		IsValid(Context),
+		TEXT("Attempt to call GetGlobalGraph with invalid Context!")))
+	{
+		return nullptr;
+	}
+	auto Subsystem = GetSimulationSystemSubsystem(Context);
+	if (!ensure(IsValid(Subsystem)))
+	{
+		return nullptr;
+	}
+	return Subsystem->GetGlobalGraph();
+	
 	static AGlobalGraph* GraphPtr = nullptr; // TODO: remove this fix and fix normally!
 	TArray<AActor*> Graphs;
 	UGameplayStatics::GetAllActorsOfClass(Context, AGlobalGraph::StaticClass(), Graphs);
@@ -46,6 +60,55 @@ USimProfileBase* USimulationFunctionLibrary::GetProfile(UObject* Context, const 
 		return nullptr;
 	}
 	return ProfileIDControllerPtr->GetProfile(ProfileID);
+}
+
+AGraphAsset* USimulationFunctionLibrary::GetGraphAsset(UObject* Context, const FSimVertexID& VertexInsideID)
+{
+	if (!ensureMsgf(
+		VertexInsideID.IsValid(),
+		TEXT("Call GetGraphAsset with invalid VertexID!")))
+	{
+		return nullptr;
+	}
+	return GetGraphAsset(Context, VertexInsideID.ChunkID);
+}
+
+AGraphAsset* USimulationFunctionLibrary::GetGraphAsset(UObject* Context, int ChunkIndex)
+{
+	if (!ensureMsgf(
+			IsValid(Context),
+			TEXT("Call GetGraphAsset without Context!"))
+			|| !ChunkIndex)
+	{
+		return nullptr;
+	}
+	auto RealIndex = ChunkIndex - 1;
+	auto GlobalGraph = GetGlobalGraph(Context);
+	return GlobalGraph->GetChunkByID(RealIndex);
+}
+
+ULocalGraphRegistry* USimulationFunctionLibrary::GetLocalGraphRegistry(UObject* Context,
+	const FSimVertexID& VertexInsideID)
+{
+	if (!ensureMsgf(
+		VertexInsideID.IsValid(),
+		TEXT("Call GetLocalGraphRegistry with invalid VertexID!")))
+	{
+		return nullptr;
+	}
+	return GetLocalGraphRegistry(Context, VertexInsideID.ChunkID);
+}
+
+ULocalGraphRegistry* USimulationFunctionLibrary::GetLocalGraphRegistry(UObject* Context, int ChunkIndex)
+{
+	if (!ensureMsgf(
+			IsValid(Context),
+			TEXT("Call GetLocalGraphRegistry without Context!"))
+			|| !ChunkIndex)
+	{
+		return nullptr;
+	}
+	return GetGraphAsset(Context, ChunkIndex)->GetRegistry();
 }
 
 UProfileIDController* USimulationFunctionLibrary::GetProfileIDController(UObject* Context)

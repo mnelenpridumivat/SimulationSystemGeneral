@@ -3,8 +3,10 @@
 
 #include "LocalGraphRegistry.h"
 
+#include "AISimProfileSquad.h"
 #include "GraphAsset.h"
 #include "SimProfileBase.h"
+#include "SimProfileCamp.h"
 
 void ULocalGraphRegistry::SetLocalGraph(AGraphAsset* GraphAsset)
 {
@@ -48,6 +50,17 @@ void ULocalGraphRegistry::NativeRegisterProfile(USimProfileBase* Profile)
 		ProfilesInside.Add(Profile);
 		RegisterProfile(Profile);
 		OnProfileEntered.Broadcast(Profile);
+
+		if (Profile->IsA(USimProfileCamp::StaticClass()) && ensure(!CampsInside.Contains((USimProfileCamp*)Profile)))
+		{
+			auto Casted = Cast<USimProfileCamp>(Profile);
+			CampsInside.Add(Casted);
+		} else if (Profile->IsA(UAISimProfileSquad::StaticClass()) && ensure(!SquadsInside.Contains((UAISimProfileSquad*)Profile)))
+		{
+			auto Casted = Cast<UAISimProfileSquad>(Profile);
+			SquadsInside.Add(Casted);
+			OnSquadEntered.Broadcast(Casted);
+		}
 	}
 }
 
@@ -75,6 +88,17 @@ void ULocalGraphRegistry::NativeUnregisterProfile(USimProfileBase* Profile)
 		ProfilesInside.Remove(Profile);
 		UnregisterProfile(Profile);
 		OnProfileExited.Broadcast(Profile);
+
+		if (Profile->IsA(USimProfileCamp::StaticClass()) && ensure(CampsInside.Contains((USimProfileCamp*)Profile)))
+		{
+			auto Casted = Cast<USimProfileCamp>(Profile);
+			CampsInside.Remove(Casted);
+		} else if (Profile->IsA(UAISimProfileSquad::StaticClass()) && ensure(SquadsInside.Contains((UAISimProfileSquad*)Profile)))
+		{
+			auto Casted = Cast<UAISimProfileSquad>(Profile);
+			SquadsInside.Remove(Casted);
+			OnSquadExited.Broadcast(Casted);
+		}
 	}
 }
 
@@ -84,5 +108,23 @@ void ULocalGraphRegistry::GetAllProfiles(TArray<USimProfileBase*>& Profiles)
 	for (auto Inside : ProfilesInside)
 	{
 		Profiles.Add(Inside);
+	}
+}
+
+void ULocalGraphRegistry::GetAllCamps(TArray<USimProfileCamp*>& Camps)
+{
+	Camps.Empty();
+	for (auto Inside : CampsInside)
+	{
+		Camps.Add(Inside);
+	}
+}
+
+void ULocalGraphRegistry::GetAllSquads(TArray<UAISimProfileSquad*>& Squads)
+{
+	Squads.Empty();
+	for (auto Inside : SquadsInside)
+	{
+		Squads.Add(Inside);
 	}
 }

@@ -23,7 +23,9 @@ void USimProfileCamp::AddItem_Implementation(USimProfileBase* Profile)
 {
 	if (ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Unable to put profile [%s] in profile [%s]"), *Profile->GetName(), *GetName()))
 	{
-		Squads.Add(Cast<UAISimProfileSquad>(Profile));
+		auto CastedSquad = Cast<UAISimProfileSquad>(Profile);
+		Squads.Add(CastedSquad);
+		OnSquadEntered.Broadcast(this, CastedSquad)
 	}
 }
 
@@ -51,7 +53,9 @@ void USimProfileCamp::RemoveItem_Implementation(USimProfileBase* Profile)
 {
 	if (ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Profile [%s] cannot contain profile [%s] because cannot contain such class"), *GetName(), *Profile->GetName()))
 	{
-		Squads.Remove(Cast<UAISimProfileSquad>(Profile));
+		auto CastedSquad = Cast<UAISimProfileSquad>(Profile);
+		Squads.Remove(CastedSquad);
+		OnSquadExited.Broadcast(this, CastedSquad);
 	}
 }
 

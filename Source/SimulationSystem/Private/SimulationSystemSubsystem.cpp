@@ -107,3 +107,30 @@ FName USimulationSystemSubsystem::GetRandomNPCOfClass(FName NPCClass)
 	auto it = ClassComposedData.Find(NPCClass);
 	return it ? it->Variations[FMath::RandRange(0, it->Variations.Num() - 1)] : NAME_None;
 }
+
+void USimulationSystemSubsystem::SetGlobalGraph(AGlobalGraph* GraphPtr)
+{
+	if (!IsValid(GraphPtr))
+	{
+		if (ensureMsgf(
+			IsValid(GlobalGraph),
+			TEXT("Attempt to clear value of GlobalGraph in SimulationSystemSubsystem while value already null!")))
+		{
+			GlobalGraph = nullptr;
+		}
+	} else
+	{
+		ensureMsgf(
+			!IsValid(GlobalGraph),
+			TEXT("Attempt to set GlobalGraph [%s] in SimulationSystemSubsystem while other GlobalGraph [%s] is already set!"),
+			*(GraphPtr->GetName()),
+			*(GlobalGraph->GetName()));
+		GlobalGraph = GraphPtr;
+	}
+}
+
+AGlobalGraph* USimulationSystemSubsystem::GetGlobalGraph() const
+{
+	ensureMsgf(IsValid(GlobalGraph), TEXT("Attempt to access to invalid GlobalGraph!"));
+	return GlobalGraph;
+}

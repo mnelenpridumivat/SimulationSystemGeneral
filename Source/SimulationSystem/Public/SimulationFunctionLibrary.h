@@ -8,6 +8,8 @@
 #include "Profiles/SimProfileHolder.h"
 #include "SimulationFunctionLibrary.generated.h"
 
+class ULocalGraphRegistry;
+class AGraphAsset;
 class UProfileIDController;
 struct FSimProfileID;
 struct FBytesSerialization;
@@ -35,6 +37,14 @@ public:
 
 	UFUNCTION(BlueprintPure, meta=(WorldContext="Context"))
 	static USimProfileBase* GetProfile(UObject* Context, const FSimProfileID& ProfileID);
+
+	UFUNCTION(BlueprintPure, meta=(WorldContext="Context"))
+	static AGraphAsset* GetGraphAsset(UObject* Context, const FSimVertexID& VertexInsideID);
+	static AGraphAsset* GetGraphAsset(UObject* Context, int ChunkIndex);
+
+	UFUNCTION(BlueprintPure, meta=(WorldContext="Context"))
+	static ULocalGraphRegistry* GetLocalGraphRegistry(UObject* Context, const FSimVertexID& VertexInsideID);
+	static ULocalGraphRegistry* GetLocalGraphRegistry(UObject* Context, int ChunkIndex);
 
 	template<typename T>
 	static T* GetProfileCasted(UObject* Context, const FSimProfileID& ProfileID)

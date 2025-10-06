@@ -14,6 +14,16 @@ UCLASS(EditInlineNew, DefaultToInstanced, CollapseCategories, Blueprintable)
 class SIMULATIONSYSTEM_API USimProfileCamp : public USimProfileBase, public ISimProfileContainer
 {
 public:
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSquadEntered, USimProfileCamp*, ToCamp, UAISimProfileSquad*, Squad);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSquadExited, USimProfileCamp*, FromCamp, UAISimProfileSquad*, Squad);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSquadEntered OnSquadEntered;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSquadExited OnSquadExited;
+	
 	virtual USimProfileBase* DeepCopyProfile() override;
 
 	virtual void AddItem_Implementation(USimProfileBase* Profile) override;

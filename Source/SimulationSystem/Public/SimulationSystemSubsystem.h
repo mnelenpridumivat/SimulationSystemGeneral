@@ -7,6 +7,7 @@
 #include "SimulationSystemSubsystemStructs.h"
 #include "SimulationSystemSubsystem.generated.h"
 
+class AGlobalGraph;
 class USimProfileBase;
 class UProfileGenerator;
 class USimulationSystemFunctionsImplementation;
@@ -29,6 +30,9 @@ class SIMULATIONSYSTEM_API USimulationSystemSubsystem : public UEngineSubsystem
 	UPROPERTY()
 	TMap<FName, FPawnsOfClass> ClassComposedData = {};
 
+	UPROPERTY()
+	AGlobalGraph* GlobalGraph = nullptr; // use to store GlobalGraph ref to avoid searching across all object if we need to access it
+
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
@@ -37,4 +41,7 @@ public:
 
 	void GetAllPawnClasses(TArray<FName>& OutPawnClasses);
 	FName GetRandomNPCOfClass(FName NPCClass);
+
+	void SetGlobalGraph(AGlobalGraph* GraphPtr);
+	AGlobalGraph* GetGlobalGraph() const;
 };

@@ -63,7 +63,10 @@ public:
 	TArray<USimProfileBase*> GetProfilesByClass(TSubclassOf<USimProfileBase> Class);
 
 	const TArray<AGraphAsset*>& GetChunks(){return LocalGraphs;}
-	AGraphAsset* GetChunkByID(const FSimVertexID& ID);
+
+	UPROPERTY(BlueprintPure)
+	AGraphAsset* GetChunkByID(const FSimVertexID& VertexID);
+	AGraphAsset* GetChunkByID(int ChunkID);
 	
 	int GetProfilesInChunk(int ChunkIndex, TArray<USimProfileBase*>& Profiles);
 	
