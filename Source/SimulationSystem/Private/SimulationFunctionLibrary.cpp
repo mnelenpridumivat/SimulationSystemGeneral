@@ -27,29 +27,35 @@ const TCHAR* USimulationFunctionLibrary::GetWorldTcharNameChecked(UObject* Conte
 
 AGlobalGraph* USimulationFunctionLibrary::GetGlobalGraph(UObject* Context)
 {
-	if (!ensureMsgf(
-		IsValid(Context),
-		TEXT("Attempt to call GetGlobalGraph with invalid Context!")))
+#if WITH_EDITOR
+	if (GIsEditor && Context->GetWorld()->WorldType != EWorldType::Editor)
+#endif
 	{
-		return nullptr;
+		if (!ensureMsgf(
+			IsValid(Context),
+			TEXT("Attempt to call GetGlobalGraph with invalid Context!")))
+		{
+			return nullptr;
+		}
+		auto Subsystem = GetSimulationSystemSubsystem(Context);
+		if (!ensure(IsValid(Subsystem)))
+		{
+			return nullptr;
+		}
+		return Subsystem->GetGlobalGraph();
 	}
-	auto Subsystem = GetSimulationSystemSubsystem(Context);
-	if (!ensure(IsValid(Subsystem)))
-	{
-		return nullptr;
-	}
-	return Subsystem->GetGlobalGraph();
-	
-	/*static AGlobalGraph* GraphPtr = nullptr; // TODO: remove this fix and fix normally!
+#if WITH_EDITOR
+	// in editor time SimulationSystemSubsystem has no GlobalGraph - search across all objects
 	TArray<AActor*> Graphs;
 	UGameplayStatics::GetAllActorsOfClass(Context, AGlobalGraph::StaticClass(), Graphs);
-	if(!Graphs.Num() && GraphPtr){
-		return GraphPtr;
+	if (!ensureMsgf(Graphs.Num(), TEXT("Unable to find any global graphs!")))
+	{
+		return nullptr;
 	}
-	ensureMsgf(Graphs.Num(), TEXT("Unable to find any global graphs!"));
 	ensureMsgf(!(Graphs.Num()-1), TEXT("There is more that one global graphs!"));
-	GraphPtr = Cast<AGlobalGraph>(Graphs[0]);
-	return GraphPtr;*/
+	return Cast<AGlobalGraph>(Graphs[0]);
+	
+#endif
 }
 
 USimProfileBase* USimulationFunctionLibrary::GetProfile(UObject* Context, const FSimProfileID& ProfileID)

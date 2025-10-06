@@ -112,12 +112,12 @@ void USimulationSystemSubsystem::SetGlobalGraph(AGlobalGraph* GraphPtr)
 {
 	if (!IsValid(GraphPtr))
 	{
-		if (ensureMsgf(
-			IsValid(GlobalGraph),
-			TEXT("Attempt to clear value of GlobalGraph in SimulationSystemSubsystem while value already null!")))
-		{
+		//if (ensureMsgf(
+		//	IsValid(GlobalGraph),
+		//	TEXT("Attempt to clear value of GlobalGraph in SimulationSystemSubsystem while value already null!")))
+		//{
 			GlobalGraph = nullptr;
-		}
+		//}
 	} else
 	{
 		ensureMsgf(

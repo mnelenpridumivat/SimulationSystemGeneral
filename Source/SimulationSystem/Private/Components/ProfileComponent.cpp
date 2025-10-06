@@ -79,6 +79,14 @@ void UProfileComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 USimProfileBase* UProfileComponent::CreateNewProfile_Implementation()
 {
+	if (!ensureMsgf(
+		IsValid(ProfileBase),
+		TEXT("ProfileComponent [%s] inside [%s] has no ProfileBase set!"),
+		*GetName(),
+		*GetOwner()->GetName()))
+	{
+		return nullptr;
+	}
 	return NewObject<USimProfileBase>(GetWorld(), ProfileBase->GetClass(), NAME_None, RF_NoFlags, ProfileBase);
 }
 

@@ -19,7 +19,7 @@ struct FCommunityRelations
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class SIMULATIONSYSTEM_API UCommunityRelationTable : public UObject
 {
 	GENERATED_BODY()
@@ -34,7 +34,6 @@ protected:
 
 public:
 
-	UFUNCTION(CallInEditor)
 	void Validate();
 
 	/*

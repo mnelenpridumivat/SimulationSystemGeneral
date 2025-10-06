@@ -75,8 +75,12 @@ FSerializedProfileView FProfilesSerialized::AddLast()
 void AGlobalGraph::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	// ...
+	
+	auto Subsystem = USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld());
+	if (ensure(Subsystem))
+	{
+		Subsystem->SetGlobalGraph(this);
+	}
 	
 	LoadGraph();
 	LoadIndex = 0;
@@ -169,6 +173,7 @@ void AGlobalGraph::LoadGraph()
 			TEXT("CommunityRelationTableClass is not set in SimulationSystemSettings!")))
 		{
 			CommunityRelationsRegistry = NewObject<UCommunityRelationTable>(GetWorld(), RelationRegistryClass.LoadSynchronous());
+			CommunityRelationsRegistry->Validate();
 		}
 	}
 }
@@ -412,11 +417,6 @@ USquadTaskBase* AGlobalGraph::CreateNewTask(UAISimProfileSquad* Squad)
 void AGlobalGraph::BeginPlay()
 {
 	Super::BeginPlay();
-	auto Subsystem = USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld());
-	if (ensure(Subsystem))
-	{
-		Subsystem->SetGlobalGraph(this);
-	}
 }
 
 void AGlobalGraph::BeginDestroy()

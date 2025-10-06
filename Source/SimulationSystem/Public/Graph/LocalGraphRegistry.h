@@ -13,7 +13,7 @@ class USimProfileBase;
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class SIMULATIONSYSTEM_API ULocalGraphRegistry : public UObject
 {
 	GENERATED_BODY()

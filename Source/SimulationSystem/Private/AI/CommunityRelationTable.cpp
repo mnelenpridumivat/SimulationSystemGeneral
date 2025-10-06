@@ -5,7 +5,18 @@
 
 void UCommunityRelationTable::Validate()
 {
-	
+	auto Arr = Communities.Array();
+	for (int i = 0; i < Arr.Num(); i++)
+	{
+		for (int j = i+1; j < Arr.Num(); j++)
+		{
+			ensureMsgf(
+				CheckRelations(Arr[i], Arr[j]) == CheckRelations(Arr[j], Arr[i]),
+				TEXT("Communities [%s] and [%s] have asymmetrical relations!"),
+				*Arr[i].ToString(),
+				*Arr[j].ToString());
+		}
+	}
 }
 
 int UCommunityRelationTable::CheckRelations(FName A, FName B)
@@ -54,13 +65,13 @@ void UCommunityRelationTable::PostEditChangeProperty(FPropertyChangedEvent& Prop
 						break;
 					}
 				}
-				if (NewValue != NAME_None)
-				{
+				//if (NewValue != NAME_None)
+				//{
 					for (auto& elem : Relations)
 					{
 						elem.Value.Relations.Add(NewValue) = 0;
 					}
-					auto NewCommunity = Relations.Add(NewValue);
+					auto& NewCommunity = Relations.Add(NewValue);
 					for (auto& elem : Communities)
 					{
 						if (elem == NewValue)
@@ -69,7 +80,7 @@ void UCommunityRelationTable::PostEditChangeProperty(FPropertyChangedEvent& Prop
 						}
 						NewCommunity.Relations.Add(elem) = 0;
 					}
-				}
+				//}
 				break;
 			}
 		case EPropertyChangeType::ArrayRemove:
@@ -84,8 +95,8 @@ void UCommunityRelationTable::PostEditChangeProperty(FPropertyChangedEvent& Prop
 						RemovedValue = *Diff.begin();
 					}
 				}
-				if (RemovedValue != NAME_None)
-				{
+				//if (RemovedValue != NAME_None)
+				//{
 					for (auto& elem : Relations)
 					{
 						if (elem.Key == RemovedValue)
@@ -95,7 +106,7 @@ void UCommunityRelationTable::PostEditChangeProperty(FPropertyChangedEvent& Prop
 						elem.Value.Relations.Remove(RemovedValue);
 					}
 					Relations.Remove(RemovedValue);
-				}
+				//}
 				break;
 			}
 		case EPropertyChangeType::ArrayClear:
@@ -118,7 +129,7 @@ void UCommunityRelationTable::PostEditChangeProperty(FPropertyChangedEvent& Prop
 						NewValue = OldValue == DiffArr[0] ? DiffArr[1] : DiffArr[0];
 					}
 				}
-				Relations[NewValue] = Relations[OldValue];
+				Relations.Add(NewValue) = Relations[OldValue];
 				Relations.Remove(OldValue);
 				for (auto& elem : Relations)
 				{
@@ -126,7 +137,7 @@ void UCommunityRelationTable::PostEditChangeProperty(FPropertyChangedEvent& Prop
 					{
 						continue;
 					}
-					elem.Value.Relations[NewValue] = elem.Value.Relations[OldValue];
+					elem.Value.Relations.Add(NewValue) = elem.Value.Relations[OldValue];
 					elem.Value.Relations.Remove(OldValue);
 				}
 				break;
