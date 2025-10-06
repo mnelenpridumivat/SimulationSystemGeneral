@@ -7,7 +7,6 @@
 #include "GraphSerialized.h"
 #include "SimulationFunctionLibrary.h"
 #include "SquadTaskBase.h"
-#include "EntitySystem/MovieSceneEntityManager.h"
 #include "Profiles/AISimProfilePawn.h"
 
 void UAISimProfileSquad::OnCreated_Implementation()

@@ -122,7 +122,7 @@ public:
 	virtual void SetOnlineLocation(FVector Vector);
 
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE FTransform GetOnlineLocation() const;
+	FTransform GetOnlineLocation() const;
 
 	FORCEINLINE void SetOnlineActorClass(const TSoftClassPtr<AActor>& NewClass){OnlineActorClass = NewClass;}
 

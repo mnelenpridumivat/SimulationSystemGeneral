@@ -67,7 +67,7 @@ void ADEPRECATED_ReplicatedSimInfo::BeginPlay()
 	}
 	//IDController->AddReplicatedSimInfo(this);
 #else
-	USimulationFunctionLibrary::GetProfileIDController(GetWorld())->AddReplicatedSimInfo(this);
+	//USimulationFunctionLibrary::GetProfileIDController(GetWorld())->AddReplicatedSimInfo(this);
 #endif
 }
 
@@ -83,7 +83,7 @@ void ADEPRECATED_ReplicatedSimInfo::EndPlay(const EEndPlayReason::Type EndPlayRe
 	}
 	//IDController->RemoveReplicatedSimInfo(this);
 #else
-	USimulationFunctionLibrary::GetProfileIDController(GetWorld())->RemoveReplicatedSimInfo(this);
+	//USimulationFunctionLibrary::GetProfileIDController(GetWorld())->RemoveReplicatedSimInfo(this);
 #endif
 }
 
