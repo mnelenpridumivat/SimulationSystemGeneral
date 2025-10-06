@@ -15,6 +15,8 @@
 #include "GraphAsset.generated.h"
 
 
+class ULocalGraphRegistry;
+
 UCLASS()
 class SIMULATIONSYSTEM_API AGraphAsset : public AActor
 {
@@ -55,6 +57,9 @@ public:
 	FSimVertexID FindClosestVertex(const FVector& Location, int LayerIndex);
 	void DrawGraph(FColor Color, float LifeTime, float Thickness);
 
+	UFUNCTION(BlueprintPure)
+	ULocalGraphRegistry* GetRegistry(){return Registry;}
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -82,6 +87,9 @@ private:
 
 	UPROPERTY()
 	FProfilesSerialized InitialProfiles;
+
+	UPROPERTY()
+	TObjectPtr<ULocalGraphRegistry> Registry;
 	
 	USimProfileBase* LoadProfile(FSerializedProfile& Data);
 

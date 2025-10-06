@@ -160,6 +160,16 @@ void AGlobalGraph::LoadGraph()
 		LocalGraphs[CastedActor->GetChunkIndex()-1] = CastedActor;
 		CastedActor->LoadGraph();
 	}
+	if (ensure(!IsValid(CommunityRelationsRegistry)))
+	{
+		auto RelationRegistryClass = GetDefault<USimulationSystemSettings>()->CommunityRelationTableClass;
+		if (ensureMsgf(
+			!RelationRegistryClass.IsNull(),
+			TEXT("CommunityRelationTableClass is not set in SimulationSystemSettings!")))
+		{
+			CommunityRelationsRegistry = NewObject<UCommunityRelationTable>(GetWorld(), RelationRegistryClass.LoadSynchronous());
+		}
+	}
 }
 
 void AGlobalGraph::LoadObjects_Initial()
@@ -214,6 +224,10 @@ void AGlobalGraph::UnloadGraph()
 	for(auto& LocalGraph : LocalGraphs)
 	{
 		LocalGraph->UnloadGraph();
+	}
+	if (ensure(IsValid(CommunityRelationsRegistry)))
+	{
+		CommunityRelationsRegistry = nullptr;
 	}
 }
 
@@ -290,14 +304,41 @@ TArray<USimProfileBase*> AGlobalGraph::GetProfilesByClass(TSubclassOf<USimProfil
 	return ProfileIDController->GetProfiles(Class);
 }
 
+AGraphAsset* AGlobalGraph::GetChunkByID(const FSimVertexID& ID)
+{
+	if (!ensure(ID.IsValid()) || !ID.ChunkID || !ensure(LocalGraphs.IsValidIndex(ID.ChunkID - 1)))
+	{
+		return nullptr;
+	}
+	return LocalGraphs[ID.ChunkID - 1];
+}
+
 int AGlobalGraph::GetProfilesInChunk(int ChunkIndex, TArray<USimProfileBase*>& Profiles)
 {
 	Profiles.Empty();
-	for(auto& Profile : ProfileHolders)
+	if (!ChunkIndex)
 	{
-		if(GetProfileLocationOnGraph(Profile.Key).ChunkID == ChunkIndex)
+		for(auto& Profile : ProfileHolders)
 		{
-			Profiles.Add(Profile.Key);
+			if(GetProfileLocationOnGraph(Profile.Key).ChunkID == ChunkIndex)
+			{
+				Profiles.Add(Profile.Key);
+			}
+		}
+	} else if (ensureMsgf(
+		LocalGraphs.IsValidIndex(ChunkIndex),
+		TEXT("Call GetProfilesInChunk with invalid ChunkIndex [%d]!"),
+		ChunkIndex
+	))
+	{
+		auto CurrentGraph = LocalGraphs[ChunkIndex];
+		if (ensure(CurrentGraph))
+		{
+			auto Registry = CurrentGraph->GetRegistry();
+			if (ensure(Registry))
+			{
+				Registry->GetAllProfiles(Profiles);
+			}
 		}
 	}
 	return Profiles.Num();

@@ -6,9 +6,11 @@
 #include "DrawDebugHelpers.h"
 //#include "ExposedFunctionLibrary.h"
 #include "GlobalGraph.h"
+#include "LocalGraphRegistry.h"
 #include "SimProfileBase.h"
 #include "SimulationFunctionLibrary.h"
 #include "SimProfileContainer.h"
+#include "SimulationSystemSettings.h"
 #include "SimVertexID.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
@@ -127,6 +129,7 @@ FGraphSerialized AGraphAsset::SaveObjects()
 void AGraphAsset::UnloadGraph()
 {
 	ChunkGraphs.Empty();
+	Registry = nullptr;
 }
 
 int AGraphAsset::GetChunkIndex()
@@ -172,7 +175,6 @@ USimProfileBase* AGraphAsset::LoadProfile(FSerializedProfile& Data)
 void AGraphAsset::LoadGraph()
 {
 	UnloadGraph();
-	//ChunkGraphs.Init(LevelGraph(), Graph.Vertices.Num());
 	for(auto& VertexData : Graph.Vertices)
 	{
 		if(!ChunkGraphs.IsValidIndex(VertexData.Key.LevelID))
@@ -192,10 +194,13 @@ void AGraphAsset::LoadGraph()
 		VertexOne.Pin()->AddEdge(ChunkGraphs[LayerIndex].Value.Last());
 		VertexTwo.Pin()->AddEdge(ChunkGraphs[LayerIndex].Value.Last());
 	}
-	//for(auto& ObjectData : Graph.Objects)
-	//{
-	//	auto& Vertex = ChunkGraphs[ObjectData.Key.LevelID].Key[ObjectData.Key.VertexID];
-	//	auto Object = UExposedFunctionLibrary::DeserializeObject(GetWorld(), ObjectData.Value);
-	//}
+	if (ensureMsgf(
+		!GetDefault<USimulationSystemSettings>()->LocalGraphRegistryClass.IsNull(),
+		TEXT("There is no LocalGraphRegistry class in SimulationSystemSettings!")))
+	{
+		auto Class = GetDefault<USimulationSystemSettings>()->LocalGraphRegistryClass.LoadSynchronous();
+		Registry = NewObject<ULocalGraphRegistry>(GetWorld(), Class);
+		Registry->SetLocalGraph(this);
+	}
 }
 

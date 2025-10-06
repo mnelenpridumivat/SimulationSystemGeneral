@@ -13,6 +13,7 @@
 #include "GlobalGraph.generated.h"
 
 
+class UCommunityRelationTable;
 class USimulationState;
 class UProfileIDController;
 struct FSimProfileID;
@@ -62,6 +63,7 @@ public:
 	TArray<USimProfileBase*> GetProfilesByClass(TSubclassOf<USimProfileBase> Class);
 
 	const TArray<AGraphAsset*>& GetChunks(){return LocalGraphs;}
+	AGraphAsset* GetChunkByID(const FSimVertexID& ID);
 	
 	int GetProfilesInChunk(int ChunkIndex, TArray<USimProfileBase*>& Profiles);
 	
@@ -114,7 +116,10 @@ protected:
 	TMap<FSimVertexID, FVector> VerticesSerialized;
 
 	UPROPERTY()
-	UProfileIDController* ProfileIDController;
+	TObjectPtr<UProfileIDController> ProfileIDController = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<UCommunityRelationTable> CommunityRelationsRegistry = nullptr;
 	
 	UPROPERTY(Transient)
 	TMap<USimProfileBase*, FSimProfileHolder> ProfileHolders;

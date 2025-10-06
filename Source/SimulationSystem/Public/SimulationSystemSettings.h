@@ -4,11 +4,15 @@
 
 #include "CoreMinimal.h"
 //#include "Properties\PawnProperty.h"
+#include "CommunityRelationTable.h"
+#include "LocalGraphRegistry.h"
 #include "SimulationSystemFunctionsImplementation.h"
 #include "Replication/DEPRECATED_ReplicatedSimInfo.h"
 #include "UObject/Object.h"
 #include "SimulationSystemSettings.generated.h"
 
+class UCommunityRelationTable;
+class ULocalGraphRegistry;
 class UAISimProfilePawn;
 class USimulationSystemFunctionsImplementation;
 class UAISimProfileSquad;
@@ -78,4 +82,10 @@ public:
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="System")
 	TSoftClassPtr<USimulationSystemFunctionsImplementation> SimulationSystemFunctions;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="System")
+	TSoftClassPtr<ULocalGraphRegistry> LocalGraphRegistryClass = ULocalGraphRegistry::StaticClass();
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="System")
+	TSoftClassPtr<UCommunityRelationTable> CommunityRelationTableClass = UCommunityRelationTable::StaticClass();
 };
