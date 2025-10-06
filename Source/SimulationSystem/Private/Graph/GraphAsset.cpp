@@ -168,7 +168,7 @@ USimProfileBase* AGraphAsset::LoadProfile(FSerializedProfile& Data)
 {
 	USimProfileBase* Profile = NewObject<USimProfileBase>(GetWorld(), Data.ObjectClass);
 	USimulationFunctionLibrary::LoadObjectData(Profile, Data.ObjectData);
-	Profile->Load(Data);
+	Profile->NativeLoad(Data);
 	return Profile;
 }
 

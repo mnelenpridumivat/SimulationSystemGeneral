@@ -87,9 +87,9 @@ bool USimProfileCamp::IsMovable_Implementation()
 	return false;
 }
 
-void USimProfileCamp::OnRegistered_Implementation()
+void USimProfileCamp::NativeOnRegistered()
 {
-	Super::OnRegistered_Implementation();
+	Super::NativeOnRegistered();
 	
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
 	if (ensureMsgf((GlobalGraph != nullptr), TEXT("GlobalGraph cannot be null")))
@@ -101,25 +101,25 @@ void USimProfileCamp::OnRegistered_Implementation()
 	}
 }
 
-void USimProfileCamp::Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data)
+void USimProfileCamp::NativeSave(FSimVertexID VertexID, FSerializedProfileView Data)
 {
-	Super::Save_Implementation(VertexID, Data);
+	Super::Save(VertexID, Data);
 	Data.GetElem().NextSet();
 	for(auto Squad : Squads)
 	{
-		Squad->Save(VertexID, Data.GetElem().AddChild());
+		Squad->NativeSave(VertexID, Data.GetElem().AddChild());
 	}
 }
 
-void USimProfileCamp::Load_Implementation(FSerializedProfile& Data)
+void USimProfileCamp::NativeLoad(FSerializedProfile& Data)
 {
-	Super::Load_Implementation(Data);
+	Super::NativeLoad(Data);
 	FProfilesSerializedView Children;
 	Data.ExtractFirstChildren(Children);
 	for(auto SquadData : Children.Objects)
 	{
 		auto Squad = NewObject<UAISimProfileSquad>(GetWorld(), SquadData->ObjectClass);
-		Squad->Load(*SquadData);
+		Squad->NativeLoad(*SquadData);
 		Execute_AddItem(this, Squad);
 	}
 }

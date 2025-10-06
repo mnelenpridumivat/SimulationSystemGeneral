@@ -42,7 +42,7 @@ protected:
 
 public:
 	virtual bool IsMovable_Implementation() override;
-	virtual void OnRegistered_Implementation() override;
-	virtual void Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data) override;
-	virtual void Load_Implementation(FSerializedProfile& Data) override;
+	virtual void NativeOnRegistered() override;
+	virtual void NativeSave(FSimVertexID VertexID, FSerializedProfileView Data) override;
+	virtual void NativeLoad(FSerializedProfile& Data) override;
 };

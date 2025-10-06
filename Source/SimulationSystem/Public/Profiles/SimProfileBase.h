@@ -27,48 +27,70 @@ class SIMULATIONSYSTEM_API USimProfileBase : public UObject
 
 public:
 	USimProfileBase();
-	
+
+protected:
 	/*
 	 * Called when saving
 	 */
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void Save(FSimVertexID VertexID, FSerializedProfileView Data);
+public:
+	virtual void NativeSave(FSimVertexID VertexID, FSerializedProfileView Data);
 
+protected:
 	/*
 	 * Called when loading
 	 */
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void Load(FSerializedProfile& Data);
+public:
+	virtual void NativeLoad(FSerializedProfile& Data);
 
+protected:
 	/*
 	 * Called when profile added to global graph (as standalone profile or as child of other profile)
 	 */
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnRegistered();
+public:
+	virtual void NativeOnRegistered();
 
+protected:
 	/*
 	 * Called after all profiles from save added to graph
 	 */
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnPostRegistered();
+public:
+	virtual void NativeOnPostRegistered();
 
+protected:
 	/*
 	 * Called when profile loaded from save
 	 */
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnLoaded();
+public:
+	virtual void NativeOnLoaded();
 
+protected:
 	/*
 	 * Called when profile created for first time
 	 */
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnCreated();
+public:
+	virtual void NativeOnCreated();
 
+
+protected:
 	/*
 	 * Called every tick
 	 */
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void Tick(float DeltaTime);
+public:
+	virtual void NativeTick(float DeltaTime);
 	
 	UFUNCTION(BlueprintNativeEvent)
 	bool IsMovable();

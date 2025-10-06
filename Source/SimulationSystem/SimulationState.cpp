@@ -11,7 +11,7 @@
 void USimulationState::SaveProfile(USimProfileBase* Profile, /*uint32 ParentIndex, uint32& Counter, */FSimVertexID VertexID)
 {
 	FSerializedProfileView Serialized = Profiles.AddLast();
-	Profile->Save(VertexID, Serialized);
+	Profile->NativeSave(VertexID, Serialized);
 }
 
 USimProfileBase* USimulationState::LoadProfile(int Index)
@@ -19,8 +19,8 @@ USimProfileBase* USimulationState::LoadProfile(int Index)
 	auto& ProfileData = Profiles.Objects[Index];
 	USimProfileBase* Profile = NewObject<USimProfileBase>(GetWorld(), ProfileData.ObjectClass);
 	USimulationFunctionLibrary::LoadObjectData(Profile, ProfileData.ObjectData);
-	Profile->Load(ProfileData);
-	Profile->OnLoaded();
+	Profile->NativeLoad(ProfileData);
+	Profile->NativeOnLoaded();
 	return Profile;
 }
 

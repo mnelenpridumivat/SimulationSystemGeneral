@@ -3,6 +3,8 @@
 
 #include "Profiles/SimProfileBase.h"
 
+#include <ThirdParty/ShaderConductor/ShaderConductor/External/DirectXShaderCompiler/include/dxc/DXIL/DxilConstants.h>
+
 #include "NavigationSystem.h"
 #include "ProfileComponent.h"
 #include "ProfileIDController.h"
@@ -17,7 +19,7 @@
 #include "Kismet/KismetStringLibrary.h"
 #include "Net/UnrealNetwork.h"
 
-void USimProfileBase::Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data)
+void USimProfileBase::NativeSave(FSimVertexID VertexID, FSerializedProfileView Data)
 {
 	Data.GetElem().ObjectClass = GetClass();
 	Data.GetElem().VertexLocation = VertexID;
@@ -34,9 +36,10 @@ void USimProfileBase::Save_Implementation(FSimVertexID VertexID, FSerializedProf
 			USimulationFunctionLibrary::SaveObjectData(Actor, OnlineDataSingle.GetElem().ObjectData);
 		}
 	}
+	Save(VertexID, Data);
 }
 
-void USimProfileBase::Load_Implementation(FSerializedProfile& Data)
+void USimProfileBase::NativeLoad(FSerializedProfile& Data)
 {
 	if(HasOnlineActor() && GetSimLevel() == ESimulationLevels_Online)
 	{
@@ -51,11 +54,12 @@ void USimProfileBase::Load_Implementation(FSerializedProfile& Data)
 			USimulationFunctionLibrary::LoadObjectData(NewActor, ActorData->ObjectData);
 		}
 	}
+	Load(Data);
 }
 
-void USimProfileBase::OnRegistered_Implementation()
+void USimProfileBase::NativeOnRegistered()
 {
-	
+	OnRegistered();
 }
 
 bool USimProfileBase::IsMovable_Implementation()
@@ -68,16 +72,24 @@ USimProfileBase::USimProfileBase()
 	ProfileID = UProfileIDController::InvalidID;
 }
 
-void USimProfileBase::OnPostRegistered_Implementation()
+void USimProfileBase::NativeTick(float DeltaTime)
 {
+	Tick(DeltaTime);
 }
 
-void USimProfileBase::OnCreated_Implementation()
+void USimProfileBase::NativeOnPostRegistered()
 {
+	OnPostRegistered();
 }
 
-void USimProfileBase::OnLoaded_Implementation()
+void USimProfileBase::NativeOnCreated()
 {
+	OnCreated();
+}
+
+void USimProfileBase::NativeOnLoaded()
+{
+	OnLoaded();
 }
 
 USimProfileBase* USimProfileBase::DeepCopyProfile()
@@ -264,10 +276,10 @@ void USimProfileBase::AddSinglePropFunc(DebugDataPropertyHandle Property, TArray
 		auto Ptr = new DebugDataElemKeyObject();
 		Ptr->key = Property.GetName();
 		Ptr->object = Casted->GetObjectPropertyValue(Casted->ContainerPtrToValuePtr<void>(Property.Context));
-		if (IsValid(Ptr->object))
+		/*if (IsValid(Ptr->object))
 		{
 			Ptr->object->GetFName();
-		}
+		}*/
 		Arr.Add(Ptr);
 	} 
 	else if (Property.Type->IsA(FSoftObjectProperty::StaticClass()))
@@ -276,12 +288,20 @@ void USimProfileBase::AddSinglePropFunc(DebugDataPropertyHandle Property, TArray
 		auto Ptr = new DebugDataElemKeyObject();
 		Ptr->key = Property.GetName();
 		Ptr->object = Casted->GetObjectPropertyValue(Casted->ContainerPtrToValuePtr<void>(Property.Context));
-		if (IsValid(Ptr->object))
+		/*if (IsValid(Ptr->object))
 		{
 			Ptr->object->GetFName();
-		}
+		}*/
 		Arr.Add(Ptr);
-	} else
+	} else if (Property.Type->IsA(FMulticastInlineDelegateProperty::StaticClass()))
+	{
+		auto Casted = CastField<FMulticastInlineDelegateProperty>(Property.Type);
+		auto Ptr = new DebugDataElemKeyValue();
+		Ptr->key = Property.GetName();
+		Ptr->value = "Dynamic Multicast Delegate";
+		Arr.Add(Ptr);
+	}
+	else
 	{
 		auto Ptr = new DebugDataElemKeyValue();
 		Ptr->key = Property.GetName();
@@ -312,8 +332,7 @@ void USimProfileBase::AddSinglePropFunc(DebugDataPropertyHandle Property, TArray
 				auto Casted = CastField<FNumericProperty>(Property.Type);
 				Ptr->value = Casted->GetNumericPropertyValueToString(Casted->ContainerPtrToValuePtr<void>(Property.Context));
 			}
-		}
-		else
+		} else
 		{
 			checkf(false, TEXT("Unsupported property type [%s] for property [%s] in [%s]"), *Property.Type->GetClass()->GetName(), *Property.GetName().ToString(), *GetName());
 		}
@@ -333,10 +352,6 @@ void USimProfileBase::AddStructPropFunc(DebugDataPropertyHandle Property, TArray
 	}
 		
 	Arr.Add(Ptr);
-};
-
-void USimProfileBase::Tick_Implementation(float DeltaTime)
-{
 }
 
 void USimProfileBase::OnExit_Implementation(const FSimProfileHolder& Location)

@@ -16,7 +16,7 @@ class SIMULATIONSYSTEM_API USimProfileStash : public USimProfileBase, public ISi
 public:
 	virtual USimProfileBase* DeepCopyProfile() override;
 	
-	virtual void OnRegistered_Implementation() override;
+	virtual void NativeOnRegistered() override;
 	virtual bool IsMovable_Implementation() override;
 
 	virtual void AddItem_Implementation(USimProfileBase* Profile) override;
@@ -25,8 +25,8 @@ public:
 	virtual void RemoveItem_Implementation(USimProfileBase* Profile) override;
 	virtual bool CanStoreItem_Implementation(USimProfileBase* Profile) override;
 	
-	virtual void Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data) override;
-	virtual void Load_Implementation(FSerializedProfile& Data) override;
+	virtual void NativeSave(FSimVertexID VertexID, FSerializedProfileView Data) override;
+	virtual void NativeLoad(FSerializedProfile& Data) override;
 
 protected:
 

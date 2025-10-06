@@ -13,8 +13,8 @@ UCLASS()
 class SIMULATIONSYSTEM_API UAISimProfileBase : public USimProfileBase
 {
 public:
-	virtual void OnRegistered_Implementation() override;
-	virtual void OnCreated_Implementation() override;
+	virtual void NativeOnRegistered() override;
+	virtual void NativeOnCreated() override;
 
 	FORCEINLINE const TMap<FName, int>& GetCharacteristics(){return CharacteristicsList;};
 	FORCEINLINE const TMap<FName, float>& GetPoints(){return PointsList;};

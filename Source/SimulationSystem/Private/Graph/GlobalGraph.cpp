@@ -188,7 +188,7 @@ void AGlobalGraph::LoadObjects_Initial()
 	int Num = GetProfiles(Profiles);
 	for (auto Profile : Profiles)
 	{
-		Profile->OnPostRegistered();
+		Profile->NativeOnPostRegistered();
 	}
 	SetActorTickEnabled(true);
 }
@@ -202,7 +202,7 @@ void AGlobalGraph::LoadObjects_Save(USimulationState* Save)
 	}
 	for (auto& Profile : Profiles)
 	{
-		Profile.Value->OnPostRegistered();
+		Profile.Value->NativeOnPostRegistered();
 	}
 	SetActorTickEnabled(true);
 }
@@ -289,7 +289,7 @@ void AGlobalGraph::AddProfileOnGraph(USimProfileBase* Profile, const FSimVertexI
 	Profile->Rename(nullptr, GetWorld());
 	Profile->SetProfileID(ProfileIDController->RegisterProfile(Profile));
 	ProfileHolders.Add(Profile, FSimProfileHolder::FromVertex(GetWorld(), Vertex));
-	Profile->OnRegistered();
+	Profile->NativeOnRegistered();
 }
 
 void AGlobalGraph::RegisterChildProfile(USimProfileBase* Profile, USimProfileBase* Parent)
@@ -302,7 +302,7 @@ void AGlobalGraph::RegisterChildProfile(USimProfileBase* Profile, USimProfileBas
 	Profile->Rename(nullptr, GetWorld());
 	Profile->SetProfileID(ProfileIDController->RegisterProfile(Profile));
 	ProfileHolders.Add(Profile, FSimProfileHolder::FromProfile(Parent));
-	Profile->OnRegistered();
+	Profile->NativeOnRegistered();
 }
 
 TArray<USimProfileBase*> AGlobalGraph::GetProfilesByClass(TSubclassOf<USimProfileBase> Class)
@@ -605,6 +605,6 @@ void AGlobalGraph::ParallelTick(USimProfileBase* Profile, float DeltaTime)
 			Profile->SetSimLevel(ESimulationLevels_Offline);
 		}
 	}
-	Profile->Tick(DeltaTime);
+	Profile->NativeTick(DeltaTime);
 }
 

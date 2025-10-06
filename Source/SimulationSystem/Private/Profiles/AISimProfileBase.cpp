@@ -5,14 +5,14 @@
 
 #include "SimulationSystemSettings.h"
 
-void UAISimProfileBase::OnRegistered_Implementation()
+void UAISimProfileBase::NativeOnRegistered()
 {
-	Super::OnRegistered_Implementation();
+	Super::NativeOnRegistered();
 }
 
-void UAISimProfileBase::OnCreated_Implementation()
+void UAISimProfileBase::NativeOnCreated()
 {
-	Super::OnCreated_Implementation();
+	Super::NativeOnCreated();
 	auto& CharacteristicsListRef = USimulationSystemSettings::StaticClass()->GetDefaultObject<USimulationSystemSettings>()->CharacteristicsList;
 	auto& PointsListRef = USimulationSystemSettings::StaticClass()->GetDefaultObject<USimulationSystemSettings>()->PointsList;
 	for(auto& Characteristic : CharacteristicsListRef)

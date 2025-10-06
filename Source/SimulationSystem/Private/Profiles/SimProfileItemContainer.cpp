@@ -61,9 +61,9 @@ bool USimProfileItemContainer::CanStoreItem_Implementation(USimProfileBase* Prof
 	return Profile->IsA(USimProfileItem::StaticClass());
 }
 
-void USimProfileItemContainer::OnRegistered_Implementation()
+void USimProfileItemContainer::NativeOnRegistered()
 {
-	Super::OnRegistered_Implementation();
+	Super::NativeOnRegistered();
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
 	for(auto& Item : StoredItems)
 	{
@@ -80,25 +80,25 @@ void USimProfileItemContainer::SetOnlineLocation(FVector Vector)
 	}
 }
 
-void USimProfileItemContainer::Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data)
+void USimProfileItemContainer::NativeSave(FSimVertexID VertexID, FSerializedProfileView Data)
 {
-	Super::Save_Implementation(VertexID, Data);
+	Super::NativeSave(VertexID, Data);
 	Data.GetElem().NextSet();
 	for(auto Item : StoredItems)
 	{
-		Item->Save(VertexID, Data.GetElem().AddChild());
+		Item->NativeSave(VertexID, Data.GetElem().AddChild());
 	}
 }
 
-void USimProfileItemContainer::Load_Implementation(FSerializedProfile& Data)
+void USimProfileItemContainer::NativeLoad(FSerializedProfile& Data)
 {
-	Super::Load_Implementation(Data);
+	Super::NativeLoad(Data);
 	FProfilesSerializedView Children;
 	Data.ExtractFirstChildren(Children);
 	for(auto elem : Children.Objects)
 	{
 		auto Item = NewObject<USimProfileItem>(GetWorld(), elem->ObjectClass);
-		Item->Load(*elem);
+		Item->NativeLoad(*elem);
 		Execute_AddItem(this, Item);
 	}
 }

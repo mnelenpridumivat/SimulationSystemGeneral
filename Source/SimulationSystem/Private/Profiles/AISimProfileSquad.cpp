@@ -9,15 +9,15 @@
 #include "SquadTaskBase.h"
 #include "Profiles/AISimProfilePawn.h"
 
-void UAISimProfileSquad::OnCreated_Implementation()
+void UAISimProfileSquad::NativeOnCreated()
 {
-	Super::OnCreated_Implementation();
+	Super::NativeOnCreated();
 	RefreshSquadCharacteristics();
 }
 
-void UAISimProfileSquad::OnLoaded_Implementation()
+void UAISimProfileSquad::NativeOnLoaded()
 {
-	Super::OnLoaded_Implementation();
+	Super::NativeOnLoaded();
 	RefreshSquadCharacteristics();
 }
 
@@ -65,9 +65,9 @@ bool UAISimProfileSquad::CanStoreItem_Implementation(USimProfileBase* Profile)
 	return Profile->IsA(UAISimProfilePawn::StaticClass());
 }
 
-void UAISimProfileSquad::OnRegistered_Implementation()
+void UAISimProfileSquad::NativeOnRegistered()
 {
-	Super::OnRegistered_Implementation();
+	Super::NativeOnRegistered();
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
 	for(auto& Member : Members)
 	{
@@ -84,13 +84,13 @@ void UAISimProfileSquad::SetOnlineLocation(FVector Vector)
 	}
 }
 
-void UAISimProfileSquad::Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data)
+void UAISimProfileSquad::NativeSave(FSimVertexID VertexID, FSerializedProfileView Data)
 {
-	Super::Save_Implementation(VertexID, Data);
+	Super::NativeSave(VertexID, Data);
 	Data.GetElem().NextSet();
 	for(auto Item : Members)
 	{
-		Item->Save(VertexID, Data.GetElem().AddChild());
+		Item->NativeSave(VertexID, Data.GetElem().AddChild());
 	}
 	Data.GetElem().NextSet();
 	if (CurrentTask)
@@ -99,16 +99,16 @@ void UAISimProfileSquad::Save_Implementation(FSimVertexID VertexID, FSerializedP
 	}
 }
 
-void UAISimProfileSquad::Load_Implementation(FSerializedProfile& Data)
+void UAISimProfileSquad::NativeLoad(FSerializedProfile& Data)
 {
-	Super::Load_Implementation(Data);
+	Super::NativeLoad(Data);
 	{
 		FProfilesSerializedView Children;
 		Data.ExtractFirstChildren(Children);
 		for(auto elem : Children.Objects)
 		{
 			auto Member = NewObject<UAISimProfilePawn>(GetWorld(), elem->ObjectClass);
-			Member->Load(*elem);
+			Member->NativeLoad(*elem);
 			Execute_AddItem(this, Member);
 		}
 	}
@@ -170,9 +170,9 @@ float UAISimProfileSquad::GetOfflineSpeed()
 	return 100.0f;
 }
 
-void UAISimProfileSquad::Tick_Implementation(float DeltaTime)
+void UAISimProfileSquad::NativeTick(float DeltaTime)
 {
-	Super::Tick_Implementation(DeltaTime);
+	Super::NativeTick(DeltaTime);
 	
 	if(!CurrentTask)
 	{

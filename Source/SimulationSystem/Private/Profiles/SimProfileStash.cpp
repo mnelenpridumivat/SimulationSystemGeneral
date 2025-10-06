@@ -18,9 +18,9 @@ USimProfileBase* USimProfileStash::DeepCopyProfile()
 	return Copy;
 }
 
-void USimProfileStash::OnRegistered_Implementation()
+void USimProfileStash::NativeOnRegistered()
 {
-	Super::OnRegistered_Implementation();
+	Super::NativeOnRegistered();
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
 	for(auto& Item : StoredItems)
 	{
@@ -78,25 +78,25 @@ bool USimProfileStash::CanStoreItem_Implementation(USimProfileBase* Profile)
 	return Profile->IsA(USimProfileItem::StaticClass());
 }
 
-void USimProfileStash::Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data)
+void USimProfileStash::NativeSave(FSimVertexID VertexID, FSerializedProfileView Data)
 {
-	Super::Save_Implementation(VertexID, Data);
+	Super::NativeSave(VertexID, Data);
 	Data.GetElem().NextSet();
 	for(auto Item : StoredItems)
 	{
-		Item->Save(VertexID, Data.GetElem().AddChild());
+		Item->NativeSave(VertexID, Data.GetElem().AddChild());
 	}
 }
 
-void USimProfileStash::Load_Implementation(FSerializedProfile& Data)
+void USimProfileStash::NativeLoad(FSerializedProfile& Data)
 {
-	Super::Load_Implementation(Data);
+	Super::NativeLoad(Data);
 	FProfilesSerializedView Children;
 	Data.ExtractFirstChildren(Children);
 	for(auto elem : Children.Objects)
 	{
 		auto Item = NewObject<USimProfileItem>(GetWorld(), elem->ObjectClass);
-		Item->Load(*elem);
+		Item->NativeLoad(*elem);
 		Execute_AddItem(this, Item);
 	}
 }

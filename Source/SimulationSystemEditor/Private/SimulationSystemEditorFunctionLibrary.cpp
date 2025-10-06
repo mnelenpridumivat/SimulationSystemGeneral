@@ -430,7 +430,7 @@ void USimulationSystemEditorFunctionLibrary::SaveProfile(USimProfileBase* Profil
 {
 	auto Data = ReturnProfiles.AddLast();
 	Data.GetElem().GlobalParent = &ReturnProfiles;
-	Profile->Save(VertexID, Data);
+	Profile->NativeSave(VertexID, Data);
 }
 
 void USimulationSystemEditorFunctionLibrary::FullRebuild()

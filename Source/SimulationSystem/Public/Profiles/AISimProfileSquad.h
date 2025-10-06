@@ -16,8 +16,8 @@ UCLASS(EditInlineNew, DefaultToInstanced, CollapseCategories, Blueprintable)
 class SIMULATIONSYSTEM_API UAISimProfileSquad : public UAISimProfileBase, public ISimProfileContainer
 {
 public:
-	virtual void OnCreated_Implementation() override;
-	virtual void OnLoaded_Implementation() override;
+	virtual void NativeOnCreated() override;
+	virtual void NativeOnLoaded() override;
 
 	virtual USimProfileBase* DeepCopyProfile() override;
 	
@@ -27,11 +27,11 @@ public:
 	virtual void RemoveItem_Implementation(USimProfileBase* Profile) override;
 	virtual bool CanStoreItem_Implementation(USimProfileBase* Profile) override;
 
-	virtual void OnRegistered_Implementation() override;
+	virtual void NativeOnRegistered() override;
 	virtual void SetOnlineLocation(FVector Vector) override;
 	
-	virtual void Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data) override;
-	virtual void Load_Implementation(FSerializedProfile& Data) override;
+	virtual void NativeSave(FSimVertexID VertexID, FSerializedProfileView Data) override;
+	virtual void NativeLoad(FSerializedProfile& Data) override;
 
 private:
 	GENERATED_BODY()
@@ -57,5 +57,5 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetOfflineSpeed();
 	
-	virtual void Tick_Implementation(float DeltaTime) override;
+	virtual void NativeTick(float DeltaTime) override;
 };

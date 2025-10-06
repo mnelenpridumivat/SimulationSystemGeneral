@@ -22,11 +22,11 @@ public:
 	virtual void RemoveItem_Implementation(USimProfileBase* Profile) override;
 	virtual bool CanStoreItem_Implementation(USimProfileBase* Profile) override;
 
-	virtual void OnRegistered_Implementation() override;
+	virtual void NativeOnRegistered() override;
 	virtual void SetOnlineLocation(FVector Vector) override;
 	
-	virtual void Save_Implementation(FSimVertexID VertexID, FSerializedProfileView Data) override;
-	virtual void Load_Implementation(FSerializedProfile& Data) override;
+	virtual void NativeSave(FSimVertexID VertexID, FSerializedProfileView Data) override;
+	virtual void NativeLoad(FSerializedProfile& Data) override;
 
 private:
 	GENERATED_BODY()
