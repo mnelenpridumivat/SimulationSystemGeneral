@@ -28,7 +28,7 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct FActionClass
+struct FGOAPActionClass
 {
 	GENERATED_BODY()
 
@@ -39,8 +39,13 @@ struct FActionClass
 	float Weight;
 };
 
+FORCEINLINE uint32 GetTypeHash(const FGOAPActionClass& Struct)
+{
+	return HashCombine(GetTypeHash(Struct.ActionClass), GetTypeHash(Struct.Weight));
+}
+
 USTRUCT()
-struct FAction
+struct FGOAPAction
 {
 	GENERATED_BODY()
 
@@ -50,6 +55,11 @@ struct FAction
 	UPROPERTY()
 	float Weight;
 };
+
+FORCEINLINE uint32 GetTypeHash(const FGOAPAction& Struct)
+{
+	return HashCombine(GetTypeHash(Struct.Action), GetTypeHash(Struct.Weight));
+}
 
 USTRUCT()
 struct FActionPlannerGoal
@@ -76,7 +86,7 @@ class SIMULATIONSYSTEM_API UActionPlanner : public UObject
 	TArray<TObjectPtr<UEvaluator>> EvaluatorsObjs;
 
 	UPROPERTY()
-	TArray<FAction> ActionsObjs;
+	TArray<FGOAPAction> ActionsObjs;
 
 	UPROPERTY()
 	FActionStorage ActionStorage;
@@ -93,7 +103,7 @@ protected:
 	TSet<TSubclassOf<UEvaluator>> Evaluators;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSet<FActionClass> Actions;
+	TSet<FGOAPActionClass> Actions;
 
 public:
 

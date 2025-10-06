@@ -203,7 +203,7 @@ UActionPlan* UActionPlanner::MakeDecision(const FActionPlannerGoal& Goal)
 		auto TopNode = PriorityQueue.PopNode();
 		if (VerifyActionsFunc(TopNode.Priority, TopNode.Element.Actions, TopNode.Element.CurrentState))
 		{
-			auto Plan = NewObject<UActionPlan>(GetWorld());
+			Plan = NewObject<UActionPlan>(GetWorld());
 			Plan->SetActions(TopNode.Element.Actions);
 			return Plan;
 		}
