@@ -99,15 +99,16 @@ class SIMULATIONSYSTEM_API UActionPlanner : public UObject
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSet<TSubclassOf<UEvaluator>> Evaluators;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSet<FGOAPActionClass> Actions;
 
 public:
 
 	void SetParentObject(UObject* Object);
+	UObject* GetParentObject();
 	void BeginPlay();
 
 	/*
@@ -118,5 +119,4 @@ public:
 	UActionPlan* MakeDecision(const FActionPlannerGoal& Goal);
 	
 	FORCEINLINE FActionStorage& GetActionStorage(){return ActionStorage;}
-	
 };

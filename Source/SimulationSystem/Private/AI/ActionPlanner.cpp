@@ -58,6 +58,18 @@ void UActionPlanner::SetParentObject(UObject* Object)
 	ParentObject = Object;
 }
 
+UObject* UActionPlanner::GetParentObject()
+{
+	if (!ensureMsgf(
+		!IsValid(ParentObject),
+		TEXT("Attempt to get invalid ParentObject in ActionPlanner [%s]"),
+		*GetName()))
+	{
+		return nullptr;
+	}
+	return ParentObject;
+}
+
 void UActionPlanner::BeginPlay()
 {
 	if (!ensureMsgf(IsValid(ParentObject), TEXT("ActionPlanner [%s] has invalid ParentObject!"), *GetName()))

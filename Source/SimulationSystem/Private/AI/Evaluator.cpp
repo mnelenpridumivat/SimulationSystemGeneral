@@ -36,6 +36,18 @@ void UEvaluator::SetState(FName key, bool value) const
 	ParentPlanner->GetActionStorage().SetState(key, value);
 }
 
+UObject* UEvaluator::GetOwningObject() const
+{
+	if (!ensureMsgf(
+		IsValid(ParentPlanner),
+		TEXT("Attempt to retrieve owning object of Evaluator [%s] while ParentPlanner is invalid!"),
+		*GetName()))
+	{
+		return nullptr;
+	}
+	return ParentPlanner->GetParentObject();
+}
+
 void UEvaluator::Evaluate_Implementation()
 {
 	ensureMsgf(

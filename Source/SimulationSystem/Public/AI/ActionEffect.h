@@ -10,7 +10,7 @@ class UAction;
 /**
  * 
  */
-UCLASS(Blueprintable)
+UCLASS()
 class SIMULATIONSYSTEM_API UActionEffect : public UObject
 {
 	GENERATED_BODY()
@@ -30,6 +30,8 @@ public:
 
 	void SetParentAction(UAction* Action);
 	
+	FORCEINLINE void SetKey(const FName NewKey) { Key = NewKey; }
+	FORCEINLINE void SetValue(const bool NewValue) { Value = NewValue; }
 	FORCEINLINE FName GetKey() const { return Key; }
 	FORCEINLINE bool GetValue() const { return Value; }
 	

@@ -31,10 +31,10 @@ class SIMULATIONSYSTEM_API UAction : public UObject
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSet<TSubclassOf<UActionPrecondition>> Preconditions;
+	TMap<FName, bool> Preconditions;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSet<TSubclassOf<UActionEffect>> Effects;
+	TMap<FName, bool> Effects;
 
 public:
 
