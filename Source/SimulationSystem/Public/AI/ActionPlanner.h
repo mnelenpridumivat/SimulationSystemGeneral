@@ -61,12 +61,12 @@ FORCEINLINE uint32 GetTypeHash(const FGOAPAction& Struct)
 	return HashCombine(GetTypeHash(Struct.Action), GetTypeHash(Struct.Weight));
 }
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FActionPlannerGoal
 {
 	GENERATED_BODY()
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<FName, bool> State;
 };
 
@@ -116,6 +116,7 @@ public:
 	 * Functions return UActionPlan with no steps - we already reached goal
 	 * Functions returns UActionPlan with some steps - ok, need to do smth
 	 */
+	UFUNCTION(BlueprintCallable)
 	UActionPlan* MakeDecision(const FActionPlannerGoal& Goal);
 	
 	FORCEINLINE FActionStorage& GetActionStorage(){return ActionStorage;}
