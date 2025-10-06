@@ -64,7 +64,7 @@ public:
 
 	const TArray<AGraphAsset*>& GetChunks(){return LocalGraphs;}
 
-	UPROPERTY(BlueprintPure)
+	UFUNCTION(BlueprintPure)
 	AGraphAsset* GetChunkByID(const FSimVertexID& VertexID);
 	AGraphAsset* GetChunkByID(int ChunkID);
 	

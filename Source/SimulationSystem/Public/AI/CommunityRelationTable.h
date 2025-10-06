@@ -42,6 +42,8 @@ public:
 	 */
 	UFUNCTION(BlueprintPure)
 	int CheckRelations(FName A, FName B);
-	
+
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 };

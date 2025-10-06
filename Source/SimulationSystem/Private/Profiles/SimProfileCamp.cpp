@@ -21,11 +21,22 @@ USimProfileBase* USimProfileCamp::DeepCopyProfile()
 
 void USimProfileCamp::AddItem_Implementation(USimProfileBase* Profile)
 {
-	if (ensureMsgf(Execute_CanStoreItem(this, Profile), TEXT("Unable to put profile [%s] in profile [%s]"), *Profile->GetName(), *GetName()))
+	if (!ensureMsgf(
+		IsValid(Profile),
+		TEXT("Attempt to add invalid profile in Camp [%s]"),
+		*GetName()))
+	{
+		return;
+	}
+	if (ensureMsgf(
+		Execute_CanStoreItem(this, Profile),
+		TEXT("Unable to put profile [%s] in profile [%s]"),
+		*Profile->GetName(),
+		*GetName()))
 	{
 		auto CastedSquad = Cast<UAISimProfileSquad>(Profile);
 		Squads.Add(CastedSquad);
-		OnSquadEntered.Broadcast(this, CastedSquad)
+		OnSquadEntered.Broadcast(this, CastedSquad);
 	}
 }
 
@@ -61,7 +72,10 @@ void USimProfileCamp::RemoveItem_Implementation(USimProfileBase* Profile)
 
 bool USimProfileCamp::CanStoreItem_Implementation(USimProfileBase* Profile)
 {
-	if (ensureMsgf(IsValid(Profile), TEXT("Attempt to check compatibility with null!")))
+	if (ensureMsgf(
+		IsValid(Profile),
+		TEXT("Attempt to check compatibility with null inside [%s]!"),
+		*GetName()))
 	{
 		return Profile->IsA(UAISimProfileSquad::StaticClass());
 	}

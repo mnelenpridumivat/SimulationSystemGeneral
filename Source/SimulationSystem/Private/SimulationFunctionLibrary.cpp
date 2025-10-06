@@ -40,7 +40,7 @@ AGlobalGraph* USimulationFunctionLibrary::GetGlobalGraph(UObject* Context)
 	}
 	return Subsystem->GetGlobalGraph();
 	
-	static AGlobalGraph* GraphPtr = nullptr; // TODO: remove this fix and fix normally!
+	/*static AGlobalGraph* GraphPtr = nullptr; // TODO: remove this fix and fix normally!
 	TArray<AActor*> Graphs;
 	UGameplayStatics::GetAllActorsOfClass(Context, AGlobalGraph::StaticClass(), Graphs);
 	if(!Graphs.Num() && GraphPtr){
@@ -49,7 +49,7 @@ AGlobalGraph* USimulationFunctionLibrary::GetGlobalGraph(UObject* Context)
 	ensureMsgf(Graphs.Num(), TEXT("Unable to find any global graphs!"));
 	ensureMsgf(!(Graphs.Num()-1), TEXT("There is more that one global graphs!"));
 	GraphPtr = Cast<AGlobalGraph>(Graphs[0]);
-	return GraphPtr;
+	return GraphPtr;*/
 }
 
 USimProfileBase* USimulationFunctionLibrary::GetProfile(UObject* Context, const FSimProfileID& ProfileID)

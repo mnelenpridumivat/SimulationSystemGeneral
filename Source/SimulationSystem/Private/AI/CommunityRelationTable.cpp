@@ -30,6 +30,7 @@ int UCommunityRelationTable::CheckRelations(FName A, FName B)
 	return *ItB;
 }
 
+#if WITH_EDITOR
 void UCommunityRelationTable::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	UObject::PostEditChangeProperty(PropertyChangedEvent);
@@ -137,3 +138,4 @@ void UCommunityRelationTable::PostEditChangeProperty(FPropertyChangedEvent& Prop
 		}
 	}
 }
+#endif
