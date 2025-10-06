@@ -73,3 +73,55 @@ void UAction::BeginPlay()
 		}
 	}
 }
+
+bool UAction::CheckPreconditions(const FActionStorage& Storage)
+{
+	for (auto Precondition : PreconditionsObjs)
+	{
+		if (Storage.GetState(Precondition->GetKey()) != Precondition->GetValue())
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+bool UAction::CheckSelfPreconditions()
+{
+	if (!ensureMsgf(
+		IsValid(ParentPlanner),
+		TEXT("Action [%s] has invalid ParentPlanner!"),
+		*GetName()))
+	{
+		return false;
+	}
+	return CheckPreconditions(ParentPlanner->GetActionStorage());
+}
+
+bool UAction::CheckIfWeCanCreateState(const FActionPlannerGoal& Storage)
+{
+	auto Copy = Storage;
+	for (auto Effect : EffectsObjs)
+	{
+		if (Copy.State.Contains(Effect->GetKey()))
+		{
+			Copy.State[Effect->GetKey()] = Effect->GetValue();
+		}
+	}
+	for (auto& elem : Copy.State)
+	{
+		if (Storage.State[elem.Key] != elem.Value)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void UAction::GetRequiredStartGoal(FActionPlannerGoal& Storage)
+{
+	for (auto Precondition : PreconditionsObjs)
+	{
+		Storage.State.FindOrAdd(Precondition->GetKey()) = Precondition->GetValue();
+	}
+}

@@ -18,7 +18,19 @@ class SIMULATIONSYSTEM_API UActionEffect : public UObject
 	UPROPERTY()
 	TObjectPtr<UAction> ParentAction;
 
+protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName Key;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool Value;
+
 public:
 
 	void SetParentAction(UAction* Action);
+	
+	FORCEINLINE FName GetKey() const { return Key; }
+	FORCEINLINE bool GetValue() const { return Value; }
+	
 };

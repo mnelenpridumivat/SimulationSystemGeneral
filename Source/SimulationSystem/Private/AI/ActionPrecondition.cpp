@@ -2,7 +2,7 @@
 
 
 #include "ActionPrecondition.h"
-
+#include "ActionPlanner.h"
 #include "Action.h"
 
 void UActionPrecondition::SetParentAction(UAction* Action)

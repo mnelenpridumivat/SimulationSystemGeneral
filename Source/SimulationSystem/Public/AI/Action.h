@@ -6,6 +6,8 @@
 #include "UObject/Object.h"
 #include "Action.generated.h"
 
+struct FActionPlannerGoal;
+struct FActionStorage;
 class UActionPlanner;
 class UActionEffect;
 class UActionPrecondition;
@@ -37,7 +39,12 @@ protected:
 public:
 
 	void SetParentPlanner(UActionPlanner* Planner);
-
 	void BeginPlay();
+
+	bool CheckPreconditions(const FActionStorage& Storage);
+	bool CheckSelfPreconditions();
+
+	bool CheckIfWeCanCreateState(const FActionPlannerGoal& Storage);
+	void GetRequiredStartGoal(FActionPlannerGoal& Storage);
 	
 };
