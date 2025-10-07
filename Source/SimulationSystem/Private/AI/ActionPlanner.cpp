@@ -6,6 +6,7 @@
 #include "Action.h"
 #include "ActionPlan.h"
 #include "Evaluator.h"
+#include "Motivator.h"
 #include "TPriorityQueue.h"
 
 void FActionStorage::SetState(FName Key, bool Value)
@@ -109,6 +110,64 @@ void UActionPlanner::BeginPlay()
 			}
 		}
 	}
+	if(ensureMsgf(
+		IsValid(Motivator),
+		TEXT("Unable to construct Motivator in ActionPlanner [%s] because Motivator class is invalid!"),
+		*GetName()))
+	{
+		MotivatorObj = NewObject<UMotivator>(GetWorld(), Motivator);
+		MotivatorObj->SetParentPlanner(this);
+	}
+}
+
+void UActionPlanner::Execute()
+{
+	if(IsValid(Plan))
+	{
+		if(Plan->CanExecute())
+		{
+			Plan->Execute();		
+		} else
+		{
+			Plan = nullptr;
+		}
+	}
+	if(!IsValid(Plan))
+	{
+		GatherKnowledge();
+		FActionPlannerGoal goal;
+		if(ensureMsgf(
+			IsValid(MotivatorObj),
+			TEXT("Attempt to execute invalid Motivator in [%s]"),
+			*GetName()))
+		{
+			if(MotivatorObj->NativeFindGoal(goal))
+			{
+				return;
+			}
+		}
+		auto NewPlan = MakeDecision(goal);
+		if(!ensureMsgf(
+			IsValid(NewPlan),
+			TEXT("ActionPlanner [%s] could not find way to achieve goal!"),
+			*GetName())
+			|| !NewPlan->HasAnySteps())
+		{
+			Plan = nullptr;
+		} else
+		{
+			Plan->Execute();
+		}
+	}
+}
+
+void UActionPlanner::GatherKnowledge()
+{
+	// Update anything we know about world
+	for (auto Evaluator : EvaluatorsObjs)
+	{
+		Evaluator->Evaluate();
+	}
 }
 
 UActionPlan* UActionPlanner::MakeDecision(const FActionPlannerGoal& Goal)
@@ -126,12 +185,6 @@ UActionPlan* UActionPlanner::MakeDecision(const FActionPlannerGoal& Goal)
 		bool* IsThinkingPtr;
 	};
 	ThinkingGuard Guard(IsThinking);
-	
-	// Update anything we know about world
-	for (auto Evaluator : EvaluatorsObjs)
-	{
-		Evaluator->Evaluate();
-	}
 
 	// Verify if we actually need to do something or we already on goal
 	{
@@ -206,5 +259,6 @@ UActionPlan* UActionPlanner::MakeDecision(const FActionPlannerGoal& Goal)
 		}
 	}
 
+	Plan = nullptr;
 	return nullptr;
 }

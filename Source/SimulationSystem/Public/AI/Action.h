@@ -11,6 +11,16 @@ struct FActionStorage;
 class UActionPlanner;
 class UActionEffect;
 class UActionPrecondition;
+
+UENUM(BlueprintType)
+enum class EActionStatus : uint8
+{
+	Idle,
+	Running,
+	Aborted,
+	Finished,
+};
+
 /**
  * 
  */
@@ -27,6 +37,9 @@ class SIMULATIONSYSTEM_API UAction : public UObject
 
 	UPROPERTY()
 	TArray<TObjectPtr<UActionEffect>> EffectsObjs;
+
+	UPROPERTY()
+	EActionStatus Status;
 
 protected:
 
@@ -46,5 +59,36 @@ public:
 
 	bool CheckIfWeCanCreateState(const FActionPlannerGoal& Storage);
 	void GetRequiredStartGoal(FActionPlannerGoal& Storage);
+
+protected:
+
+	UFUNCTION(BlueprintPure)
+	UObject* GetOwningObject() const;
+
+	UFUNCTION(BlueprintCallable)
+	void FinishAction();
+	
+public:
+	
+	UFUNCTION(BlueprintCallable)
+	void AbortAction();
+
+protected:
+	UFUNCTION(BlueprintNativeEvent)
+	void StartAction();
+public:
+	void NativeStartAction();
+	
+protected:
+	UFUNCTION(BlueprintNativeEvent)
+	void ProcessAction();
+public:
+	EActionStatus NativeProcessAction();
+
+protected:
+	UFUNCTION(BlueprintNativeEvent)
+	void EndAction(bool Successful);
+public:
+	void NativeEndAction(bool Successful);
 	
 };

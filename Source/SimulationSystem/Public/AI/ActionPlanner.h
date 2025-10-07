@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "ActionPlanner.generated.h"
 
+class UMotivator;
 class UActionPlan;
 class UAction;
 class UEvaluator;
@@ -88,6 +89,9 @@ class SIMULATIONSYSTEM_API UActionPlanner : public UObject
 	TArray<FGOAPAction> ActionsObjs;
 
 	UPROPERTY()
+	TObjectPtr<UMotivator> MotivatorObj = nullptr;
+
+	UPROPERTY()
 	FActionStorage ActionStorage;
 
 	UPROPERTY()
@@ -104,19 +108,43 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSet<FGOAPActionClass> Actions;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<UMotivator> Motivator;
+
 public:
 
 	void SetParentObject(UObject* Object);
 	UObject* GetParentObject();
 	void BeginPlay();
 
+	FORCEINLINE FActionStorage& GetActionStorage(){return ActionStorage;}
+	
+	UFUNCTION(BlueprintPure)
+	bool GetKey(FName Key) const {return ActionStorage.GetState(Key);}
+
+	/*
+	 * Thinking Algo:
+	 * 1) GatherKnowledge - get all what we know
+	 * 2) - decide what we want based on all known info
+	 * 3) MakeDecision - think about way to achieve what we want
+	 * 4) - if we have a plan, execute it until reach goal or plan is not outdated
+	 */
+
+	UFUNCTION(BlueprintCallable)
+	void Execute();
+	
+	UFUNCTION()
+	void GatherKnowledge();
+
 	/*
 	 * Functions returns null - no way to reach goal
 	 * Functions return UActionPlan with no steps - we already reached goal
 	 * Functions returns UActionPlan with some steps - ok, need to do smth
 	 */
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION()
 	UActionPlan* MakeDecision(const FActionPlannerGoal& Goal);
+
+	UFUNCTION(BlueprintPure)
+	UActionPlan* GetPlan() const {return Plan;}
 	
-	FORCEINLINE FActionStorage& GetActionStorage(){return ActionStorage;}
 };

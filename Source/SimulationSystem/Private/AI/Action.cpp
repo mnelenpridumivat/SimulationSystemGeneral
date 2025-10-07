@@ -109,3 +109,81 @@ void UAction::GetRequiredStartGoal(FActionPlannerGoal& Storage)
 		Storage.State.FindOrAdd(Precondition->GetKey()) = Precondition->GetValue();
 	}
 }
+
+UObject* UAction::GetOwningObject() const
+{
+	if(!ensureMsgf(
+		IsValid(ParentPlanner),
+		TEXT("Attempt to retrieve owning object for action [%s] while ParentPlanner is invalid!"),
+		*GetName()))
+	{
+		return nullptr;
+	}
+	return ParentPlanner->GetParentObject();
+}
+
+void UAction::FinishAction()
+{
+	if (Status == EActionStatus::Running)
+	{
+		Status = EActionStatus::Finished;
+	}
+}
+
+void UAction::AbortAction()
+{
+	if(Status == EActionStatus::Running)
+	{
+		Status = EActionStatus::Aborted;
+	}
+}
+
+void UAction::StartAction_Implementation()
+{
+}
+
+void UAction::NativeStartAction()
+{
+	if(ensureMsgf(
+		Status == EActionStatus::Idle,
+		TEXT("Attempt to start Action [%s] with status [%s]!"),
+		*GetName(),
+		*UEnum::GetValueAsString(Status)))
+	{
+		AbortAction();
+	}
+	Status = EActionStatus::Running;
+	StartAction();
+}
+
+void UAction::ProcessAction_Implementation()
+{
+}
+
+EActionStatus UAction::NativeProcessAction()
+{
+	if (Status == EActionStatus::Aborted || Status == EActionStatus::Finished)
+	{
+		return Status;
+	}
+	ProcessAction();
+	if(ensureMsgf(
+		Status != EActionStatus::Idle,
+		TEXT("In Action [%s] (OwningObject [%s]) status is Idle after ProcessAction!"),
+		*GetName(),
+		GetOwningObject() ? *(GetOwningObject()->GetName()) : TEXT("Invalid")))
+	{
+		return EActionStatus::Aborted;
+	}
+	return Status;
+}
+
+void UAction::EndAction_Implementation(bool Successful)
+{
+}
+
+void UAction::NativeEndAction(bool Successful)
+{
+	EndAction(Successful);
+	Status = EActionStatus::Idle;
+}
