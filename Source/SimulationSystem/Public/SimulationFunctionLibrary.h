@@ -43,6 +43,9 @@ public:
 	static AGraphAsset* GetGraphAsset(UObject* Context, int ChunkIndex);
 
 	UFUNCTION(BlueprintPure, meta=(WorldContext="Context"))
+	static AGraphAsset* GetGraphAssetFromProfile(UObject* Context, USimProfileBase* Profile);
+
+	UFUNCTION(BlueprintPure, meta=(WorldContext="Context"))
 	static ULocalGraphRegistry* GetLocalGraphRegistry(UObject* Context, const FSimVertexID& VertexInsideID);
 	static ULocalGraphRegistry* GetLocalGraphRegistry(UObject* Context, int ChunkIndex);
 

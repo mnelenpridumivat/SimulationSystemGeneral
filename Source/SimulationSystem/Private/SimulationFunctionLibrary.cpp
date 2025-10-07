@@ -90,11 +90,43 @@ AGraphAsset* USimulationFunctionLibrary::GetGraphAsset(UObject* Context, int Chu
 	}
 	auto RealIndex = ChunkIndex - 1;
 	auto GlobalGraph = GetGlobalGraph(Context);
+	if(!ensureMsgf(
+		IsValid(GlobalGraph),
+		TEXT("GlobalGraph not found!")))
+	{
+		return nullptr;
+	}
 	return GlobalGraph->GetChunkByID(RealIndex);
 }
 
+AGraphAsset* USimulationFunctionLibrary::GetGraphAssetFromProfile(UObject* Context, USimProfileBase* Profile)
+{
+	if (!ensureMsgf(
+			IsValid(Context),
+			TEXT("Call GetGraphAsset without Context!")))
+	{
+		return nullptr;
+	}
+	auto GlobalGraph = GetGlobalGraph(Context);
+	if(!ensureMsgf(
+		IsValid(GlobalGraph),
+		TEXT("GlobalGraph not found!")))
+	{
+		return nullptr;
+	}
+	auto ProfileLocation = GlobalGraph->GetProfileLocationOnGraph(Profile);
+	if(!ensureMsgf(
+		ProfileLocation.IsValid(),
+		TEXT("Profile [%s] has invalid location on graph!"),
+		*Profile->GetName()))
+	{
+		return nullptr;
+	}
+	return GlobalGraph->GetChunkByID(ProfileLocation);
+}
+
 ULocalGraphRegistry* USimulationFunctionLibrary::GetLocalGraphRegistry(UObject* Context,
-	const FSimVertexID& VertexInsideID)
+                                                                       const FSimVertexID& VertexInsideID)
 {
 	if (!ensureMsgf(
 		VertexInsideID.IsValid(),

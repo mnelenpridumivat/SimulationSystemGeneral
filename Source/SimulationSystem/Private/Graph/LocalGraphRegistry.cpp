@@ -28,6 +28,7 @@ void ULocalGraphRegistry::SetLocalGraph(AGraphAsset* GraphAsset)
 
 void ULocalGraphRegistry::NativeRegisterProfile(USimProfileBase* Profile)
 {
+	// TODO: Implement registration
 	if (!ensureMsgf(
 			IsValid(ParentGraphAsset),
 			TEXT("Unable to process RegisterProfile [%s] in LocalGraphRegistry [%s] with invalid ParentGraphAsset!"),
