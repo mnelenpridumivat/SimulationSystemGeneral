@@ -79,12 +79,18 @@ bool UAction::CheckSelfPreconditions()
 bool UAction::CheckIfWeCanCreateState(const FActionPlannerGoal& Storage)
 {
 	auto Copy = Storage;
+	bool NoMatch = true;
 	for (auto Effect : EffectsObjs)
 	{
 		if (Copy.State.Contains(Effect->GetKey()))
 		{
 			Copy.State[Effect->GetKey()] = Effect->GetValue();
+			NoMatch = false;
 		}
+	}
+	if (NoMatch)
+	{
+		return false;
 	}
 	for (auto& elem : Copy.State)
 	{

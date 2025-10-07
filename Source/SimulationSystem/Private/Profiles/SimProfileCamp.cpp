@@ -103,7 +103,7 @@ void USimProfileCamp::NativeOnRegistered()
 
 void USimProfileCamp::NativeSave(FSimVertexID VertexID, FSerializedProfileView Data)
 {
-	Super::Save(VertexID, Data);
+	Super::NativeSave(VertexID, Data);
 	Data.GetElem().NextSet();
 	for(auto Squad : Squads)
 	{

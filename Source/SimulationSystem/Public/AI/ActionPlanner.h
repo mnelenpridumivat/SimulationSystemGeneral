@@ -21,8 +21,7 @@ private:
 
 public:
 	void Reset(){State.Reset();}
-	void SetState(FName Key, bool Value); // Set initial value on key - for evaluators
-	void UpdateState(FName Key, bool Value); // Update already existing value
+	void SetState(FName Key, bool Value);
 	bool GetState(FName Key) const;
 	
 };

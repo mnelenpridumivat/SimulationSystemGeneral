@@ -10,22 +10,7 @@
 
 void FActionStorage::SetState(FName Key, bool Value)
 {
-	ensureMsgf(
-		!State.Contains(Key),
-		TEXT("State [%s] already set!"),
-		*Key.ToString());
-	State.Add(Key, Value);
-}
-
-void FActionStorage::UpdateState(FName Key, bool Value)
-{
-	if (ensureMsgf(
-		State.Contains(Key),
-		TEXT("State [%s] do not exists!"),
-		*Key.ToString()))
-	{
-		State[Key] = Value;
-	}
+	State.FindOrAdd(Key) = Value;
 }
 
 bool FActionStorage::GetState(FName Key) const
@@ -61,7 +46,7 @@ void UActionPlanner::SetParentObject(UObject* Object)
 UObject* UActionPlanner::GetParentObject()
 {
 	if (!ensureMsgf(
-		!IsValid(ParentObject),
+		IsValid(ParentObject),
 		TEXT("Attempt to get invalid ParentObject in ActionPlanner [%s]"),
 		*GetName()))
 	{
@@ -194,7 +179,7 @@ UActionPlan* UActionPlanner::MakeDecision(const FActionPlannerGoal& Goal)
 		{
 			for (auto [Action, Weight] : ActionsObjs)
 			{
-				if (Action->CheckIfWeCanCreateState(Goal))
+				if (Action->CheckIfWeCanCreateState(LocGoal))
 				{
 					Variant NewVariant;
 					NewVariant.Actions = PrevActions;
