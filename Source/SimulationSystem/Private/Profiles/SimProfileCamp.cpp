@@ -123,3 +123,19 @@ void USimProfileCamp::NativeLoad(FSerializedProfile& Data)
 		Execute_AddItem(this, Squad);
 	}
 }
+
+void USimProfileCamp::NativeOnVertexPositionChanged(const FSimVertexID& Old, const FSimVertexID& New)
+{
+	Super::NativeOnVertexPositionChanged(Old, New);
+	for (const auto Squad : Squads)
+	{
+		if (ensureMsgf(
+			IsValid(Squad),
+			TEXT("Profile [%s] contains invalid squad!"),
+			*GetName()))
+		{
+			Squad->NativeOnVertexPositionChanged(Old, New);
+		}
+	}
+	
+}

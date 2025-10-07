@@ -58,4 +58,5 @@ public:
 	float GetOfflineSpeed();
 	
 	virtual void NativeTick(float DeltaTime) override;
+	virtual void NativeOnVertexPositionChanged(const FSimVertexID& Old, const FSimVertexID& New) override;
 };

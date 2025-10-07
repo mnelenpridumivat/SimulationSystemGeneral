@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SimVertexID.h"
 #include "UObject/Object.h"
 #include "ConcentricalCircle.generated.h"
 
@@ -45,6 +46,9 @@ class SIMULATIONSYSTEM_API UConcentricalCircle : public UObject
 	UPROPERTY()
 	TSet<UAISimProfileSquad*> VeryFarSquads;
 
+	UFUNCTION()
+	void OnProfileVertexPositionChanged(USimProfileBase* Profile, const FSimVertexID& Old, const FSimVertexID& New);
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -68,19 +72,16 @@ protected:
 public:
 
 	UFUNCTION(BlueprintCallable)
-	void SetCenterObject(TObjectPtr<USimProfileBase> SimProfile);
+	void SetCenterObject(USimProfileBase* SimProfile);
 
 	DECLARE_DYNAMIC_DELEGATE_RetVal_TwoParams(bool, FDistanceVerificationOverride, USimProfileBase*, Center, UAISimProfileSquad*, Target);
+	DECLARE_DYNAMIC_DELEGATE_RetVal_OneParam(bool, FSuitableVerification, UAISimProfileSquad*, Target);
 
-	UPROPERTY(BlueprintAssignable)
 	FDistanceVerificationOverride VeryCloseDistanceVerification;
-
-	UPROPERTY(BlueprintAssignable)
 	FDistanceVerificationOverride CloseDistanceVerification;
-
-	UPROPERTY(BlueprintAssignable)
 	FDistanceVerificationOverride FarDistanceVerification;
-
+	FSuitableVerification SuitableVerification;
+	
 	UFUNCTION(BlueprintCallable)
 	void RegisterSquad(UAISimProfileSquad* NewSquad);
 
@@ -101,6 +102,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	void GetVeryFarSquads(TArray<UAISimProfileSquad*>& Squads);
+
+	UFUNCTION(BlueprintPure)
+	UAISimProfileSquad* GetFirstPrioritySuitableSquad();
 
 	UFUNCTION(BlueprintPure)
 	float GetVeryCloseRadius() {return VeryCloseRadius;}

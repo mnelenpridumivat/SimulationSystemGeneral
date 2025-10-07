@@ -100,3 +100,18 @@ void USimProfileStash::NativeLoad(FSerializedProfile& Data)
 		Execute_AddItem(this, Item);
 	}
 }
+
+void USimProfileStash::NativeOnVertexPositionChanged(const FSimVertexID& Old, const FSimVertexID& New)
+{
+	Super::NativeOnVertexPositionChanged(Old, New);
+	for (const auto Item : StoredItems)
+	{
+		if (ensureMsgf(
+			IsValid(Item),
+			TEXT("Profile [%s] contains invalid item!"),
+			*GetName()))
+		{
+			Item->NativeOnVertexPositionChanged(Old, New);
+		}
+	}
+}

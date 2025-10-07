@@ -192,3 +192,18 @@ void UAISimProfileSquad::NativeTick(float DeltaTime)
 		CurrentTask->ExecuteTask(this, DeltaTime);
 	}
 }
+
+void UAISimProfileSquad::NativeOnVertexPositionChanged(const FSimVertexID& Old, const FSimVertexID& New)
+{
+	Super::NativeOnVertexPositionChanged(Old, New);
+	for (const auto Member : Members)
+	{
+		if (ensureMsgf(
+			IsValid(Member),
+			TEXT("Profile [%s] contains invalid member!"),
+			*GetName()))
+		{
+			Member->NativeOnVertexPositionChanged(Old, New);
+		}
+	}
+}

@@ -110,3 +110,18 @@ void UAISimProfilePawn::NativeLoad(FSerializedProfile& Data)
 		Execute_AddItem(this, Item);
 	}
 }
+
+void UAISimProfilePawn::NativeOnVertexPositionChanged(const FSimVertexID& Old, const FSimVertexID& New)
+{
+	Super::NativeOnVertexPositionChanged(Old, New);
+	for (const auto Item : Inventory)
+	{
+		if (ensureMsgf(
+			IsValid(Item),
+			TEXT("Profile [%s] contains invalid item in inventory!"),
+			*GetName()))
+		{
+			Item->NativeOnVertexPositionChanged(Old, New);
+		}
+	}
+}

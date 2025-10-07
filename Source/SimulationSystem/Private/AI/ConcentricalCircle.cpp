@@ -8,7 +8,17 @@
 #include "GraphAsset.h"
 #include "SimulationFunctionLibrary.h"
 
-void UConcentricalCircle::SetCenterObject(TObjectPtr<USimProfileBase> SimProfile)
+void UConcentricalCircle::OnProfileVertexPositionChanged(USimProfileBase* Profile, const FSimVertexID& Old,
+	const FSimVertexID& New)
+{
+	if (!ensure(Profile) || !ensure(Profile->IsA(UAISimProfileSquad::StaticClass())))
+	{
+		return;
+	}
+	UpdateSquad((UAISimProfileSquad*)Profile);
+}
+
+void UConcentricalCircle::SetCenterObject(USimProfileBase* SimProfile)
 {
 	if(!ensureMsgf(
 			IsValid(SimProfile),
@@ -43,6 +53,7 @@ void UConcentricalCircle::RegisterSquad(UAISimProfileSquad* NewSquad)
 			*NewSquad->GetName(),
 			*GetName());
 		VeryCloseSquads.Add(NewSquad);
+		NewSquad->OnVertexPositionChanged.AddDynamic(this, &UConcentricalCircle::OnProfileVertexPositionChanged);
 		return;
 	}
 	if(IsSuitableFor(NewSquad, bOverrideCloseDetection, CloseRadius, CloseDistanceVerification))
@@ -53,6 +64,7 @@ void UConcentricalCircle::RegisterSquad(UAISimProfileSquad* NewSquad)
 			*NewSquad->GetName(),
 			*GetName());
 		CloseSquads.Add(NewSquad);
+		NewSquad->OnVertexPositionChanged.AddDynamic(this, &UConcentricalCircle::OnProfileVertexPositionChanged);
 		return;
 	}
 	if(IsSuitableFor(NewSquad, bOverrideFarDetection, FarRadius, FarDistanceVerification))
@@ -63,6 +75,7 @@ void UConcentricalCircle::RegisterSquad(UAISimProfileSquad* NewSquad)
 			*NewSquad->GetName(),
 			*GetName());
 		FarSquads.Add(NewSquad);
+		NewSquad->OnVertexPositionChanged.AddDynamic(this, &UConcentricalCircle::OnProfileVertexPositionChanged);
 		return;
 	}
 	ensureMsgf(
@@ -71,7 +84,7 @@ void UConcentricalCircle::RegisterSquad(UAISimProfileSquad* NewSquad)
 		*NewSquad->GetName(),
 		*GetName());
 	VeryFarSquads.Add(NewSquad);
-	return;
+	NewSquad->OnVertexPositionChanged.AddDynamic(this, &UConcentricalCircle::OnProfileVertexPositionChanged);
 }
 
 void UConcentricalCircle::UnregisterSquad(UAISimProfileSquad* RemovedSquad)
@@ -80,6 +93,7 @@ void UConcentricalCircle::UnregisterSquad(UAISimProfileSquad* RemovedSquad)
 	CloseSquads.Remove(RemovedSquad);
 	FarSquads.Remove(RemovedSquad);
 	VeryFarSquads.Remove(RemovedSquad);
+	RemovedSquad->OnVertexPositionChanged.RemoveDynamic(this, &UConcentricalCircle::OnProfileVertexPositionChanged);
 }
 
 void UConcentricalCircle::UpdateSquad(UAISimProfileSquad* UpdatedSquad)
@@ -106,6 +120,47 @@ void UConcentricalCircle::GetFarSquads(TArray<UAISimProfileSquad*>& Squads)
 void UConcentricalCircle::GetVeryFarSquads(TArray<UAISimProfileSquad*>& Squads)
 {
 	Squads = VeryFarSquads.Array();
+}
+
+UAISimProfileSquad* UConcentricalCircle::GetFirstPrioritySuitableSquad()
+{
+	if (!ensureMsgf(
+		SuitableVerification.IsBound(),
+		TEXT("Unable to process GetFirstPrioritySuitableSquad in [%s] (owning object [%s]) because SuitableVerification delegate not bound!"),
+		*GetName(),
+		*CenterObject->GetName()))
+	{
+		return nullptr;
+	}
+	for (auto Squad : VeryCloseSquads)
+	{
+		if (SuitableVerification.Execute(Squad))
+		{
+			return Squad;
+		}
+	}
+	for (auto Squad : CloseSquads)
+	{
+		if (SuitableVerification.Execute(Squad))
+		{
+			return Squad;
+		}
+	}
+	for (auto Squad : FarSquads)
+	{
+		if (SuitableVerification.Execute(Squad))
+		{
+			return Squad;
+		}
+	}
+	for (auto Squad : VeryFarSquads)
+	{
+		if (SuitableVerification.Execute(Squad))
+		{
+			return Squad;
+		}
+	}
+	return nullptr;
 }
 
 bool UConcentricalCircle::IsSuitableFor(UAISimProfileSquad* Squad, bool UseOverride, float DefDistance,

@@ -45,4 +45,5 @@ public:
 	virtual void NativeOnRegistered() override;
 	virtual void NativeSave(FSimVertexID VertexID, FSerializedProfileView Data) override;
 	virtual void NativeLoad(FSerializedProfile& Data) override;
+	virtual void NativeOnVertexPositionChanged(const FSimVertexID& Old, const FSimVertexID& New) override;
 };

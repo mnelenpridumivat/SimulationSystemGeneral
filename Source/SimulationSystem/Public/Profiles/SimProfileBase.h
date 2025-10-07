@@ -28,6 +28,13 @@ class SIMULATIONSYSTEM_API USimProfileBase : public UObject
 public:
 	USimProfileBase();
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnVertexPositionChanged, USimProfileBase*, Profile, const FSimVertexID&, Old, const FSimVertexID&, New);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnVertexPositionChanged OnVertexPositionChanged;
+
+	virtual void NativeOnVertexPositionChanged(const FSimVertexID& Old, const FSimVertexID& New);
+
 protected:
 	/*
 	 * Called when saving

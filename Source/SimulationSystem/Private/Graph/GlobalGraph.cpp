@@ -361,18 +361,95 @@ int AGlobalGraph::GetProfilesInChunk(int ChunkIndex, TArray<USimProfileBase*>& P
 
 void AGlobalGraph::SetProfileLocation_World(USimProfileBase* Profile, const FSimVertexID& Vertex)
 {
-	auto Holder = ProfileHolders.Find(Profile);
-	Profile->OnExit(*Holder);
-	*Holder = FSimProfileHolder::FromVertex(GetWorld(), Vertex);
-	Profile->OnEnter(*Holder);
+	auto OldHolder = ProfileHolders.Find(Profile);
+	auto OldVertex = GetProfileLocationOnGraph(Profile);
+	if (!ensure(OldHolder))
+	{
+		return;
+	}
+	Profile->OnExit(*OldHolder);
+	const auto NewHolder = FSimProfileHolder::FromVertex(GetWorld(), Vertex);
+	Profile->OnEnter(NewHolder);
+	if (OldVertex.ChunkID != Vertex.ChunkID)
+	{
+		auto OldChunk = GetChunkByID(OldVertex.ChunkID);
+		if (IsValid(OldChunk))
+		{
+			auto OldRegistry = OldChunk->GetRegistry();
+			if (!ensureMsgf(
+				!IsValid(OldRegistry),
+				TEXT("Chunk [%s] has invalid registry!"),
+				*OldChunk->GetName()))
+			{
+				return;
+			}
+			OldRegistry->NativeUnregisterProfile(Profile);
+		}
+		auto NewChunk = GetChunkByID(Vertex.ChunkID);
+		if (IsValid(NewChunk))
+		{
+			auto NewRegistry = NewChunk->GetRegistry();
+			if (!ensureMsgf(
+				!IsValid(NewRegistry),
+				TEXT("Chunk [%s] has invalid registry!"),
+				*NewChunk->GetName()))
+			{
+				return;
+			}
+			NewRegistry->NativeRegisterProfile(Profile);
+		}
+	}
+	if (OldVertex != Vertex)
+	{
+		Profile->NativeOnVertexPositionChanged(OldVertex, Vertex);
+	}
 }
 
 void AGlobalGraph::SetProfileLocation_Child(USimProfileBase* Profile, USimProfileBase* Parent)
 {
-	auto Holder = ProfileHolders.Find(Profile);
-	Profile->OnExit(*Holder);
-	*Holder = FSimProfileHolder::FromProfile(Parent);
-	Profile->OnEnter(*Holder);
+	auto OldHolder = ProfileHolders.Find(Profile);
+	auto OldVertex = GetProfileLocationOnGraph(Profile);
+	if (!ensure(OldHolder))
+	{
+		return;
+	}
+	Profile->OnExit(*OldHolder);
+	const auto NewHolder = FSimProfileHolder::FromProfile(Parent);
+	auto NewVertex = GetProfileLocationOnGraph(Parent);
+	Profile->OnEnter(NewHolder);
+	if (OldVertex.ChunkID != NewVertex.ChunkID)
+	{
+		auto OldChunk = GetChunkByID(OldVertex.ChunkID);
+		if (IsValid(OldChunk))
+		{
+			auto OldRegistry = OldChunk->GetRegistry();
+			if (!ensureMsgf(
+				!IsValid(OldRegistry),
+				TEXT("Chunk [%s] has invalid registry!"),
+				*OldChunk->GetName()))
+			{
+				return;
+			}
+			OldRegistry->NativeUnregisterProfile(Profile);
+		}
+		auto NewChunk = GetChunkByID(NewVertex.ChunkID);
+		if (IsValid(NewChunk))
+		{
+			auto NewRegistry = NewChunk->GetRegistry();
+			if (!ensureMsgf(
+				!IsValid(NewRegistry),
+				TEXT("Chunk [%s] has invalid registry!"),
+				*NewChunk->GetName()))
+			{
+				return;
+			}
+			NewRegistry->NativeRegisterProfile(Profile);
+		}
+	}
+	if (OldVertex != NewVertex)
+	{
+		Profile->NativeOnVertexPositionChanged(OldVertex, NewVertex);
+	}
 }
 
 void AGlobalGraph::SetChunks(TArray<AActor*> Array)
@@ -422,10 +499,13 @@ void AGlobalGraph::BeginPlay()
 void AGlobalGraph::BeginDestroy()
 {
 	Super::BeginDestroy();
-	auto Subsystem = USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld());
-	if (ensure(Subsystem))
+	if (!GIsEditor)
 	{
-		Subsystem->SetGlobalGraph(nullptr);
+		auto Subsystem = USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld());
+		if (ensure(Subsystem))
+		{
+			Subsystem->SetGlobalGraph(nullptr);
+		}
 	}
 }
 

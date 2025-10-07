@@ -26,6 +26,7 @@ public:
 	
 	virtual void NativeSave(FSimVertexID VertexID, FSerializedProfileView Data) override;
 	virtual void NativeLoad(FSerializedProfile& Data) override;
+	virtual void NativeOnVertexPositionChanged(const FSimVertexID& Old, const FSimVertexID& New) override;
 
 	UPROPERTY(Transient)
 	TArray<USimProfileItem*> StoredItems;

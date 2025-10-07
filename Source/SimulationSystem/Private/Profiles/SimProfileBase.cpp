@@ -14,10 +14,18 @@
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
 #include "DEPRECATED_ReplicatedSimInfo.h"
+#include "GlobalGraph.h"
+#include "GraphAsset.h"
 #include "GraphSerialized.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Net/UnrealNetwork.h"
+
+void USimProfileBase::NativeOnVertexPositionChanged(const FSimVertexID& Old,
+	const FSimVertexID& New)
+{
+	OnVertexPositionChanged.Broadcast(this, Old, New);
+}
 
 void USimProfileBase::NativeSave(FSimVertexID VertexID, FSerializedProfileView Data)
 {
@@ -60,6 +68,18 @@ void USimProfileBase::NativeLoad(FSerializedProfile& Data)
 void USimProfileBase::NativeOnRegistered()
 {
 	OnRegistered();
+	auto LocalGraphInside = USimulationFunctionLibrary::GetGraphAssetFromProfile(GetWorld(), this);
+	if (IsValid(LocalGraphInside))
+	{
+		auto Registry = LocalGraphInside->GetRegistry();
+		if (ensureMsgf(
+			IsValid(Registry),
+			TEXT("GraphAsset [%s] does not contains valid Registry!"),
+			*LocalGraphInside->GetName()))
+		{
+			Registry->NativeRegisterProfile(this);
+		}
+	}
 }
 
 bool USimProfileBase::IsMovable_Implementation()
