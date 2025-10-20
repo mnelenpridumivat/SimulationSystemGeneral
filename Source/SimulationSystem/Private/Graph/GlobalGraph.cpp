@@ -341,12 +341,12 @@ int AGlobalGraph::GetProfilesInChunk(int ChunkIndex, TArray<USimProfileBase*>& P
 			}
 		}
 	} else if (ensureMsgf(
-		LocalGraphs.IsValidIndex(ChunkIndex),
+		LocalGraphs.IsValidIndex(ChunkIndex-1),
 		TEXT("Call GetProfilesInChunk with invalid ChunkIndex [%d]!"),
 		ChunkIndex
 	))
 	{
-		auto CurrentGraph = LocalGraphs[ChunkIndex];
+		auto CurrentGraph = LocalGraphs[ChunkIndex-1];
 		if (ensure(CurrentGraph))
 		{
 			auto Registry = CurrentGraph->GetRegistry();
@@ -519,7 +519,7 @@ void AGlobalGraph::Tick(float DeltaTime)
 	int Num = GetProfiles(Profiles);
 	auto func = [&](int32 Index)
 	{
-		// TODO^ Fix normally player pawn simulation switching
+		// TODO: Fix normally player pawn simulation switching
 		if(Profiles[Index]->IsA(UAISimProfilePawn::StaticClass()))
 		{
 			Profiles[Index]->SetSimLevel(ESimulationLevels_Online);

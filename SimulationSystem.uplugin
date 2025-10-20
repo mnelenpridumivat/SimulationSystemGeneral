@@ -21,6 +21,11 @@
 			"LoadingPhase": "Default"
 		},
 		{
+			"Name": "SimulationSystemECS",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
 			"Name": "SimulationSystemDeveloperTool",
 			"Type": "DeveloperTool",
 			"LoadingPhase": "Default"
@@ -43,6 +48,22 @@
 		},
 		{
 			"Name": "ImGui",
+			"Enabled": true
+		},
+		{
+			"Name": "MassEntity",
+			"Enabled": false
+		},
+		{
+			"Name": "MassAI",
+			"Enabled": true
+		},
+		{
+			"Name": "MassGameplay",
+			"Enabled": true
+		},
+		{
+			"Name": "MassCrowd",
 			"Enabled": true
 		}
 	]
