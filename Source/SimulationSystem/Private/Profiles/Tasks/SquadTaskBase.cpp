@@ -12,17 +12,17 @@ void USquadTaskBase::BeginTask(UAISimProfileSquad* Squad)
 	BeginTask_Always(Squad);
 	switch (Squad->GetSimLevel())
 	{
-	case ESimulationLevels_Online:
+	case ESimulationLevels::Online:
 		{
 			BeginTask_Online(Squad);
 			break;
 		}
-	case ESimulationLevels_Buffered:
+	case ESimulationLevels::Buffered:
 		{
 			BeginTask_Buffer(Squad);
 			break;
 		}
-	case ESimulationLevels_Offline:
+	case ESimulationLevels::Offline:
 		{
 			BeginTask_Offline(Squad);
 			break;
@@ -35,17 +35,17 @@ void USquadTaskBase::ExecuteTask(UAISimProfileSquad* Squad, float DeltaTime)
 	ExecuteTask_Always(Squad, DeltaTime);
 	switch (Squad->GetSimLevel())
 	{
-	case ESimulationLevels_Online:
+	case ESimulationLevels::Online:
 		{
 			ExecuteTask_Online(Squad, DeltaTime);
 			break;
 		}
-	case ESimulationLevels_Buffered:
+	case ESimulationLevels::Buffered:
 		{
 			ExecuteTask_Buffer(Squad, DeltaTime);
 			break;
 		}
-	case ESimulationLevels_Offline:
+	case ESimulationLevels::Offline:
 		{
 			ExecuteTask_Offline(Squad, DeltaTime);
 			break;
@@ -58,17 +58,17 @@ void USquadTaskBase::FinishTask(UAISimProfileSquad* Squad, bool Success)
 	FinishTask_Always(Squad, Success);
 	switch (Squad->GetSimLevel())
 	{
-	case ESimulationLevels_Online:
+	case ESimulationLevels::Online:
 		{
 			FinishTask_Online(Squad, Success);
 			break;
 		}
-	case ESimulationLevels_Buffered:
+	case ESimulationLevels::Buffered:
 		{
 			FinishTask_Buffer(Squad, Success);
 			break;
 		}
-	case ESimulationLevels_Offline:
+	case ESimulationLevels::Offline:
 		{
 			FinishTask_Offline(Squad, Success);
 			break;
@@ -84,15 +84,15 @@ bool USquadTaskBase::CheckTaskFinished(UAISimProfileSquad* Squad)
 	}
 	switch (Squad->GetSimLevel())
 	{
-	case ESimulationLevels_Online:
+	case ESimulationLevels::Online:
 		{
 			return CheckTaskFinished_Online(Squad);
 		}
-	case ESimulationLevels_Buffered:
+	case ESimulationLevels::Buffered:
 		{
 			return CheckTaskFinished_Buffer(Squad);
 		}
-	case ESimulationLevels_Offline:
+	case ESimulationLevels::Offline:
 		{
 			return CheckTaskFinished_Offline(Squad);
 		}

@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class SIMULATIONSYSTEMECS_API UGraphMoveToProcessor : public UMassProcessor
+class SIMULATIONSYSTEM_API UGraphMoveToProcessor : public UMassProcessor
 {
 	GENERATED_BODY()
 

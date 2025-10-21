@@ -4,15 +4,15 @@
 #include "SimVertexID.h"
 #include "SimEdgeStruct.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FSimEdgeStruct
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	FSimVertexID VertexOne;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	FSimVertexID VertexTwo;
 
 	bool operator==(const FSimEdgeStruct& other);

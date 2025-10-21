@@ -42,11 +42,11 @@ void USimAIController::Tick(float DeltaTime)
 		}
 		if(Closest <= GetMutableDefault<USimulationSystemSettings>()->OnlineRadius)
 		{
-			elem.Key->SetSimLevel(ESimulationLevels_Online);
+			elem.Key->SetSimLevel(ESimulationLevels::Online);
 		}
 		switch (elem.Key->GetSimLevel())
 		{
-		case ESimulationLevels_Online:
+		case ESimulationLevels::Online:
 			{
 				elem.Value = 0;
 				//TickOnline()

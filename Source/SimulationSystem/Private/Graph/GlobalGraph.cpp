@@ -522,7 +522,7 @@ void AGlobalGraph::Tick(float DeltaTime)
 		// TODO: Fix normally player pawn simulation switching
 		if(Profiles[Index]->IsA(UAISimProfilePawn::StaticClass()))
 		{
-			Profiles[Index]->SetSimLevel(ESimulationLevels_Online);
+			Profiles[Index]->SetSimLevel(ESimulationLevels::Online);
 			return;
 		}
 
@@ -559,9 +559,9 @@ void AGlobalGraph::Tick(float DeltaTime)
 		}
 		if(FVector::DistSquared(ProfileLocation, ClosestPlayerLocation) < FMath::Square(GetMutableDefault<USimulationSystemSettings>()->OnlineRadius))
 		{
-			if(Profiles[Index]->GetSimLevel() != ESimulationLevels_Online)
+			if(Profiles[Index]->GetSimLevel() != ESimulationLevels::Online)
 			{
-				if(Profiles[Index]->GetSimLevel() == ESimulationLevels_Offline)
+				if(Profiles[Index]->GetSimLevel() == ESimulationLevels::Offline)
 				{
 					UE_LOG(LogTemp, Log, TEXT("Transfer profile %s from offline to online"), *Profiles[Index]->GetName());
 					Profiles[Index]->TransitOfflineOnline();
@@ -570,13 +570,13 @@ void AGlobalGraph::Tick(float DeltaTime)
 					UE_LOG(LogTemp, Log, TEXT("Transfer profile %s from buffered to online"), *Profiles[Index]->GetName());
 					Profiles[Index]->TransitBufferedOnline();
 				}
-				Profiles[Index]->SetSimLevel(ESimulationLevels_Online);
+				Profiles[Index]->SetSimLevel(ESimulationLevels::Online);
 			}
 		} else if (FVector::DistSquared(ProfileLocation, ClosestPlayerLocation) < FMath::Square(GetMutableDefault<USimulationSystemSettings>()->BufferedRadius))
 		{
-			if(Profiles[Index]->GetSimLevel() != ESimulationLevels_Buffered)
+			if(Profiles[Index]->GetSimLevel() != ESimulationLevels::Buffered)
 			{
-				if(Profiles[Index]->GetSimLevel() == ESimulationLevels_Online)
+				if(Profiles[Index]->GetSimLevel() == ESimulationLevels::Online)
 				{
 					UE_LOG(LogTemp, Log, TEXT("Transfer profile %s from online to buffered"), *Profiles[Index]->GetName());
 					Profiles[Index]->TransitOnlineBuffered();
@@ -585,13 +585,13 @@ void AGlobalGraph::Tick(float DeltaTime)
 					UE_LOG(LogTemp, Log, TEXT("Transfer profile %s from offline to buffered"), *Profiles[Index]->GetName());
 					Profiles[Index]->TransitOfflineBuffered();
 				}
-				Profiles[Index]->SetSimLevel(ESimulationLevels_Buffered);
+				Profiles[Index]->SetSimLevel(ESimulationLevels::Buffered);
 			}
 		} else
 		{
-			if(Profiles[Index]->GetSimLevel() != ESimulationLevels_Offline)
+			if(Profiles[Index]->GetSimLevel() != ESimulationLevels::Offline)
 			{
-				if(Profiles[Index]->GetSimLevel() == ESimulationLevels_Online)
+				if(Profiles[Index]->GetSimLevel() == ESimulationLevels::Online)
 				{
 					UE_LOG(LogTemp, Log, TEXT("Transfer profile %s from online to offline"), *Profiles[Index]->GetName());
 					Profiles[Index]->TransitOnlineOffline();
@@ -600,13 +600,13 @@ void AGlobalGraph::Tick(float DeltaTime)
 					UE_LOG(LogTemp, Log, TEXT("Transfer profile %s from buffered to offline"), *Profiles[Index]->GetName());
 					Profiles[Index]->TransitBufferedOffline();
 				}
-				Profiles[Index]->SetSimLevel(ESimulationLevels_Offline);
+				Profiles[Index]->SetSimLevel(ESimulationLevels::Offline);
 			}
 		}
 		constexpr int Tolerance = 1000;
 		switch (Profiles[Index]->GetSimLevel())
 		{
-		case ESimulationLevels_Offline:
+		case ESimulationLevels::Offline:
 			{
 				auto MinDeltaTime = GetDefault<USimulationSystemSettings>()->TickOffline * Profiles[Index]->GetTickOfflineCoeff();
 				if((int)((Time * Tolerance)-(MinDeltaTime * Tolerance)) < 0)
@@ -617,7 +617,7 @@ void AGlobalGraph::Tick(float DeltaTime)
 				Time = (float)((int)(Time*Tolerance)%(int)(MinDeltaTime * Tolerance))/Tolerance;
 				break;
 			}
-		case ESimulationLevels_Buffered:
+		case ESimulationLevels::Buffered:
 			{
 				auto MinDeltaTime = GetDefault<USimulationSystemSettings>()->TickBuffered * Profiles[Index]->GetTickBufferedCoeff();
 				if((int)((Time * Tolerance)-(MinDeltaTime * Tolerance)) < 0)
@@ -628,7 +628,7 @@ void AGlobalGraph::Tick(float DeltaTime)
 				Time = (float)((int)(Time*Tolerance)%(int)(MinDeltaTime * Tolerance))/Tolerance;
 				break;
 			}
-		case ESimulationLevels_Online:
+		case ESimulationLevels::Online:
 			{
 				auto MinDeltaTime = GetDefault<USimulationSystemSettings>()->TickOnline * Profiles[Index]->GetTickOnlineCoeff();
 				if((int)((Time * Tolerance)-(MinDeltaTime * Tolerance)) < 0)
@@ -674,15 +674,15 @@ void AGlobalGraph::ParallelTick(USimProfileBase* Profile, float DeltaTime)
 	{
 		if(Closest <= GetMutableDefault<USimulationSystemSettings>()->OnlineRadius)
 		{
-			Profile->SetSimLevel(ESimulationLevels_Online);
+			Profile->SetSimLevel(ESimulationLevels::Online);
 		}
 		else if(Closest <= GetMutableDefault<USimulationSystemSettings>()->BufferedRadius)
 		{
-			Profile->SetSimLevel(ESimulationLevels_Buffered);
+			Profile->SetSimLevel(ESimulationLevels::Buffered);
 		}
 		else
 		{
-			Profile->SetSimLevel(ESimulationLevels_Offline);
+			Profile->SetSimLevel(ESimulationLevels::Offline);
 		}
 	}
 	Profile->NativeTick(DeltaTime);

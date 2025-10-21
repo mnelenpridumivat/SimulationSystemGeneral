@@ -15,7 +15,17 @@
 #include "GraphAsset.generated.h"
 
 
+class UGraphDataAsset;
 class ULocalGraphRegistry;
+
+USTRUCT()
+struct FGraphLayer
+{
+	GENERATED_BODY()
+
+	TArray<TSharedPtr<Simulation::Vertex>> Vertices;
+	TArray<TSharedPtr<Simulation::Edge>> Edges;
+};
 
 UCLASS()
 class SIMULATIONSYSTEM_API AGraphAsset : public AActor
@@ -45,7 +55,8 @@ public:
 	FName GetCurrentLevel();
 	
 #if WITH_EDITOR
-	void SetGraph(const FGraphSerialized& GraphSerialized){Graph = GraphSerialized;}
+	void SetGraph(UGraphDataAsset* GraphSerialized);
+	TSoftObjectPtr<UGraphDataAsset> GetGraph(){return Graph;}
 	void SetInitialProfiles(const FProfilesSerialized& ProfilesSerialized){InitialProfiles = ProfilesSerialized;}
 	FProfilesSerialized& GetMutableInitialProfiles(){return InitialProfiles;}
 #endif
@@ -82,8 +93,9 @@ protected:
 
 private:
 
-	UPROPERTY()
-	FGraphSerialized Graph;
+	UPROPERTY(VisibleAnywhere)
+	TSoftObjectPtr<UGraphDataAsset> Graph;
+	//FGraphSerialized Graph;
 
 	UPROPERTY()
 	FProfilesSerialized InitialProfiles;
@@ -96,8 +108,6 @@ private:
 	UPROPERTY()
 	int ChunkIndex;
 
-	using LevelGraph = TPair<TArray<TSharedPtr<Simulation::Vertex>>, TArray<TSharedPtr<Simulation::Edge>>>;
-
-	TArray<LevelGraph> ChunkGraphs;
+	TArray<FGraphLayer> ChunkGraphs;
 	
 };

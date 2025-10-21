@@ -111,7 +111,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE TEnumAsByte<ESimulationLevels> GetSimLevel(){return CurrentSimLevel;}
+	FORCEINLINE ESimulationLevels GetSimLevel(){return CurrentSimLevel;}
 
 	/*
 	 * Switching between simulation levels (online/buffered/offline)
@@ -197,7 +197,7 @@ protected:
 	FSimProfileID ProfileID;
 
 	UPROPERTY()
-	TEnumAsByte<ESimulationLevels> CurrentSimLevel = ESimulationLevels_Offline;
+	ESimulationLevels CurrentSimLevel = ESimulationLevels::Offline;
 
 	UPROPERTY(Transient)
 	AActor* OnlineActor = nullptr;

@@ -4,6 +4,18 @@
 
 #include "ISettingsModule.h"
 #include "SimulationSystemSettings.h"
+#include "SimulationSystemProfileType.h"
+
+ESimualtionSystemProfileType GetSimulationSystemProfileType()
+{
+	auto Settings = GetDefault<USimulationSystemSettings>();
+	auto Type = Settings->ProfileType;
+	if (Type != ESimualtionSystemProfileType::ECS)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Profile type %s is not currently supported or outdated!"), *UEnum::GetValueAsString(Type))
+	}
+	return Type;
+}
 
 #define LOCTEXT_NAMESPACE "FSimulationSystemModule"
 

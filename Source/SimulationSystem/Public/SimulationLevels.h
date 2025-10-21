@@ -2,10 +2,11 @@
 #include "CoreMinimal.h"
 #include "SimulationLevels.generated.h"
 
-UENUM()
-enum ESimulationLevels{
-	ESimulationLevels_Online UMETA(DisplayName="Online"),
-	ESimulationLevels_Buffered UMETA(DisplayName="Buffered"),
-	ESimulationLevels_Offline UMETA(DisplayName="Offline"),
-	ESimulationLevels_MAX UMETA(Hidden)
+UENUM(BlueprintType)
+enum class ESimulationLevels : uint8
+{
+	Online UMETA(DisplayName="Online"),
+	Buffered UMETA(DisplayName="Buffered"),
+	Offline UMETA(DisplayName="Offline"),
+	MAX UMETA(Hidden)
 };

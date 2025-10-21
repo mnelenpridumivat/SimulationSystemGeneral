@@ -7,6 +7,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Vertex.h"
 #include "Edge.h"
+#include "GraphAsset.h"
 #include "SimVertexID.h"
 #include "SimulationSystemEditorFunctionLibrary.generated.h"
 
@@ -20,8 +21,6 @@ UCLASS()
 class SIMULATIONSYSTEMEDITOR_API USimulationSystemEditorFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
-	
-	using LevelGraph = TPair<TArray<TSharedPtr<Simulation::Vertex>>, TArray<TSharedPtr<Simulation::Edge>>>;
 
 	static void RebuildSelectedLocalGraph(UWorld* World,
 		AGraphAsset* LocalGraph,
@@ -34,7 +33,7 @@ class SIMULATIONSYSTEMEDITOR_API USimulationSystemEditorFunctionLibrary : public
 		const TArray<TTuple<TWeakPtr<Simulation::Edge>, TWeakPtr<Simulation::Edge>, TWeakPtr<Simulation::Edge>>>& Trilpes,
 		TTuple<TWeakPtr<Simulation::Edge>, TWeakPtr<Simulation::Edge>, TWeakPtr<Simulation::Edge>> NewTuple
 		);
-	static TWeakPtr<Simulation::Vertex> GetClosestVertex(FVector Location, const TArray<LevelGraph>& GraphPart, int LayerIndex);
+	static TWeakPtr<Simulation::Vertex> GetClosestVertex(FVector Location, const TArray<FGraphLayer>& GraphPart, int LayerIndex);
 	//static const TWeakPtr<Simulation::Vertex> GetClosestVertex(TWeakPtr<Simulation::Vertex> StartSearchVertex
 
 	static void SaveProfile(USimProfileBase* Profile, FProfilesSerialized& ReturnProfiles, FSimVertexID VertexID = FSimVertexID::Invalid);

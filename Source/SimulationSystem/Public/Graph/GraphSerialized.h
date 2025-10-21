@@ -19,15 +19,25 @@ struct FBytesSerialization
 };
 
 USTRUCT()
+struct FGraphLayerSerialized
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere)
+	TMap<FSimVertexID, FVector> Vertices;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<FSimEdgeStruct> Edges;
+	
+};
+
+USTRUCT(BlueprintType)
 struct FGraphSerialized
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
-	TMap<FSimVertexID, FVector> Vertices;
-
-	UPROPERTY()
-	TArray<FSimEdgeStruct> Edges;
+	UPROPERTY(VisibleAnywhere)
+	TArray<FGraphLayerSerialized> Layers;
 	
 };
 

@@ -6,6 +6,7 @@
 #include "DrawDebugHelpers.h"
 //#include "ExposedFunctionLibrary.h"
 #include "GlobalGraph.h"
+#include "GraphDataAsset.h"
 #include "LocalGraphRegistry.h"
 #include "SimProfileBase.h"
 #include "SimulationFunctionLibrary.h"
@@ -28,23 +29,28 @@ AGraphAsset::AGraphAsset()
 
 TWeakPtr<Simulation::Vertex> AGraphAsset::GetVertex(const FSimVertexID& ID)
 {
-	auto& KeyArr = ChunkGraphs[ID.LevelID].Key;
+	auto& KeyArr = ChunkGraphs[ID.LevelID].Vertices;
 	return KeyArr[ID.VertexID];
 }
 void AGraphAsset::DrawGraph(FColor Color, float LifeTime, float Thickness)
 {
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
-	for(auto& Edge : Graph.Edges)
+	for (const auto& Layer : ChunkGraphs)
 	{
-		auto VertexOne = GlobalGraph->GetVertexLocationByID(Edge.VertexOne);
-		auto VertexTwo = GlobalGraph->GetVertexLocationByID(Edge.VertexTwo);
-		DrawDebugLine(GetWorld(), VertexOne, VertexTwo, Color, false, LifeTime, 0, Thickness);
+		for (const auto& Edge : Layer.Edges)
+		{
+			auto VertexOne = GlobalGraph->GetVertexLocationByID(Edge->GetVertexOne().Pin()->GetVertexID());
+			auto VertexTwo = GlobalGraph->GetVertexLocationByID(Edge->GetVertexTwo().Pin()->GetVertexID());
+			// TODO: Optimize this
+			DrawDebugLine(GetWorld(), VertexOne, VertexTwo, Color, false, LifeTime, 0, Thickness);
+		}
 	}
 }
 
 FVector AGraphAsset::GetVertexLocationByID(const FSimVertexID& ID)
 {
-	return Graph.Vertices[ID];
+	auto& KeyArr = ChunkGraphs[ID.LevelID].Vertices;
+	return KeyArr[ID.VertexID]->GetLocation();
 }
 
 FSimVertexID AGraphAsset::FindClosestVertex(const FVector& Location, int LayerIndex)
@@ -56,7 +62,7 @@ FSimVertexID AGraphAsset::FindClosestVertex(const FVector& Location, int LayerIn
 	{
 		return FSimVertexID::Invalid;
 	}
-	TWeakPtr<Simulation::Vertex> ClosestVertex = ChunkGraphs[LayerIndex].Key[0];
+	TWeakPtr<Simulation::Vertex> ClosestVertex = ChunkGraphs[LayerIndex].Vertices[0];
 	long double ClosestDistanceSq = FVector::DistSquared(Location, ClosestVertex.Pin()->GetLocation());
 	bool FoundCloser;
 	do
@@ -152,6 +158,13 @@ FName AGraphAsset::GetCurrentLevel()
 	return LevelName;
 }
 
+#if WITH_EDITOR
+void AGraphAsset::SetGraph(UGraphDataAsset* GraphSerialized)
+{
+	Graph = GraphSerialized;
+}
+#endif
+
 // Called every frame
 void AGraphAsset::Tick(float DeltaTime)
 {
@@ -175,24 +188,43 @@ USimProfileBase* AGraphAsset::LoadProfile(FSerializedProfile& Data)
 void AGraphAsset::LoadGraph()
 {
 	UnloadGraph();
-	for(auto& VertexData : Graph.Vertices)
+	if (ensureMsgf(
+		!Graph.IsNull(),
+		TEXT("Graph file reference in %s is invalid"),
+		*GetName()))
 	{
-		if(!ChunkGraphs.IsValidIndex(VertexData.Key.LevelID))
+		UGraphDataAsset* GraphFile = Graph.LoadSynchronous();
+		if (ensureMsgf(
+			IsValid(GraphFile),
+			TEXT("Unable to load graph in [%s] from invalid graph file!"),
+			*GetName()))
 		{
-			ChunkGraphs.SetNumZeroed(VertexData.Key.LevelID+1);
+			const auto& Data = GraphFile->Graph;
+			ChunkGraphs.SetNumZeroed(Data.Layers.Num());
+			const auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
+			if (ensureMsgf(
+				IsValid(GlobalGraph),
+				TEXT("Global graph is invalid during graph loading!")))
+			{
+				for (size_t i = 0; i < Data.Layers.Num(); i++)
+				{
+					const auto& CurrentLayer = Data.Layers[i];
+					auto& RealLayer = ChunkGraphs[i];
+					for (const auto& VertexData : CurrentLayer.Vertices)
+					{
+						RealLayer.Vertices.Add(MakeShared<Simulation::Vertex>(VertexData.Key, VertexData.Value));
+					}
+					for (const auto& EdgeData : CurrentLayer.Edges)
+					{
+						auto VertexOne = GlobalGraph->GetVertexByID(EdgeData.VertexOne);
+						auto VertexTwo = GlobalGraph->GetVertexByID(EdgeData.VertexTwo);
+						RealLayer.Edges.Add(MakeShared<Simulation::Edge>(VertexOne, VertexTwo));
+						VertexOne.Pin()->AddEdge(RealLayer.Edges.Last());
+						VertexTwo.Pin()->AddEdge(RealLayer.Edges.Last());
+					}
+				}
+			}
 		}
-		auto& KeyArr = ChunkGraphs[VertexData.Key.LevelID].Key;
-		KeyArr.Add(MakeShared<Simulation::Vertex>(VertexData.Key, VertexData.Value));
-	}
-	const auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
-	for(auto& EdgeData : Graph.Edges)
-	{
-		auto LayerIndex = EdgeData.VertexOne.LevelID;
-		auto VertexOne = GlobalGraph->GetVertexByID(EdgeData.VertexOne);
-		auto VertexTwo = GlobalGraph->GetVertexByID(EdgeData.VertexTwo);
-		ChunkGraphs[LayerIndex].Value.Add(MakeShared<Simulation::Edge>(VertexOne, VertexTwo));
-		VertexOne.Pin()->AddEdge(ChunkGraphs[LayerIndex].Value.Last());
-		VertexTwo.Pin()->AddEdge(ChunkGraphs[LayerIndex].Value.Last());
 	}
 	if (ensureMsgf(
 		!GetDefault<USimulationSystemSettings>()->LocalGraphRegistryClass.IsNull(),

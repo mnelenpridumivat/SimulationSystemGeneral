@@ -19,7 +19,6 @@ UGraphMoveToProcessor::UGraphMoveToProcessor()
 
 void UGraphMoveToProcessor::ConfigureQueries()
 {
-	Super::ConfigureQueries();
 	EntityQuery.AddRequirement<FGraphPositionFragment>(EMassFragmentAccess::ReadWrite);
 	EntityQuery.AddRequirement<FGraphTargetPositionFragment>(EMassFragmentAccess::ReadWrite);
 	EntityQuery.AddRequirement<FGraphOfflineSpeedFragment>(EMassFragmentAccess::ReadOnly);

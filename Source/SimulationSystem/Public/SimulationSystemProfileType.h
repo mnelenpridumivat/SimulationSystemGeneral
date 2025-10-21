@@ -10,3 +10,5 @@ enum class ESimualtionSystemProfileType : uint8
 	ECS, // New profile types, created using ECS
 	MAX // Invalid value
 };
+
+SIMULATIONSYSTEM_API ESimualtionSystemProfileType GetSimulationSystemProfileType();

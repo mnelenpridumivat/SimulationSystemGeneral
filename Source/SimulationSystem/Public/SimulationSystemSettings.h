@@ -7,6 +7,7 @@
 #include "CommunityRelationTable.h"
 #include "LocalGraphRegistry.h"
 #include "SimulationSystemFunctionsImplementation.h"
+#include "SimulationSystemProfileType.h"
 #include "Replication/DEPRECATED_ReplicatedSimInfo.h"
 #include "UObject/Object.h"
 #include "SimulationSystemSettings.generated.h"
@@ -37,6 +38,9 @@ private:
 	GENERATED_BODY()
 
 public:
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="General")
+	ESimualtionSystemProfileType ProfileType = ESimualtionSystemProfileType::ECS;
 	
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="SimulationLevel")
 	float OnlineRadius = 5000;
@@ -79,6 +83,9 @@ public:
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="Data")
 	TSoftObjectPtr<UDataTable> Squads;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="Data")
+	FString GraphDataPath = TEXT("/Game/GraphDatas");
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="System")
 	TSoftClassPtr<USimulationSystemFunctionsImplementation> SimulationSystemFunctions;

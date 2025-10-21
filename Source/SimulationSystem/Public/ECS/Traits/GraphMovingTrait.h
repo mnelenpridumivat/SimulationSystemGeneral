@@ -12,7 +12,7 @@
  * 
  */
 UCLASS()
-class SIMULATIONSYSTEMECS_API UGraphMovingTrait : public UMassEntityTraitBase
+class SIMULATIONSYSTEM_API UGraphMovingTrait : public UMassEntityTraitBase
 {
 	GENERATED_BODY()
 
