@@ -21,11 +21,6 @@
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "SimulationSystemECS",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
-		},
-		{
 			"Name": "SimulationSystemDeveloperTool",
 			"Type": "DeveloperTool",
 			"LoadingPhase": "Default"
