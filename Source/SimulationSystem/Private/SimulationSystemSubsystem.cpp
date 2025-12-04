@@ -4,7 +4,13 @@
 #include "SimulationSystemSubsystem.h"
 
 #include "GlobalGraph.h"
+#include "MassEntityManager.h"
+#include "MassEntitySubsystem.h"
+#include "MassEntityTemplate.h"
+#include "MassEntityUtils.h"
 #include "ProfileIDController.h"
+#include "SimulationArchetype.h"
+#include "SimulationArchetypeSettings.h"
 #include "SimulationFunctionLibrary.h"
 #include "SimulationSystemFunctionsImplementation.h"
 #include "SimulationSystemSettings.h"
@@ -68,6 +74,49 @@ USimProfileBase* USimulationSystemSubsystem::ExecuteGenerator(UObject* Context, 
 	return GeneratorPool.ExecuteGenerator(Context, handle);
 }
 
+FMassEntityHandle USimulationSystemSubsystem::SpawnProfile(UObject* Context, FSimulationArchetypeHandle handle)
+{
+	if (!ensure(IsValid(Context)) || !ensure(IsValid(Context->GetWorld())))
+	{
+		return FMassEntityHandle();
+	}
+	auto& World = *Context->GetWorld();
+	auto& EntityManager = UE::Mass::Utils::GetEntityManagerChecked(World);
+
+	auto Settings = GetDefault<USimulationSystemSettings>();
+	if (!ensure(!Settings->Entities.IsNull()))
+	{
+		return FMassEntityHandle();
+	}
+	auto EntitiesTable = Settings->Entities.LoadSynchronous();
+	check(EntitiesTable);
+	auto Row = EntitiesTable->FindRow<FSimulationArchetypeSettings>(handle.Name, nullptr);
+	if (!ensure(Row))
+	{
+		return FMassEntityHandle();
+	}
+	auto Archetype = Row->Archetype.LoadSynchronous();
+	if (!ensure(Archetype))
+	{
+		return FMassEntityHandle();
+	}
+
+	auto EntityTemplate = Archetype->GetOrCreateEntityTemplate(World);
+	auto NewEntity = EntityManager.CreateEntity(EntityTemplate.GetArchetype());
+
+	auto testArchHandle = EntityManager.GetArchetypeForEntity(NewEntity);
+	auto testArch = EntityManager.GetArchetypeComposition(testArchHandle).Fragments;
+	TArray<const UScriptStruct*> test_frags;
+	for (auto it = test_frags.CreateIterator(); it; ++it)
+	{
+		test_frags.Add(*it);
+	}
+
+	ensure(false);
+	
+	return NewEntity;
+}
+
 void USimulationSystemSubsystem::GetAllPawnClasses(TArray<FName>& OutPawnClasses)
 {
 	ClassComposedData.GetKeys(OutPawnClasses);
@@ -97,7 +146,7 @@ USimProfileBase* FGeneratorPool::ExecuteGenerator(UObject* Context, const FGener
 	ensure(Generator);
 
 	handle.SetupGenerator(Generator);
-	auto NewProfile = Generator->GenerateProfile();
+	auto NewProfile = Generator->GenerateProfileOld();
 	//NewProfile->SetProfileID(GlobalGraph->GetProfileIDsController()->RegisterProfile(NewProfile));
 	return NewProfile;
 }

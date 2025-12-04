@@ -3,16 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MassEntityTraitBase.h"
-#include "MassEntityTraitBase.h"
-
-#include "GraphMovingTrait.generated.h"
+#include "SimulationBaseTrait.h"
+#include "DEPRECATED_SimulationPawnTrait.generated.h"
 
 /**
  * 
  */
-UCLASS()
-class SIMULATIONSYSTEM_API UGraphMovingTrait : public UMassEntityTraitBase
+UCLASS(Deprecated)
+class SIMULATIONSYSTEM_API UDEPRECATED_SimulationPawnTrait : public USimulationBaseTrait
 {
 	GENERATED_BODY()
 

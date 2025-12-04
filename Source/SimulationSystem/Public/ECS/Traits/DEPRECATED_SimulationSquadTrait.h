@@ -3,17 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SimulationTrait.h"
-#include "SimulationBaseTrait.generated.h"
+#include "SimulationBaseTrait.h"
+#include "DEPRECATED_SimulationSquadTrait.generated.h"
 
 /**
  * 
  */
-UCLASS()
-class SIMULATIONSYSTEM_API USimulationBaseTrait : public USimulationTrait
+UCLASS(Deprecated)
+class SIMULATIONSYSTEM_API UDEPRECATED_SimulationSquadTrait : public USimulationBaseTrait
 {
 	GENERATED_BODY()
-
+	
 public:
 	virtual void BuildTemplate(FMassEntityTemplateBuildContext& BuildContext, const UWorld& World) const override;
 };

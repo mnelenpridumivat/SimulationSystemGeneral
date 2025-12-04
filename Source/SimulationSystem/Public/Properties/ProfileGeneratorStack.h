@@ -13,7 +13,7 @@ UCLASS()
 class SIMULATIONSYSTEM_API UProfileGeneratorStack : public UProfileGenerator
 {
 public:
-	virtual USimProfileBase* GenerateProfile() override;
+	virtual USimProfileBase* GenerateProfileOld() override;
 
 private:
 	GENERATED_BODY()

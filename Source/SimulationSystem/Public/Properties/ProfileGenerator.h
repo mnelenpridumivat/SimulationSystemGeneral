@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MassEntityTypes.h"
 #include "UObject/Object.h"
 //#include "Engine/DataAsset.h"
 #include "ProfileGenerator.generated.h"
@@ -31,7 +32,8 @@ class SIMULATIONSYSTEM_API UProfileGenerator : public UObject
 public:
 	//virtual bool CanEditChange(const FProperty* InProperty) const override;
 
-	virtual USimProfileBase* GenerateProfile();
+	virtual USimProfileBase* GenerateProfileOld();
+	virtual FMassEntityHandle GenerateProfile();
 
 private:
 	GENERATED_BODY()

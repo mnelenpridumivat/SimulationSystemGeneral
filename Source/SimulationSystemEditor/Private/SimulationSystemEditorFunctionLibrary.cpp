@@ -30,6 +30,7 @@
 #include "IAssetTools.h"
 #include "SimPlayerStart.h"
 #include "SimulationSystemSettings.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 #include "Factories/DataAssetFactory.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 #include "Subsystems/EditorAssetSubsystem.h"
@@ -495,15 +496,17 @@ void USimulationSystemEditorFunctionLibrary::FullRebuild()
 	for(int i = 0; i < Actors.Num(); ++i)
 	{
 		auto LocalGraph = Cast<AGraphAsset>(Actors[i]);
+		LocalGraph->Modify();
 		LocalGraph->SetChunkIndex(i+1);
 		auto DataAsset = LocalGraph->GetGraph();
 		UGraphDataAsset* AssetObj = nullptr;
 		if (DataAsset.IsNull())
 		{
-			IAssetTools& Tools = FAssetToolsModule::GetModule().Get();
-			UDataAssetFactory* Factory = NewObject<UDataAssetFactory>();
 			FString AssetName = "DA_"+LocalGraph->GetName() + "_GraphData";
 			FString AssetPath = GetDefault<USimulationSystemSettings>()->GraphDataPath;
+			IAssetTools& Tools = FAssetToolsModule::GetModule().Get();
+			
+			UDataAssetFactory* Factory = NewObject<UDataAssetFactory>();
 
 			AssetObj = Cast<UGraphDataAsset>(Tools.CreateAsset(AssetName, AssetPath, UGraphDataAsset::StaticClass(), Factory));
 			if (ensure(IsValid(AssetObj)))
@@ -528,6 +531,8 @@ void USimulationSystemEditorFunctionLibrary::FullRebuild()
 		{
 			Subsystem->SaveLoadedAsset(AssetObj, false);
 		}
+
+		ensure(LocalGraph->MarkPackageDirty());
 		
 		SlowTaskL1.EnterProgressFrame(80.0f/Actors.Num());
 	}

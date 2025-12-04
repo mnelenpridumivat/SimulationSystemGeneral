@@ -3,17 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SimulationBaseTrait.h"
-#include "SimulationSquadTrait.generated.h"
+#include "SimulationTrait.h"
+#include "SimulationGraphMovingTrait.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SIMULATIONSYSTEM_API USimulationSquadTrait : public USimulationBaseTrait
+class SIMULATIONSYSTEM_API USimulationGraphMovingTrait : public USimulationTrait
 {
 	GENERATED_BODY()
-	
+
 public:
 	virtual void BuildTemplate(FMassEntityTemplateBuildContext& BuildContext, const UWorld& World) const override;
 };

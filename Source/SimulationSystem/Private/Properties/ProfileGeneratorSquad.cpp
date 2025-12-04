@@ -21,7 +21,7 @@ void FGeneratorHandleSquad::SetupGenerator(UProfileGenerator* Generator) const
 	CastedGenerator->SetSquadName(SquadName.Name);
 }
 
-USimProfileBase* UProfileGeneratorSquad::GenerateProfile()
+USimProfileBase* UProfileGeneratorSquad::GenerateProfileOld()
 {
 	auto Settings = GetDefault<USimulationSystemSettings>();
 	if (!ensureMsgf(!Settings->Squads.IsNull(), TEXT("Squads DataTable not found!")))

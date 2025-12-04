@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ProfileGenerator.h"
+#include "SimulationArchetypeHandle.h"
 #include "SimulationSystemSubsystemStructs.h"
 #include "SimulationSystemSubsystem.generated.h"
 
@@ -38,6 +39,7 @@ public:
 
 	USimulationSystemFunctionsImplementation* GetSimulationSystemFunctions() const {return SimulationSystemFunctions;}
 	USimProfileBase* ExecuteGenerator(UObject* Context, const FGeneratorHandleBase& handle);
+	FMassEntityHandle SpawnProfile(UObject* Context, FSimulationArchetypeHandle handle);
 
 	void GetAllPawnClasses(TArray<FName>& OutPawnClasses);
 	FName GetRandomNPCOfClass(FName NPCClass);

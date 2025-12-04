@@ -58,7 +58,7 @@ class SIMULATIONSYSTEM_API UProfileGeneratorSquad : public UProfileGenerator
 
 public:
 
-    virtual USimProfileBase* GenerateProfile() override;
+    virtual USimProfileBase* GenerateProfileOld() override;
 
     void SetSquadName(FName NewSquadName){ SquadName = NewSquadName; }
     

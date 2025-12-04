@@ -82,6 +82,9 @@ public:
 	float FindWayMaxSearchDistance = 100000;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="Data")
+	TSoftObjectPtr<UDataTable> Entities;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="Data")
 	TSoftObjectPtr<UDataTable> Squads;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="Data")

@@ -6,6 +6,8 @@
 #include "SimulationSystemDeveloperSettings.h"
 #include "SimulationSystemEditorFunctionLibrary.h"
 //#include "SimulationSystemCommands.h"
+#include "EntityDataHandleLayout.h"
+#include "SimulationTraitOverridesLayout.h"
 #include "SquadDataHandleLayout.h"
 #include "SquadDataNPCLayout.h"
 #include "ToolMenus.h"
@@ -16,8 +18,18 @@ void FSimulationSystemEditorModule::StartupModule()
 {
 	SetupSettings();
 
-	RegisterCustomPropertyTypeLayout("SquadNPCData", FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FSquadDataNPCLayout::MakeInstance));
-	RegisterCustomPropertyTypeLayout("SquadDataHandle", FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FSquadDataHandleLayout::MakeInstance));
+	RegisterCustomPropertyTypeLayout("SquadNPCData",
+	                                 FOnGetPropertyTypeCustomizationInstance::CreateStatic(
+		                                 &FSquadDataNPCLayout::MakeInstance));
+	RegisterCustomPropertyTypeLayout("SquadDataHandle",
+	                                 FOnGetPropertyTypeCustomizationInstance::CreateStatic(
+		                                 &FSquadDataHandleLayout::MakeInstance));
+	RegisterCustomPropertyTypeLayout("SimulationArchetypeHandle",
+	                                 FOnGetPropertyTypeCustomizationInstance::CreateStatic(
+	                                 &FEntityDataHandleLayout::MakeInstance));
+	RegisterCustomPropertyTypeLayout("SimulationTraitOverrides",
+									 FOnGetPropertyTypeCustomizationInstance::CreateStatic(
+										 &FSimulationTraitOverridesLayout::MakeInstance));
 	
 }
 

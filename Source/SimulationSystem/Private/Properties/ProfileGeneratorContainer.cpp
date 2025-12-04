@@ -3,7 +3,7 @@
 
 #include "ProfileGeneratorContainer.h"
 
-USimProfileBase* UProfileGeneratorContainer::GenerateProfile()
+USimProfileBase* UProfileGeneratorContainer::GenerateProfileOld()
 {
-	return Super::GenerateProfile();
+	return Super::GenerateProfileOld();
 }

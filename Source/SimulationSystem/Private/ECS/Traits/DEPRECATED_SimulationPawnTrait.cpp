@@ -1,17 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SimulationSquadTrait.h"
+#include "DEPRECATED_SimulationPawnTrait.h"
 
 #include "GraphOfflineSpeedFragment.h"
 #include "GraphTargetPositionFragment.h"
 #include "MassEntityTemplateRegistry.h"
-#include "SquadTag.h"
+#include "NPCTag.h"
 
-void USimulationSquadTrait::BuildTemplate(FMassEntityTemplateBuildContext& BuildContext, const UWorld& World) const
+void UDEPRECATED_SimulationPawnTrait::BuildTemplate(FMassEntityTemplateBuildContext& BuildContext, const UWorld& World) const
 {
 	Super::BuildTemplate(BuildContext, World);
-	BuildContext.AddTag<FSquadTag>();
 	BuildContext.AddFragment<FGraphOfflineSpeedFragment>();
 	BuildContext.AddFragment<FGraphTargetPositionFragment>();
 }

@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "SimulationBaseTrait.h"
-#include "SimulationPawnTrait.generated.h"
+#include "DEPRECATED_SimulationSmartTrait.generated.h"
 
 /**
  * 
  */
-UCLASS()
-class SIMULATIONSYSTEM_API USimulationPawnTrait : public USimulationBaseTrait
+UCLASS(Deprecated)
+class SIMULATIONSYSTEM_API UDEPRECATED_SimulationSmartTrait : public USimulationBaseTrait
 {
 	GENERATED_BODY()
-
+	
 public:
 	virtual void BuildTemplate(FMassEntityTemplateBuildContext& BuildContext, const UWorld& World) const override;
 };

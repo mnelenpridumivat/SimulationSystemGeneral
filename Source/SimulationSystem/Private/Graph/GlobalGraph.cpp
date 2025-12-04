@@ -84,7 +84,7 @@ void AGlobalGraph::PostInitializeComponents()
 	
 	LoadGraph();
 	LoadIndex = 0;
-	AsyncLoadChunks(); // TODO: Remove temporary
+	//AsyncLoadChunks(); // TODO: Remove temporary
 	LoadObjects_Initial();
 }
 
@@ -158,6 +158,10 @@ void AGlobalGraph::LoadGraph()
 	for (auto& Actor : Actors)
 	{
 		auto CastedActor = Cast<AGraphAsset>(Actor);
+		if (!ensureMsgf(CastedActor->GetChunkIndex() != 0, TEXT("Chunk [%s] has invalid index [0]!"), *CastedActor->GetName()))
+		{
+			return;
+		}
 		if(!LocalGraphs.IsValidIndex(CastedActor->GetChunkIndex()-1))
 		{
 			LocalGraphs.SetNumZeroed(CastedActor->GetChunkIndex());
