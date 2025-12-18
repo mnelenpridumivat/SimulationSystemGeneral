@@ -101,14 +101,15 @@ void UAISimProfilePawn::NativeSave(FSimVertexID VertexID, FSerializedProfileView
 void UAISimProfilePawn::NativeLoad(FSerializedProfile& Data)
 {
 	Super::NativeLoad(Data);
-	FProfilesSerializedView Children;
+	ensure(0);
+	/*FProfilesSerializedView Children;
 	Data.ExtractFirstChildren(Children);
 	for(auto& elem : Children.Objects)
 	{
 		auto Item = NewObject<USimProfileItem>(GetWorld(), elem->ObjectClass);
 		Item->NativeLoad(*elem);
 		Execute_AddItem(this, Item);
-	}
+	}*/
 }
 
 void UAISimProfilePawn::NativeOnVertexPositionChanged(const FSimVertexID& Old, const FSimVertexID& New)

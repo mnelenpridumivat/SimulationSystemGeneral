@@ -24,7 +24,7 @@ ACampBase::ACampBase()
 	PrimaryActorTick.bCanEverTick = true;
 	bIsEditorOnlyActor = true;
 
-	ProfileComponent = CreateDefaultSubobject<UProfileComponentCamp>("ProfileComponent");
+	ProfileComponent = CreateDefaultSubobject<UProfileComponent>("ProfileComponent");
 }
 
 // Called when the game starts or when spawned

@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "SimEdgeStruct.h"
+#include "SimulationArchetypeHandle.h"
 #include "SimVertexID.h"
 #include "GraphSerialized.generated.h"
 
@@ -73,16 +74,16 @@ struct SIMULATIONSYSTEM_API FSerializedProfileChildrenChunk
 USTRUCT(BlueprintType)
 struct SIMULATIONSYSTEM_API FSerializedProfile
 {
-	GENERATED_BODY()
+	GENERATED_BODY();
+
+	UPROPERTY(BlueprintReadWrite)
+	FSimulationArchetypeHandle Archetype;
 
 	UPROPERTY(BlueprintReadWrite)
 	FSimVertexID VertexLocation = FSimVertexID::Invalid;
-
+	
 	UPROPERTY(BlueprintReadWrite)
-	TSubclassOf<UObject> ObjectClass;
-
-	UPROPERTY(BlueprintReadWrite)
-	FBytesSerialization ObjectData;
+	bool HasData = false;
 
 	UPROPERTY()
 	TArray<FSerializedProfileChildrenChunk> Children = {};

@@ -19,4 +19,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	FGraphSerialized Graph;
+	
+	UPROPERTY(VisibleAnywhere)
+	FProfilesSerialized Profiles;
 };

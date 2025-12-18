@@ -27,11 +27,11 @@
 void FEntityDataHandleLayout::OnGetAvalableEntities(TArray<TSharedPtr<FString>>& Strings, TArray<TSharedPtr<SToolTip>>& Shareds,
 	TArray<bool>& Array)
 {
-	if (GetDefault<USimulationSystemSettings>()->Entities.IsNull())
+	if (GetDefault<USimulationSystemSettings>()->AllEntities.IsNull())
 	{
 		return;
 	}
-	auto Table = GetDefault<USimulationSystemSettings>()->Entities.LoadSynchronous();
+	auto Table = GetDefault<USimulationSystemSettings>()->AllEntities.LoadSynchronous();
 	if (!ensureMsgf(IsValid(Table), TEXT("Unable to load Entities data table!")))
 	{
 		return;

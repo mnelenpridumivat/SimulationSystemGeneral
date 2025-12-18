@@ -13,6 +13,10 @@ void USimulationTableTrait::SetupDefaultTableSettings_Implementation(FSimulation
 	data.UseRandom = DefaultUseRandom;
 }
 
+void USimulationTableTrait::SetupEntity(FMassEntityManager& Manager, FMassEntityHandle Entity, const FSimulationTraitOverrides& OverrideData)
+{
+}
+
 #if WITH_EDITOR
 TArray<FName> USimulationTableTrait::GetRowNameOptions()
 {

@@ -14,6 +14,7 @@
 #include "SimulationFunctionLibrary.h"
 #include "SimulationSystemFunctionsImplementation.h"
 #include "SimulationSystemSettings.h"
+#include "SimulationTableTrait.h"
 
 void USimulationSystemSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -84,11 +85,11 @@ FMassEntityHandle USimulationSystemSubsystem::SpawnProfile(UObject* Context, FSi
 	auto& EntityManager = UE::Mass::Utils::GetEntityManagerChecked(World);
 
 	auto Settings = GetDefault<USimulationSystemSettings>();
-	if (!ensure(!Settings->Entities.IsNull()))
+	if (!ensure(!Settings->AllEntities.IsNull()))
 	{
 		return FMassEntityHandle();
 	}
-	auto EntitiesTable = Settings->Entities.LoadSynchronous();
+	auto EntitiesTable = Settings->AllEntities.LoadSynchronous();
 	check(EntitiesTable);
 	auto Row = EntitiesTable->FindRow<FSimulationArchetypeSettings>(handle.Name, nullptr);
 	if (!ensure(Row))
@@ -104,15 +105,14 @@ FMassEntityHandle USimulationSystemSubsystem::SpawnProfile(UObject* Context, FSi
 	auto EntityTemplate = Archetype->GetOrCreateEntityTemplate(World);
 	auto NewEntity = EntityManager.CreateEntity(EntityTemplate.GetArchetype());
 
-	auto testArchHandle = EntityManager.GetArchetypeForEntity(NewEntity);
-	auto testArch = EntityManager.GetArchetypeComposition(testArchHandle).Fragments;
-	TArray<const UScriptStruct*> test_frags;
-	for (auto it = test_frags.CreateIterator(); it; ++it)
+	for (auto Trait : Archetype->GetConfig().GetTraits())
 	{
-		test_frags.Add(*it);
+		if (auto Casted = Cast<USimulationTableTrait>(Trait);
+			Casted && ensure(Row->Overrides.Contains(Casted->GetClass())))
+		{
+			Casted->SetupEntity(EntityManager, NewEntity, Row->Overrides[Casted->GetClass()]);
+		}
 	}
-
-	ensure(false);
 	
 	return NewEntity;
 }

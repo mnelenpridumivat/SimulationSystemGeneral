@@ -40,7 +40,8 @@ public class SimulationSystemEditor : ModuleRules
                 "EditorScriptingUtilities",
                 "UnrealEd",
                 "PropertyEditor",
-                "EditorSubsystem"
+                "EditorSubsystem", 
+                "Blutility"
             }
         );
     }

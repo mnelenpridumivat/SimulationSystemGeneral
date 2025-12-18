@@ -24,10 +24,12 @@ protected:
 	virtual USimProfileBase* CreateNewProfile_Implementation() override;
 
 	UPROPERTY(EditAnywhere)
-	TArray<FSquadDataHandle> StartSquads;
+	TArray<FSimulationArchetypeHandle> StartSquads;
 
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
+	
+	virtual void InitProfile(FProfilesSerialized& Return, const FSimVertexID& VertexID) override;
 };

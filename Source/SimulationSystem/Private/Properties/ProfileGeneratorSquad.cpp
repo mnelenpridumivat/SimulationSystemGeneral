@@ -23,7 +23,7 @@ void FGeneratorHandleSquad::SetupGenerator(UProfileGenerator* Generator) const
 
 USimProfileBase* UProfileGeneratorSquad::GenerateProfileOld()
 {
-	auto Settings = GetDefault<USimulationSystemSettings>();
+	/*auto Settings = GetDefault<USimulationSystemSettings>();
 	if (!ensureMsgf(!Settings->Squads.IsNull(), TEXT("Squads DataTable not found!")))
 	{
 		return nullptr;
@@ -58,7 +58,9 @@ USimProfileBase* UProfileGeneratorSquad::GenerateProfileOld()
 				ISimProfileContainer::Execute_AddItem(NewSquad, Pawn);
 			}
 		}
-	}
+	}*/
 
-	return NewSquad;
+	//return NewSquad;
+	ensure(0);
+	return nullptr;
 }

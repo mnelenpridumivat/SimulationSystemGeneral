@@ -102,7 +102,8 @@ void UAISimProfileSquad::NativeSave(FSimVertexID VertexID, FSerializedProfileVie
 void UAISimProfileSquad::NativeLoad(FSerializedProfile& Data)
 {
 	Super::NativeLoad(Data);
-	{
+	ensure(0);
+	/*{
 		FProfilesSerializedView Children;
 		Data.ExtractFirstChildren(Children);
 		for(auto elem : Children.Objects)
@@ -125,7 +126,7 @@ void UAISimProfileSquad::NativeLoad(FSerializedProfile& Data)
 				SetCurrentTask(NewTask);
 			}
 		}		
-	}
+	}*/
 }
 
 void UAISimProfileSquad::RefreshSquadCharacteristics()

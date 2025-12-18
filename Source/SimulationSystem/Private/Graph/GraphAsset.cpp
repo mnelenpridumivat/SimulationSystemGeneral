@@ -12,6 +12,7 @@
 #include "SimulationFunctionLibrary.h"
 #include "SimProfileContainer.h"
 #include "SimulationSystemSettings.h"
+#include "SimulationSystemSubsystem.h"
 #include "SimVertexID.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
@@ -100,7 +101,7 @@ void AGraphAsset::LoadObjects_Save()
 {
 }
 
-void AGraphAsset::LoadObjects_Initial()
+/*void AGraphAsset::LoadObjects_Initial()
 {
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
 	for (auto& elem : InitialProfiles.Objects)
@@ -123,7 +124,7 @@ void AGraphAsset::LoadObjects_Initial()
 			GlobalGraph->AddProfileOnGraph(Profile, VertexID);
 		}
 	}
-}
+}*/
 
 FGraphSerialized AGraphAsset::SaveObjects()
 {
@@ -177,13 +178,13 @@ void AGraphAsset::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	UnloadGraph();
 }
 
-USimProfileBase* AGraphAsset::LoadProfile(FSerializedProfile& Data)
+/*USimProfileBase* AGraphAsset::LoadProfile(FSerializedProfile& Data)
 {
 	USimProfileBase* Profile = NewObject<USimProfileBase>(GetWorld(), Data.ObjectClass);
 	USimulationFunctionLibrary::LoadObjectData(Profile, Data.ObjectData);
 	Profile->NativeLoad(Data);
 	return Profile;
-}
+}*/
 
 void AGraphAsset::LoadGraph()
 {
@@ -199,31 +200,48 @@ void AGraphAsset::LoadGraph()
 			TEXT("Unable to load graph in [%s] from invalid graph file!"),
 			*GetName()))
 		{
-			const auto& Data = GraphFile->Graph;
-			ChunkGraphs.SetNumZeroed(Data.Layers.Num());
-			const auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
-			if (ensureMsgf(
-				IsValid(GlobalGraph),
-				TEXT("Global graph is invalid during graph loading!")))
 			{
-				for (size_t i = 0; i < Data.Layers.Num(); i++)
+				// Vertices
+				const auto& Data = GraphFile->Graph;
+				ChunkGraphs.SetNumZeroed(Data.Layers.Num());
+				const auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
+				if (ensureMsgf(
+					IsValid(GlobalGraph),
+					TEXT("Global graph is invalid during graph loading!")))
 				{
-					const auto& CurrentLayer = Data.Layers[i];
-					auto& RealLayer = ChunkGraphs[i];
-					for (const auto& VertexData : CurrentLayer.Vertices)
+					for (size_t i = 0; i < Data.Layers.Num(); i++)
 					{
-						RealLayer.Vertices.Add(MakeShared<Simulation::Vertex>(VertexData.Key, VertexData.Value));
-					}
-					for (const auto& EdgeData : CurrentLayer.Edges)
-					{
-						auto VertexOne = GlobalGraph->GetVertexByID(EdgeData.VertexOne);
-						auto VertexTwo = GlobalGraph->GetVertexByID(EdgeData.VertexTwo);
-						RealLayer.Edges.Add(MakeShared<Simulation::Edge>(VertexOne, VertexTwo));
-						VertexOne.Pin()->AddEdge(RealLayer.Edges.Last());
-						VertexTwo.Pin()->AddEdge(RealLayer.Edges.Last());
+						const auto& CurrentLayer = Data.Layers[i];
+						auto& RealLayer = ChunkGraphs[i];
+						for (const auto& VertexData : CurrentLayer.Vertices)
+						{
+							RealLayer.Vertices.Add(MakeShared<Simulation::Vertex>(VertexData.Key, VertexData.Value));
+						}
+						for (const auto& EdgeData : CurrentLayer.Edges)
+						{
+							auto VertexOne = GlobalGraph->GetVertexByID(EdgeData.VertexOne);
+							auto VertexTwo = GlobalGraph->GetVertexByID(EdgeData.VertexTwo);
+							RealLayer.Edges.Add(MakeShared<Simulation::Edge>(VertexOne, VertexTwo));
+							VertexOne.Pin()->AddEdge(RealLayer.Edges.Last());
+							VertexTwo.Pin()->AddEdge(RealLayer.Edges.Last());
+						}
 					}
 				}
 			}
+			{
+				// Profiles
+				const auto& Data = GraphFile->Profiles;
+				for (size_t i = 0; i < Data.Objects.Num(); i++)
+				{
+					auto& Current = Data.Objects[i];
+					if (ensure(Current.HasData))
+					{
+						USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld())->
+							SpawnProfile(GetWorld(), Current.Archetype);
+					}
+				}
+			}
+			
 		}
 	}
 	if (ensureMsgf(

@@ -39,7 +39,7 @@ public:
 	TWeakPtr<Simulation::Vertex> GetVertex(const FSimVertexID& ID);
 
 	void LoadGraph();
-	void LoadObjects_Initial();
+	//void LoadObjects_Initial();
 	void LoadObjects_Save(); //TODO: Accept SaveObject
 	FGraphSerialized SaveObjects();
 	void UnloadGraph();
@@ -57,8 +57,8 @@ public:
 #if WITH_EDITOR
 	void SetGraph(UGraphDataAsset* GraphSerialized);
 	TSoftObjectPtr<UGraphDataAsset> GetGraph(){return Graph;}
-	void SetInitialProfiles(const FProfilesSerialized& ProfilesSerialized){InitialProfiles = ProfilesSerialized;}
-	FProfilesSerialized& GetMutableInitialProfiles(){return InitialProfiles;}
+	//void SetInitialProfiles(const FProfilesSerialized& ProfilesSerialized){InitialProfiles = ProfilesSerialized;}
+	//FProfilesSerialized& GetMutableInitialProfiles(){return InitialProfiles;}
 #endif
 
 	UFUNCTION(BlueprintPure)
@@ -97,13 +97,13 @@ private:
 	TSoftObjectPtr<UGraphDataAsset> Graph;
 	//FGraphSerialized Graph;
 
-	UPROPERTY()
-	FProfilesSerialized InitialProfiles;
+	//UPROPERTY()
+	//FProfilesSerialized InitialProfiles;
 
 	UPROPERTY()
 	TObjectPtr<ULocalGraphRegistry> Registry;
 	
-	USimProfileBase* LoadProfile(FSerializedProfile& Data);
+	//USimProfileBase* LoadProfile(FSerializedProfile& Data);
 
 	UPROPERTY()
 	int ChunkIndex;

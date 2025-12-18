@@ -102,8 +102,8 @@ bool USquadTaskBase::CheckTaskFinished(UAISimProfileSquad* Squad)
 
 void USquadTaskBase::Save_Implementation(FSerializedProfileView Data)
 {
-	Data.GetElem().ObjectClass = GetClass();
-	USimulationFunctionLibrary::SaveObjectData(this, Data.GetElem().ObjectData);
+	//Data.GetElem().ObjectClass = GetClass();
+	//USimulationFunctionLibrary::SaveObjectData(this, Data.GetElem().ObjectData);
 }
 
 void USquadTaskBase::AbortTask_Implementation(UAISimProfileSquad* Squad)

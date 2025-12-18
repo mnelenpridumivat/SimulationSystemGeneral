@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GraphSerialized.h"
 #include "SimProfileID.h"
 #include "Components/ActorComponent.h"
 #include "ProfileComponent.generated.h"
@@ -42,6 +43,9 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated)
 	FSimProfileID ProfileID;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FSimulationArchetypeHandle Archetype;
+
 	UPROPERTY(BlueprintReadOnly, Replicated)
 	TObjectPtr<USimProfileBase> Profile;
 
@@ -57,6 +61,7 @@ public:
 	void SetProfileID(const FSimProfileID& NewProfileID);
 	
 	// Called on editor compile
+	virtual void InitProfile(FProfilesSerialized& Return, const FSimVertexID& VertexID);
 	USimProfileBase* InitProfile();
 
 	// Server-only getter of profile of online actor

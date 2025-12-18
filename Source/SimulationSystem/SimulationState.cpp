@@ -17,11 +17,13 @@ void USimulationState::SaveProfile(USimProfileBase* Profile, /*uint32 ParentInde
 USimProfileBase* USimulationState::LoadProfile(int Index)
 {
 	auto& ProfileData = Profiles.Objects[Index];
-	USimProfileBase* Profile = NewObject<USimProfileBase>(GetWorld(), ProfileData.ObjectClass);
-	USimulationFunctionLibrary::LoadObjectData(Profile, ProfileData.ObjectData);
-	Profile->NativeLoad(ProfileData);
-	Profile->NativeOnLoaded();
-	return Profile;
+	//USimProfileBase* Profile = NewObject<USimProfileBase>(GetWorld(), ProfileData.ObjectClass);
+	//USimulationFunctionLibrary::LoadObjectData(Profile, ProfileData.ObjectData);
+	//Profile->NativeLoad(ProfileData);
+	//Profile->NativeOnLoaded();
+	//return Profile;
+	ensure(0);
+	return nullptr;
 }
 
 TMap<FSimVertexID, USimProfileBase*> USimulationState::GetProfiles()

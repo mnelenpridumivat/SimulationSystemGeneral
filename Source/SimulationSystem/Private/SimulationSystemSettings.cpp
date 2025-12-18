@@ -3,6 +3,8 @@
 
 #include "SimulationSystemSettings.h"
 
+#include "AutoKeyRegistration.h"
+
 #if WITH_EDITOR
 void USimulationSystemSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
@@ -55,5 +57,34 @@ void USimulationSystemSettings::PostEditChangeProperty(FPropertyChangedEvent& Pr
 	{
 		OnFunctionsPropertyChanged.Broadcast();
 	}
+}
+
+TSet<FName>& USimulationSystemSettings::GetEntitiesTableKeys()
+{
+	static bool Initialized = false;
+	if (!Initialized)
+	{
+		for (auto& Key : FSimulationDataTableKeyRegistry::Instance().GetKeys())
+		{
+			EntitiesTableKeys.Add(Key);
+		}
+		Initialized = true;
+	}
+	return EntitiesTableKeys;
+}
+
+UDataTable* USimulationSystemSettings::GetDataTableByKey(FName Key)
+{
+	auto self = GetMutableDefault<USimulationSystemSettings>();
+	if (!ensure(self->GetEntitiesTableKeys().Contains(Key)))
+	{
+		return nullptr;
+	}
+	auto elem = self->EntitiesTables.Find({Key});
+	if (!elem || elem->IsNull())
+	{
+		return nullptr;
+	}
+	return elem->LoadSynchronous();
 }
 #endif

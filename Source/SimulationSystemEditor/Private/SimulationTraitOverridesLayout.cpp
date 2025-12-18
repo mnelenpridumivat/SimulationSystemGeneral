@@ -104,11 +104,11 @@ void FSimulationTraitOverridesLayout::CustomizeChildren(TSharedRef<class IProper
 		ComboBoxArgs.OnGetStrings = FOnGetPropertyComboBoxStrings::CreateSP(this, &FSimulationTraitOverridesLayout::OnGetAvalableRows);
 		//ComboBoxArgs.OnGetValue = FOnGetPropertyComboBoxValue::CreateSP(this, &FSquadDataNPCLayout::OnGetNPCValue);
 	
-		StructBuilder.AddCustomRow(LOCTEXT("Squad_Name", "Squad Name"))
+		StructBuilder.AddCustomRow(LOCTEXT("Row_Name", "Row Name"))
 		.NameContent()
 		[
 			SNew(STextBlock)
-			.Text(LOCTEXT("Squad_Name", "Squad Name"))
+			.Text(LOCTEXT("Row_Name", "Row Name"))
 			.Font(StructCustomizationUtils.GetRegularFont())
 		]
 		.ValueContent()

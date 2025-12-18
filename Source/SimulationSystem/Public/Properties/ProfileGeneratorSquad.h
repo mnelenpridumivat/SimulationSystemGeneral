@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "ProfileGenerator.h"
+#include "SimulationArchetypeHandle.h"
 #include "ProfileGeneratorSquad.generated.h"
 
 USTRUCT(BlueprintType)
@@ -10,7 +11,7 @@ struct FSquadNPCData
     GENERATED_BODY()
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FName Name;
+    FSimulationArchetypeHandle Name;
 };
 
 USTRUCT(BlueprintType)
@@ -27,7 +28,7 @@ struct FSquadData : public FTableRowBase{
     GENERATED_BODY()
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TArray<FSquadNPCData> NPCs = {};
+    TArray<FSimulationArchetypeHandle> NPCs = {};
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool Random = false;

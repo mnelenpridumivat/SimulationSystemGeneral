@@ -2,6 +2,7 @@
 
 #include "SquadDataHandleLayout.h"
 
+#include "AutoKeyRegistration.h"
 #include "DataTableEditorUtils.h"
 #include "ScopedTransaction.h"
 #include "Engine/EngineBaseTypes.h"
@@ -19,6 +20,7 @@
 #include "ProfileGeneratorSquad.h"
 #include "Widgets/SToolTip.h"
 #include "PropertyCustomizationHelpers.h"
+#include "SimulationSquadHandlerTrait.h"
 #include "SimulationSystemSettings.h"
 
 #define LOCTEXT_NAMESPACE "FSquadDataNPCLayout"
@@ -26,11 +28,11 @@
 void FSquadDataHandleLayout::OnGetAvalableSquads(TArray<TSharedPtr<FString>>& Strings, TArray<TSharedPtr<SToolTip>>& Shareds,
 	TArray<bool>& Array)
 {
-	if (GetDefault<USimulationSystemSettings>()->Squads.IsNull())
+	auto Table = USimulationSystemSettings::GetDataTableByKey(SIMULATION_DATATABLE_KEY(Squad));
+	if (!IsValid(Table))
 	{
 		return;
 	}
-	auto Table = GetDefault<USimulationSystemSettings>()->Squads.LoadSynchronous();
 	ensureMsgf(IsValid(Table), TEXT("Unable to load Squads data table!"));
 	if (!IsValid(Table))
 	{

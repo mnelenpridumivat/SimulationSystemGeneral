@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AISimProfileSquad.h"
 #include "SimulationLevels.h"
 #include "UObject/Object.h"
 #include "SquadTaskBase.generated.h"

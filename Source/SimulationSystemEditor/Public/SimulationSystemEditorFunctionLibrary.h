@@ -38,8 +38,13 @@ class SIMULATIONSYSTEMEDITOR_API USimulationSystemEditorFunctionLibrary : public
 
 	static void SaveProfile(USimProfileBase* Profile, FProfilesSerialized& ReturnProfiles, FSimVertexID VertexID = FSimVertexID::Invalid);
 
+	static void CleanUp();
+	static void Build();
+
 public:
 	
 	static void FullRebuild();
 	static void DebugDrawGraphEditor();
+
+	static void Delay(TFunction<void()> InLambda, float InMinimumSeconds, int32 InMinimumFrames);
 };

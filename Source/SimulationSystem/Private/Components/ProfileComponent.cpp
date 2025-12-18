@@ -105,6 +105,14 @@ void UProfileComponent::SetProfileID(const FSimProfileID& NewProfileID)
 	ProfileID = NewProfileID;
 }
 
+void UProfileComponent::InitProfile(FProfilesSerialized& Return, const FSimVertexID& VertexID)
+{
+	auto Slot = Return.AddLast();
+	Slot.GetElem().VertexLocation = VertexID;
+	Slot.GetElem().Archetype = Archetype;
+	Slot.GetElem().HasData = true;
+}
+
 USimProfileBase* UProfileComponent::InitProfile()
 {
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());

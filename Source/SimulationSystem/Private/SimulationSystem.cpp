@@ -2,6 +2,7 @@
 
 #include "SimulationSystem.h"
 
+#include "AutoKeyRegistration.h"
 #include "ISettingsModule.h"
 #include "SimulationSystemSettings.h"
 #include "SimulationSystemProfileType.h"

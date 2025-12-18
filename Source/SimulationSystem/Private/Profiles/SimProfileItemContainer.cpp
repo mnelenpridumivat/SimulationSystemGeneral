@@ -93,14 +93,15 @@ void USimProfileItemContainer::NativeSave(FSimVertexID VertexID, FSerializedProf
 void USimProfileItemContainer::NativeLoad(FSerializedProfile& Data)
 {
 	Super::NativeLoad(Data);
-	FProfilesSerializedView Children;
+	ensure(0);
+	/*FProfilesSerializedView Children;
 	Data.ExtractFirstChildren(Children);
 	for(auto elem : Children.Objects)
 	{
 		auto Item = NewObject<USimProfileItem>(GetWorld(), elem->ObjectClass);
 		Item->NativeLoad(*elem);
 		Execute_AddItem(this, Item);
-	}
+	}*/
 }
 
 void USimProfileItemContainer::NativeOnVertexPositionChanged(const FSimVertexID& Old, const FSimVertexID& New)

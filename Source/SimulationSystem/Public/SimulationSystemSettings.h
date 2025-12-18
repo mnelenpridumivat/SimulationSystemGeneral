@@ -18,6 +18,23 @@ class UAISimProfilePawn;
 class USimulationSystemFunctionsImplementation;
 class UAISimProfileSquad;
 
+USTRUCT(BlueprintType)
+struct FSimulationSystemEntityDataTableKey
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName Key;
+
+	FORCEINLINE bool operator==(const FSimulationSystemEntityDataTableKey& other) const{ return Key == other.Key; }
+};
+
+
+FORCEINLINE uint32 GetTypeHash(const FSimulationSystemEntityDataTableKey& Data)
+{
+	return GetTypeHash(Data.Key);
+}
+
 /**
  * 
  */
@@ -81,11 +98,20 @@ public:
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="Pathfinding")
 	float FindWayMaxSearchDistance = 100000;
 
+protected:
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="Data")
-	TSoftObjectPtr<UDataTable> Entities;
+	TSet<FName> EntitiesTableKeys;
+
+public:
+	TSet<FName>& GetEntitiesTableKeys();
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="Data")
-	TSoftObjectPtr<UDataTable> Squads;
+	TSoftObjectPtr<UDataTable> AllEntities;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="Data")
+	TMap<FSimulationSystemEntityDataTableKey, TSoftObjectPtr<UDataTable>> EntitiesTables;
+
+	static UDataTable* GetDataTableByKey(FName Key);
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadOnly, Category="Data")
 	FString GraphDataPath = TEXT("/Game/GraphDatas");

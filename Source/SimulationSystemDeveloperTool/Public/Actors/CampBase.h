@@ -31,7 +31,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UProfileComponentCamp* ProfileComponent;
+	UProfileComponent* ProfileComponent;
 
 public:
 	// Called every frame

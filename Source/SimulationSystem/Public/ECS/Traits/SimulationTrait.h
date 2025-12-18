@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "MassEntityTraitBase.h"
+#include "MassEntityTypes.h"
 #include "SimulationTrait.generated.h"
 
 struct FSimulationTraitOverrides;

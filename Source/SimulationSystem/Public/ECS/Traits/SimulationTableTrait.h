@@ -43,6 +43,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void SetupDefaultTableSettings(FSimulationTraitOverrides& data);
 
+	virtual void SetupEntity(FMassEntityManager& Manager, FMassEntityHandle Entity, const FSimulationTraitOverrides& OverrideData);
+
 	UFUNCTION(BlueprintPure)
 	UDataTable* GetDefaultsDataTable() const {return DefaultsDataTable;}
 

@@ -3,6 +3,3 @@
 
 #include "SimulationTrait.h"
 
-/*void USimulationTrait::SetupDefaultTableSettings_Implementation(FSimulationTraitOverrides& data)
-{
-}*/

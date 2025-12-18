@@ -48,7 +48,8 @@ USimProfileBase* UProfileComponentCamp::CreateNewProfile_Implementation()
 		{
 			FGeneratorHandleSquad handle;
 			handle.GeneratorClass = UProfileGeneratorSquad::StaticClass();
-			handle.SquadName = elem;
+			ensure(0);
+			//handle.SquadName = elem;
 			auto NewSquad = FunctionSubsystem->ExecuteGenerator(GetWorld(), handle);
 			GlobalGraph->RegisterChildProfile(NewSquad, NewProfile);
 			ISimProfileContainer::Execute_AddItem(NewProfile, NewSquad);
@@ -65,5 +66,23 @@ void UProfileComponentCamp::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UProfileComponentCamp::InitProfile(FProfilesSerialized& Return, const FSimVertexID& VertexID)
+{
+	ensure(0);
+	auto Slot = Return.AddLast();
+	Slot.GetElem().VertexLocation = VertexID;
+	//Slot.GetElem().Archetype = GetDefault<USimulationSystemSettings>()->Archetype;
+	Slot.GetElem().HasData = true;
+	auto SquadsSlot = Slot.GetElem().AddChild();
+	SquadsSlot.GetElem().Archetype.Name = "Squads";
+	for (auto& Squad : StartSquads)
+	{
+		auto SquadSlot = SquadsSlot.GetElem().AddChild();
+		SquadSlot.GetElem().VertexLocation = VertexID;
+		SquadSlot.GetElem().Archetype = Squad;
+		SquadSlot.GetElem().HasData = true;
+	}
 }
 

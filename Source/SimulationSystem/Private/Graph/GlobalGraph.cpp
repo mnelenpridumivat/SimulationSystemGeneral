@@ -85,7 +85,7 @@ void AGlobalGraph::PostInitializeComponents()
 	LoadGraph();
 	LoadIndex = 0;
 	//AsyncLoadChunks(); // TODO: Remove temporary
-	LoadObjects_Initial();
+	//LoadObjects_Initial();
 }
 
 AGlobalGraph::AGlobalGraph()
@@ -186,7 +186,8 @@ void AGlobalGraph::LoadObjects_Initial()
 {
 	for(auto& LocalGraph : LocalGraphs)
 	{
-		LocalGraph->LoadObjects_Initial();
+		ensure(0);
+		//LocalGraph->LoadObjects_Initial();
 	}
 	TArray<USimProfileBase*> Profiles;
 	int Num = GetProfiles(Profiles);

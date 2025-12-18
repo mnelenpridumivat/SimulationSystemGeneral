@@ -29,7 +29,8 @@ void USimProfileBase::NativeOnVertexPositionChanged(const FSimVertexID& Old,
 
 void USimProfileBase::NativeSave(FSimVertexID VertexID, FSerializedProfileView Data)
 {
-	Data.GetElem().ObjectClass = GetClass();
+	ensure(0);
+	/*Data.GetElem().ObjectClass = GetClass();
 	Data.GetElem().VertexLocation = VertexID;
 	USimulationFunctionLibrary::SaveObjectData(this, Data.GetElem().ObjectData);
 	if(HasOnlineActor() && GetSimLevel() == ESimulationLevels::Online)
@@ -44,12 +45,13 @@ void USimProfileBase::NativeSave(FSimVertexID VertexID, FSerializedProfileView D
 			USimulationFunctionLibrary::SaveObjectData(Actor, OnlineDataSingle.GetElem().ObjectData);
 		}
 	}
-	Save(VertexID, Data);
+	Save(VertexID, Data);*/
 }
 
 void USimProfileBase::NativeLoad(FSerializedProfile& Data)
 {
-	if(HasOnlineActor() && GetSimLevel() == ESimulationLevels::Online)
+	ensure(0);
+	/*if(HasOnlineActor() && GetSimLevel() == ESimulationLevels::Online)
 	{
 		FProfilesSerializedView OnlineData;
 		Data.ExtractFirstChildren(OnlineData);
@@ -62,7 +64,7 @@ void USimProfileBase::NativeLoad(FSerializedProfile& Data)
 			USimulationFunctionLibrary::LoadObjectData(NewActor, ActorData->ObjectData);
 		}
 	}
-	Load(Data);
+	Load(Data);*/
 }
 
 void USimProfileBase::NativeOnRegistered()

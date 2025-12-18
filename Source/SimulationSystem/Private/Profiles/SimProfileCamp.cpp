@@ -114,14 +114,15 @@ void USimProfileCamp::NativeSave(FSimVertexID VertexID, FSerializedProfileView D
 void USimProfileCamp::NativeLoad(FSerializedProfile& Data)
 {
 	Super::NativeLoad(Data);
-	FProfilesSerializedView Children;
+	ensure(0);
+	/*FProfilesSerializedView Children;
 	Data.ExtractFirstChildren(Children);
 	for(auto SquadData : Children.Objects)
 	{
 		auto Squad = NewObject<UAISimProfileSquad>(GetWorld(), SquadData->ObjectClass);
 		Squad->NativeLoad(*SquadData);
 		Execute_AddItem(this, Squad);
-	}
+	}*/
 }
 
 void USimProfileCamp::NativeOnVertexPositionChanged(const FSimVertexID& Old, const FSimVertexID& New)
