@@ -59,7 +59,7 @@ void FEntityDataHandleLayout::CustomizeHeader(TSharedRef<class IPropertyHandle> 
 	HeaderRow
 	.NameContent()
 	[
-		InStructPropertyHandle->CreatePropertyNameWidget(FText::GetEmpty(), FText::GetEmpty(), false)
+		InStructPropertyHandle->CreatePropertyNameWidget(FText::GetEmpty(), FText::GetEmpty())
 	];
 }
 

@@ -25,5 +25,6 @@ public:
 	FORCENOINLINE static const FSimulationSystemCommands& Get();
 
 	TSharedPtr< FUICommandInfo > RebuildAllAction;
+	TSharedPtr< FUICommandInfo > RebuildSpawnAction;
 	
 };

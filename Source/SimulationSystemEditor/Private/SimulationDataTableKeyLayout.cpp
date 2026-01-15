@@ -42,7 +42,7 @@ void FSimulationDataTableKeyLayout::CustomizeHeader(TSharedRef<class IPropertyHa
 	HeaderRow
 	.NameContent()
 	[
-		InStructPropertyHandle->CreatePropertyNameWidget(FText::GetEmpty(), FText::GetEmpty(), false)
+		InStructPropertyHandle->CreatePropertyNameWidget(FText::GetEmpty(), FText::GetEmpty())
 	];
 }
 

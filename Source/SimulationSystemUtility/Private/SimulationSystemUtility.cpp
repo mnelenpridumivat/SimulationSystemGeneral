@@ -38,6 +38,7 @@ void FSimulationSystemUtilityModule::ShutdownModule()
 void FSimulationSystemUtilityModule::AddToolbarExtension(FToolBarBuilder& ToolBarBuilder)
 {
 	ToolBarBuilder.AddToolBarButton(FSimulationSystemCommands::Get().RebuildAllAction);
+	ToolBarBuilder.AddToolBarButton(FSimulationSystemCommands::Get().RebuildSpawnAction);
 }
 
 /*void FSimulationSystemUtilityModule::RebuildAllButtonClicked()
@@ -55,6 +56,7 @@ void FSimulationSystemUtilityModule::BindCommands()
 {
 	const FSimulationSystemCommands& Commands = FSimulationSystemCommands::Get();
 	PluginCommands->MapAction(Commands.RebuildAllAction, FExecuteAction::CreateStatic(&FSimulationSystemUtilityModule::RebuildAll));
+	PluginCommands->MapAction(Commands.RebuildSpawnAction, FExecuteAction::CreateStatic(&FSimulationSystemUtilityModule::RebuildSpawn));
 }
 
 void FSimulationSystemUtilityModule::ExtendLevelEditorToolbar(FToolBarBuilder& ToolbarBuilder)
@@ -80,28 +82,11 @@ TSharedRef<SWidget> FSimulationSystemUtilityModule::GenerateMenuContent() const
 		MenuBuilder.AddMenuEntry(FSimulationSystemCommands::Get().RebuildAllAction, NAME_None,
 			TAttribute<FText>(), TAttribute<FText>(),
 			FSlateIcon(FSimulationSystemStyle::Get().GetStyleSetName(), TEXT("ClassIcon.SMInstance")));
-
-		/*MenuBuilder.AddMenuEntry(FSMUtilityLauncherCommands::Get().CreateNodeClass, NAME_None,
+		MenuBuilder.AddMenuEntry(FSimulationSystemCommands::Get().RebuildSpawnAction, NAME_None,
 			TAttribute<FText>(), TAttribute<FText>(),
-			FSlateIcon(FSMEditorStyle::Get()->GetStyleSetName(), TEXT("ClassIcon.SMNodeInstance")));
-
-		// Open an existing Blueprint Class...
-		const FSlateIcon OpenBPIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.OpenClassBlueprint");
-		MenuBuilder.AddSubMenu(
-			LOCTEXT("OpenLogicDriverBlueprintClassSubMenu", "Open Logic Driver Class"),
-			LOCTEXT("OpenLogicDriverBlueprintClassSubMenu_ToolTip", "Open an existing LogicDriver Blueprint Class in this project."),
-			FNewMenuDelegate::CreateStatic(&FSMUtilityLauncherModule::MakeOpenBlueprintClassMenu),
-			false,
-			OpenBPIcon);*/
+			FSlateIcon(FSimulationSystemStyle::Get().GetStyleSetName(), TEXT("ClassIcon.SMInstance")));
 	}
 	MenuBuilder.EndSection();
-	
-	/*MenuBuilder.BeginSection(TEXT("Tools"), LOCTEXT("LogicDriverToolsHeading", "Tools"));
-	{
-		// Add a null widget so the section is created and can be extended from other modules.
-		MenuBuilder.AddWidget(SNullWidget::NullWidget, FText::GetEmpty());
-	}
-	MenuBuilder.EndSection();*/
 
 	return MenuBuilder.MakeWidget();
 }
@@ -110,6 +95,11 @@ void FSimulationSystemUtilityModule::RebuildAll()
 {
 	//UE_LOG(LogTemp, Log, TEXT("Rebuild All clicked!"));
 	USimulationSystemEditorFunctionLibrary::FullRebuild();
+}
+
+void FSimulationSystemUtilityModule::RebuildSpawn()
+{
+	USimulationSystemEditorFunctionLibrary::SpawnRebuild();
 }
 
 #undef LOCTEXT_NAMESPACE

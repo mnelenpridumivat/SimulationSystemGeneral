@@ -28,14 +28,15 @@ class SIMULATIONSYSTEMEDITOR_API USimulationSystemEditorFunctionLibrary : public
 		TSharedPtr<Simulation::Vertex>>& Links,
 		FGraphSerialized& ReturnGraph,
 		FProfilesSerialized& ReturnProfiles);
+	static void RebuildLocalGraphSpawn(UWorld* World, AGraphAsset* LocalGraph, FProfilesSerialized& ReturnProfiles);
 	static FName GetLayerName(UObject* Obj);
 	static bool IsUniqueTriple(
 		const TArray<TTuple<TWeakPtr<Simulation::Edge>, TWeakPtr<Simulation::Edge>, TWeakPtr<Simulation::Edge>>>& Trilpes,
 		TTuple<TWeakPtr<Simulation::Edge>, TWeakPtr<Simulation::Edge>, TWeakPtr<Simulation::Edge>> NewTuple
 		);
 	static TWeakPtr<Simulation::Vertex> GetClosestVertex(FVector Location, const TArray<FGraphLayer>& GraphPart, int LayerIndex);
-	//static const TWeakPtr<Simulation::Vertex> GetClosestVertex(TWeakPtr<Simulation::Vertex> StartSearchVertex
-
+	static TWeakPtr<Simulation::Vertex> GetClosestVertex(FVector Location, const FGraphLayer& GraphLayer);
+	
 	static void SaveProfile(USimProfileBase* Profile, FProfilesSerialized& ReturnProfiles, FSimVertexID VertexID = FSimVertexID::Invalid);
 
 	static void CleanUp();
@@ -44,6 +45,7 @@ class SIMULATIONSYSTEMEDITOR_API USimulationSystemEditorFunctionLibrary : public
 public:
 	
 	static void FullRebuild();
+	static void SpawnRebuild();
 	static void DebugDrawGraphEditor();
 
 	static void Delay(TFunction<void()> InLambda, float InMinimumSeconds, int32 InMinimumFrames);

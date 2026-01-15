@@ -7,14 +7,20 @@
 //#include <imgui_internal.h>
 
 #include "DebugData.h"
+#include "DebugFragment.h"
+#include "DebugProcessor.h"
 #include "DrawDebugHelpers.h"
 #include "GlobalGraph.h"
 #include "GraphAsset.h"
+#include "MassEntitySubsystem.h"
+#include "MassExecutionContext.h"
 #include "SimProfileCamp.h"
 #include "SimProfileStash.h"
+#include "SimulationArchetype.h"
 #include "SimulationFunctionLibrary.h"
 #include "SimulationState.h"
 #include "SimulationSystemDeveloperFunctionLibrary.h"
+#include "SimulationSystemProfileType.h"
 #include "SquadTask_MoveToCamp.h"
 #include "Vertex.h"
 #include "Kismet/GameplayStatics.h"
@@ -42,18 +48,7 @@ void AGraphDebugActor::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorTickEnabled(true);
-	SelectedProfileClass = USimProfileBase::StaticClass();
 	SaveName.Reset(256);
-	TSet<UClass*> AvalableClasses;
-	for(TObjectIterator<UClass> It; It; ++It)
-	{
-		if(It->IsChildOf(USimProfileBase::StaticClass()))
-		{
-			AvalableClasses.Add(*It);
-		}
-	}
-	AvalableClassArr = AvalableClasses.Array();
-	AvalableClassArr.Sort([&](const UClass& A, const UClass& B){return A.GetName().Compare(B.GetName()) < 0;});
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
 	auto& Chunks = GlobalGraph->GetChunks();
 	if(Chunks.Num())
@@ -64,21 +59,59 @@ void AGraphDebugActor::BeginPlay()
 	{
 		TaskDebuggers.Add(elem.Key, NewObject<UTaskDebugBase>(GetWorld(), elem.Value));
 	}
-	/*FTimerHandle hand;
-	GetWorldTimerManager().SetTimer(hand, [&]()
+	switch(GetSimulationSystemProfileType())
 	{
-		SetActorTickEnabled(true);
-	}, 5.0f, false);*/
+	case ESimualtionSystemProfileType::Classes:
+		{
+			BeginPlayClassesSetup();
+			break;
+		}
+	case ESimualtionSystemProfileType::ECS:
+		{
+			BeginPlayECSSetup();
+			break;
+		}
+	default:
+		{
+			ensure(false);
+		}
+	}
 	
 }
 
-void AGraphDebugActor::ImGuiStats()
+void AGraphDebugActor::BeginPlayClassesSetup()
+{
+	SelectedProfileClass = USimProfileBase::StaticClass();
+	TSet<UClass*> AvalableClasses;
+	for(TObjectIterator<UClass> It; It; ++It)
+	{
+		if(It->IsChildOf(USimProfileBase::StaticClass()))
+		{
+			AvalableClasses.Add(*It);
+		}
+	}
+	AvailableClassArr = AvalableClasses.Array();
+	AvailableClassArr.Sort([&](const UClass& A, const UClass& B){return A.GetName().Compare(B.GetName()) < 0;});
+}
+
+void AGraphDebugActor::BeginPlayECSSetup()
+{
+	SelectedArchetypeClass = USimulationArchetype::StaticClass();
+ 
+	/*FARFilter Filter;
+	Filter.Classes.Add(FilterClass.Get());
+ 
+	TArray<FAssetData> AssetDataList;
+	AssetRegistry.GetAssets(Filter, AssetDataList);*/
+}
+
+void AGraphDebugActor::ImGuiStats_Classes()
 {
 	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
 	ImGui::Text("Show stats for profile class: ");
 	ImGui::SameLine();
 	if(ImGui::BeginCombo("Profile classes", TCHAR_TO_ANSI(*SelectedProfileClass->GetName()))){
-		for(auto& elem : AvalableClassArr)
+		for(auto& elem : AvailableClassArr)
 		{
 			bool IsSelected = elem == SelectedProfileClass;
 			if(ImGui::Selectable(TCHAR_TO_ANSI(*elem->GetName()), elem == SelectedProfileClass))
@@ -112,6 +145,62 @@ void AGraphDebugActor::ImGuiStats()
 	}
 	Profiles.Sort([&](const USimProfileBase& A, const USimProfileBase& B){return A.GetName().Compare(B.GetName()) < 0;});
 	ImGuiProfilesList(Profiles);
+}
+
+void AGraphDebugActor::ImGuiStats_ECS()
+{
+	auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
+	ImGui::Text("Show stats for profile type: ");
+	ImGui::SameLine();
+	if(ImGui::BeginCombo("Profile classes", TCHAR_TO_ANSI(*SelectedArchetypeClass->GetName()))){
+		for(auto& elem : AvailableClassArr)
+		{
+			bool IsSelected = elem == SelectedArchetypeClass;
+			if(ImGui::Selectable(TCHAR_TO_ANSI(*elem->GetName()), elem == SelectedArchetypeClass))
+			{
+				SelectedArchetypeClass = elem;
+			}
+			if(IsSelected)
+			{
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+		ImGui::EndCombo();
+	}
+	FScopeLock g(&FEntitiesForDebugContainer::EntitiesCS);
+	auto& EntitiesToDraw = FEntitiesForDebugContainer::Entities;
+	
+	FStringFormatNamedArguments args;
+	args.Add("ProfilesNum", EntitiesToDraw.Num());
+	FString TotalProfiles = FString::Format(TEXT("Total profiles: {ProfilesNum}"), args);
+	ImGui::Text(TCHAR_TO_ANSI(*TotalProfiles));
+	if(ImGui::Button("Show profiles"))
+	{
+		ShowProfiles = !ShowProfiles;
+	}
+
+	ImGuiProfilesList(EntitiesToDraw);
+}
+
+void AGraphDebugActor::ImGuiStats()
+{
+	switch (GetSimulationSystemProfileType())
+	{
+	case ESimualtionSystemProfileType::Classes:
+		{
+			ImGuiStats_Classes();
+			break;
+		}
+	case ESimualtionSystemProfileType::ECS:
+		{
+			ImGuiStats_ECS();
+			break;
+		}
+	default:
+		{
+			ensure(false);
+		}
+	}
 }
 
 void AGraphDebugActor::ImGuiGraph()
@@ -223,7 +312,7 @@ void AGraphDebugActor::ImGuiChunks()
 	ImGui::Text(TCHAR_TO_ANSI(*TotalProfiles));
 	ImGui::SameLine();
 	if(ImGui::BeginCombo("Profile classes", TCHAR_TO_ANSI(*USimProfileBase::StaticClass()->GetName()))){
-		for(auto& elem : AvalableClassArr)
+		for(auto& elem : AvailableClassArr)
 		{
 			bool IsSelected = elem == SelectedProfileClass;
 			if(ImGui::Selectable(TCHAR_TO_ANSI(*elem->GetName()), elem == SelectedProfileClass))
@@ -263,10 +352,44 @@ void AGraphDebugActor::ImGuiProfilesList(const TArray<USimProfileBase*>& Profile
 		ImGuiDoResearch();
 	}
 	ImGui::EndChild();
-	//if (IsValid(ProfileToResearch))
-	//{
-	//	ImGuiDoResearch();
-	//}
+}
+
+void AGraphDebugActor::ImGuiProfilesList(const TArray<FMassEntityHandle>& Entities)
+{
+	ImGui::BeginChild("Profiles");
+	auto EntitySubsystem = GetWorld()->GetSubsystem<UMassEntitySubsystem>();
+	auto& Manager = EntitySubsystem->GetEntityManager();
+	for(auto& Entity : Entities)
+	{
+		/*if (!Profile->IsA(SelectedProfileClass))
+		{
+			continue;
+		}*/
+		if (!ensure(Manager.IsEntityValid(Entity)))
+		{
+			continue;
+		}
+		auto& StorageFragment = Manager.GetFragmentDataChecked<FDebugFragment>(Entity);
+		if (!ensure(!StorageFragment.Archetype.IsNull()))
+		{
+			continue;
+		}
+		FString ProfileName = StorageFragment.Archetype.LoadSynchronous()->GetName();
+		ProfileName.Append(TEXT("_Ind"));
+		ProfileName.AppendInt(Entity.Index);
+		ProfileName.Append(TEXT("_SN"));
+		ProfileName.AppendInt(Entity.SerialNumber);
+		if (ImGui::Button(TCHAR_TO_ANSI(*ProfileName)) || Entity == NewSelectedEntity)
+		{
+			ImGuiUpdateProfileToResearch(Entity);
+			NewSelectedEntity.Reset();
+		}
+	}
+	if (SelectedEntity.IsValid())
+	{
+		ImGuiDoResearch();
+	}
+	ImGui::EndChild();
 }
 
 void AGraphDebugActor::ImGuiUpdateProfileToResearch(USimProfileBase* Profile)
@@ -277,17 +400,40 @@ void AGraphDebugActor::ImGuiUpdateProfileToResearch(USimProfileBase* Profile)
 	ImGui::OpenPopup("Research");
 }
 
+void AGraphDebugActor::ImGuiUpdateProfileToResearch(FMassEntityHandle Entity)
+{
+	auto OldData = Data;
+	EntityToResearch = Entity;
+	//ProfileToResearch->GetDebugData(Data);
+	ImGui::OpenPopup("Research");
+}
+
 void AGraphDebugActor::ImGuiDoResearch()
 {
 	if (ImGui::BeginPopup("Research"))
 	{
-		ImGui::Text(StringCast<ANSICHAR>(*ProfileToResearch->GetFName().ToString()).Get());
-		ImGui::BeginTable("Research Table", 2);
-		for (auto elem : Data.Elems)
+		switch (GetSimulationSystemProfileType())
 		{
-			ImGuiDoResearchRec(elem);
+		case ESimualtionSystemProfileType::Classes:
+			{
+				ImGui::Text(StringCast<ANSICHAR>(*ProfileToResearch->GetFName().ToString()).Get());
+				ImGui::BeginTable("Research Table", 2);
+				for (auto elem : Data.Elems)
+				{
+					ImGuiDoResearchRec(elem);
+				}
+				ImGui::EndTable();
+				break;
+			}
+		case ESimualtionSystemProfileType::ECS:
+			{
+				break;
+			}
+		default:
+			{
+				ensure(false);
+			}
 		}
-		ImGui::EndTable();
 		ImGui::EndPopup();
 	}
 }

@@ -30,7 +30,19 @@ AGraphAsset::AGraphAsset()
 
 TWeakPtr<Simulation::Vertex> AGraphAsset::GetVertex(const FSimVertexID& ID)
 {
+#if WITH_EDITOR
+	if (!ensure(ChunkGraphs.IsValidIndex(ID.LevelID)))
+	{
+		return nullptr;
+	}
+#endif
 	auto& KeyArr = ChunkGraphs[ID.LevelID].Vertices;
+#if WITH_EDITOR
+	if (!ensure(KeyArr.IsValidIndex(ID.VertexID)))
+	{
+		return nullptr;
+	}
+#endif
 	return KeyArr[ID.VertexID];
 }
 void AGraphAsset::DrawGraph(FColor Color, float LifeTime, float Thickness)
@@ -47,6 +59,40 @@ void AGraphAsset::DrawGraph(FColor Color, float LifeTime, float Thickness)
 		}
 	}
 }
+
+#if WITH_EDITOR
+bool AGraphAsset::LayerWithNameExists(FName Name)
+{
+	for (const auto& Layer : ChunkGraphs)
+	{
+		if (Layer.LayerName == Name)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+FGraphLayer& AGraphAsset::GetLayerByName(FName Name)
+{
+	static FGraphLayer Backup;
+	Backup.Edges.Empty();
+	Backup.Vertices.Empty();
+	if (!ensure(LayerWithNameExists(Name)))
+	{
+		return Backup;
+	}
+	for (auto& Layer : ChunkGraphs)
+	{
+		if (Layer.LayerName == Name)
+		{
+			return Layer;
+		}
+	}
+	check(false); // Something too dangerous happened
+	return Backup;
+}
+#endif
 
 FVector AGraphAsset::GetVertexLocationByID(const FSimVertexID& ID)
 {
@@ -186,7 +232,7 @@ void AGraphAsset::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	return Profile;
 }*/
 
-void AGraphAsset::LoadGraph()
+bool AGraphAsset::LoadGraph()
 {
 	UnloadGraph();
 	if (ensureMsgf(
@@ -213,6 +259,9 @@ void AGraphAsset::LoadGraph()
 					{
 						const auto& CurrentLayer = Data.Layers[i];
 						auto& RealLayer = ChunkGraphs[i];
+#if WITH_EDITOR
+						RealLayer.LayerName = CurrentLayer.LayerName;
+#endif
 						for (const auto& VertexData : CurrentLayer.Vertices)
 						{
 							RealLayer.Vertices.Add(MakeShared<Simulation::Vertex>(VertexData.Key, VertexData.Value));
@@ -221,6 +270,12 @@ void AGraphAsset::LoadGraph()
 						{
 							auto VertexOne = GlobalGraph->GetVertexByID(EdgeData.VertexOne);
 							auto VertexTwo = GlobalGraph->GetVertexByID(EdgeData.VertexTwo);
+#if WITH_EDITOR
+							if (!ensure(VertexOne.IsValid() && VertexTwo.IsValid()))
+							{
+								continue;
+							}
+#endif
 							RealLayer.Edges.Add(MakeShared<Simulation::Edge>(VertexOne, VertexTwo));
 							VertexOne.Pin()->AddEdge(RealLayer.Edges.Last());
 							VertexTwo.Pin()->AddEdge(RealLayer.Edges.Last());
@@ -244,6 +299,10 @@ void AGraphAsset::LoadGraph()
 			
 		}
 	}
+	else
+	{
+		return false;
+	}
 	if (ensureMsgf(
 		!GetDefault<USimulationSystemSettings>()->LocalGraphRegistryClass.IsNull(),
 		TEXT("There is no LocalGraphRegistry class in SimulationSystemSettings!")))
@@ -252,5 +311,10 @@ void AGraphAsset::LoadGraph()
 		Registry = NewObject<ULocalGraphRegistry>(GetWorld(), Class);
 		Registry->SetLocalGraph(this);
 	}
+	else
+	{
+		return false;
+	}
+	return true;
 }
 

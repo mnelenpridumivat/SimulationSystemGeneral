@@ -22,7 +22,9 @@ public class SimulationSystemDeveloperTool : ModuleRules
             new string[]
             {
                 "Core",
-                "SimulationSystem"
+                "SimulationSystem",
+                "MassEntity", 
+                "MassSpawner",
             }
         );
 
@@ -38,6 +40,6 @@ public class SimulationSystemDeveloperTool : ModuleRules
         );
         
         // Tell the compiler we want to import the ImPlot symbols when linking against ImGui plugin 
-        PrivateDefinitions.Add(string.Format("IMPLOT_API=DLLIMPORT"));
+        PrivateDefinitions.Add("IMPLOT_API=DLLIMPORT");
     }
 }

@@ -13,7 +13,7 @@ void USimulationTableTrait::SetupDefaultTableSettings_Implementation(FSimulation
 	data.UseRandom = DefaultUseRandom;
 }
 
-void USimulationTableTrait::SetupEntity(FMassEntityManager& Manager, FMassEntityHandle Entity, const FSimulationTraitOverrides& OverrideData)
+void USimulationTableTrait::SetupEntity(UObject* Context, FMassEntityManager& Manager, FMassEntityHandle Entity, const FSimulationTraitOverrides& OverrideData)
 {
 }
 

@@ -11,5 +11,5 @@ void USimulationGraphMovingTrait::BuildTemplate(FMassEntityTemplateBuildContext&
 {
 	//Super::BuildTemplate(BuildContext, World);
 	BuildContext.AddFragment<FGraphOfflineSpeedFragment>();
-	BuildContext.AddFragment<FGraphTargetPositionFragment>();
+	//BuildContext.AddFragment<FGraphTargetPositionFragment>();
 }

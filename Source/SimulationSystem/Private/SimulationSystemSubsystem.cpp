@@ -3,6 +3,7 @@
 
 #include "SimulationSystemSubsystem.h"
 
+#include "DebugFragment.h"
 #include "GlobalGraph.h"
 #include "MassEntityManager.h"
 #include "MassEntitySubsystem.h"
@@ -102,15 +103,22 @@ FMassEntityHandle USimulationSystemSubsystem::SpawnProfile(UObject* Context, FSi
 		return FMassEntityHandle();
 	}
 
-	auto EntityTemplate = Archetype->GetOrCreateEntityTemplate(World);
+	auto& EntityTemplate = Archetype->GetOrCreateEntityTemplate(World);
 	auto NewEntity = EntityManager.CreateEntity(EntityTemplate.GetArchetype());
+
+	for (auto& FragInfo : EntityTemplate.GetInitialFragmentValues())
+	{
+		auto FragmentType = FragInfo.GetScriptStruct();
+		auto Fragment = EntityManager.GetFragmentDataStruct(NewEntity, FragmentType);
+		FragmentType->CopyScriptStruct(Fragment.GetMemory(), FragInfo.GetMemory());
+	}
 
 	for (auto Trait : Archetype->GetConfig().GetTraits())
 	{
 		if (auto Casted = Cast<USimulationTableTrait>(Trait);
 			Casted && ensure(Row->Overrides.Contains(Casted->GetClass())))
 		{
-			Casted->SetupEntity(EntityManager, NewEntity, Row->Overrides[Casted->GetClass()]);
+			Casted->SetupEntity(Context, EntityManager, NewEntity, Row->Overrides[Casted->GetClass()]);
 		}
 	}
 	

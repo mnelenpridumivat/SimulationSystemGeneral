@@ -7,7 +7,7 @@
 #include "SimulationSystemSettings.h"
 #include "SimulationSystemProfileType.h"
 
-ESimualtionSystemProfileType GetSimulationSystemProfileType()
+SIMULATIONSYSTEM_API ESimualtionSystemProfileType GetSimulationSystemProfileType()
 {
 	auto Settings = GetDefault<USimulationSystemSettings>();
 	auto Type = Settings->ProfileType;

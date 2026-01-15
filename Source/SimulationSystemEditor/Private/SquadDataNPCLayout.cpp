@@ -44,7 +44,7 @@ void FSquadDataNPCLayout::CustomizeHeader(TSharedRef<class IPropertyHandle> InSt
 	HeaderRow
 	.NameContent()
 	[
-		InStructPropertyHandle->CreatePropertyNameWidget(FText::GetEmpty(), FText::GetEmpty(), false)
+		InStructPropertyHandle->CreatePropertyNameWidget(FText::GetEmpty(), FText::GetEmpty())
 	];
 }
 

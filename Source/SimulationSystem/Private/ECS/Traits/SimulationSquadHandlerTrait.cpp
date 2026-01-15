@@ -20,13 +20,13 @@ USimulationSquadHandlerTrait::USimulationSquadHandlerTrait()
 void USimulationSquadHandlerTrait::BuildTemplate(FMassEntityTemplateBuildContext& BuildContext,
 	const UWorld& World) const
 {
-	BuildContext.AddFragment<FEntityStorageFragment>();
+	BuildContext.AddFragment<FSquadStorageFragment>();
 }
 
-void USimulationSquadHandlerTrait::SetupEntity(FMassEntityManager& Manager, FMassEntityHandle Entity,
+void USimulationSquadHandlerTrait::SetupEntity(UObject* Context, FMassEntityManager& Manager, FMassEntityHandle Entity,
 	const FSimulationTraitOverrides& OverrideData)
 {
-	Super::SetupEntity(Manager, Entity, OverrideData);
+	Super::SetupEntity(Context, Manager, Entity, OverrideData);
 	if (!ensure(Manager.IsEntityValid(Entity)))
 	{
 		return;
@@ -58,10 +58,10 @@ void USimulationSquadHandlerTrait::SetupEntity(FMassEntityManager& Manager, FMas
 	{
 		NPCs = RowData->NPCs;
 	}
-	auto& StorageFragment = Manager.GetFragmentDataChecked<FEntityStorageFragment>(Entity);
+	auto& StorageFragment = Manager.GetFragmentDataChecked<FSquadStorageFragment>(Entity);
 	for (auto& NPC : NPCs)
 	{
 		StorageFragment.Children.Add(
-			USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld())->SpawnProfile(GetWorld(), NPC));
+			USimulationFunctionLibrary::GetSimulationSystemSubsystem(Context)->SpawnProfile(Context, NPC));
 	}
 }

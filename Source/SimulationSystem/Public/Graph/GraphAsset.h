@@ -23,6 +23,7 @@ struct FGraphLayer
 {
 	GENERATED_BODY()
 
+	FName LayerName;
 	TArray<TSharedPtr<Simulation::Vertex>> Vertices;
 	TArray<TSharedPtr<Simulation::Edge>> Edges;
 };
@@ -38,7 +39,7 @@ public:
 
 	TWeakPtr<Simulation::Vertex> GetVertex(const FSimVertexID& ID);
 
-	void LoadGraph();
+	bool LoadGraph();
 	//void LoadObjects_Initial();
 	void LoadObjects_Save(); //TODO: Accept SaveObject
 	FGraphSerialized SaveObjects();
@@ -63,6 +64,11 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	int GetLayersNum(){return ChunkGraphs.Num();}
+	
+#if WITH_EDITOR
+	bool LayerWithNameExists(FName Name);
+	FGraphLayer& GetLayerByName(FName Name);
+#endif
 	
 	FVector GetVertexLocationByID(const FSimVertexID& ID);
 	FSimVertexID FindClosestVertex(const FVector& Location, int LayerIndex);

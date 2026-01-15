@@ -22,16 +22,16 @@ void UGraphMoveToProcessor::ConfigureQueries()
 	EntityQuery.AddRequirement<FGraphPositionFragment>(EMassFragmentAccess::ReadWrite);
 	EntityQuery.AddRequirement<FGraphTargetPositionFragment>(EMassFragmentAccess::ReadWrite);
 	EntityQuery.AddRequirement<FGraphOfflineSpeedFragment>(EMassFragmentAccess::ReadOnly);
+	EntityQuery.RegisterWithProcessor(*this);
 }
 
 void UGraphMoveToProcessor::Execute(FMassEntityManager& EntityManager, FMassExecutionContext& Context)
 {
-	Super::Execute(EntityManager, Context);
 	EntityQuery.ParallelForEachEntityChunk(EntityManager, Context, ([this, &EntityManager](FMassExecutionContext& Context)
 	{
 		const auto Positions = Context.GetMutableFragmentView<FGraphPositionFragment>();
 		const auto Ways = Context.GetMutableFragmentView<FGraphTargetPositionFragment>();
-		const auto Velocities = Context.GetMutableFragmentView<FGraphOfflineSpeedFragment>();
+		const auto Velocities = Context.GetFragmentView<FGraphOfflineSpeedFragment>();
 		const auto Entities = Context.GetEntities();
 		const float WorldDeltaTime = Context.GetDeltaTimeSeconds();
 

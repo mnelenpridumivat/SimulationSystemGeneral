@@ -61,7 +61,7 @@ void FSquadDataHandleLayout::CustomizeHeader(TSharedRef<class IPropertyHandle> I
 	HeaderRow
 	.NameContent()
 	[
-		InStructPropertyHandle->CreatePropertyNameWidget(FText::GetEmpty(), FText::GetEmpty(), false)
+		InStructPropertyHandle->CreatePropertyNameWidget(FText::GetEmpty(), FText::GetEmpty())
 	];
 }
 

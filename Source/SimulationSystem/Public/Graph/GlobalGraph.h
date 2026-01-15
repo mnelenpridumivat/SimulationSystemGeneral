@@ -45,11 +45,22 @@ public:
 	FVector GetVertexLocationByID(const FSimVertexID& ID);
 	void DrawGraph(FColor Color, float LifeTime, float Thickness);
 
-	void LoadGraph();
+	// Graph loading sequence
+	bool LoadGraphLinks();
+	bool LoadGraphAssets();
+	bool LoadCommunityRelations();
+	bool LoadGraph(); // All graph loading steps
+
+	// Graph unloading sequence
+	void UnloadGraphLinks();
+	void UnloadGraphAssets();
+	void UnloadCommunityRelations();
+	void UnloadGraph();
+	
 	void LoadObjects_Initial();
 	void LoadObjects_Save(USimulationState* Save); //TODO: Accept SaveObject
 	void SaveObjects(USimulationState* Save); //TODO: Accept SaveObject and write here
-	void UnloadGraph();
+	
 	void UnloadObjects();
 
 	FSimVertexID GetProfileLocationOnGraph(USimProfileBase* Profile);
@@ -115,7 +126,7 @@ protected:
 	TArray<AGraphAsset*> LocalGraphs;
 	int LoadIndex = 0;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TMap<FSimVertexID, FVector> VerticesSerialized;
 
 	UPROPERTY()

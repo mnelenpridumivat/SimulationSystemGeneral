@@ -29,6 +29,7 @@ private:
     TSharedRef<SWidget> GenerateMenuContent() const;
 	
     static void RebuildAll();
+    static void RebuildSpawn();
 
     TSharedPtr<FExtensibilityManager> MenuExtensibilityManager;
     TSharedPtr<FExtensibilityManager> ToolBarExtensibilityManager;

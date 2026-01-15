@@ -5,7 +5,15 @@
 #include "EntityStorageFragment.generated.h"
 
 USTRUCT()
-struct FEntityStorageFragment : public FMassFragment
+struct FSquadStorageFragment : public FMassFragment
+{
+	GENERATED_BODY()
+
+	TArray<FMassEntityHandle> Children = {};
+};
+
+USTRUCT()
+struct FItemStorageFragment : public FMassFragment
 {
 	GENERATED_BODY()
 

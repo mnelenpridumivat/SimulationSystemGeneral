@@ -43,7 +43,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void SetupDefaultTableSettings(FSimulationTraitOverrides& data);
 
-	virtual void SetupEntity(FMassEntityManager& Manager, FMassEntityHandle Entity, const FSimulationTraitOverrides& OverrideData);
+	// This is a post-spawn init, possibly with spawning other entities
+	virtual void SetupEntity(UObject* Context, FMassEntityManager& Manager, FMassEntityHandle Entity, const FSimulationTraitOverrides& OverrideData);
 
 	UFUNCTION(BlueprintPure)
 	UDataTable* GetDefaultsDataTable() const {return DefaultsDataTable;}

@@ -5,9 +5,12 @@
 
 #include "EntityStorageFragment.h"
 #include "MassEntityTemplateRegistry.h"
+#include "ProfileGeneratorItem.h"
 #include "SimulationArchetypeSettings.h"
+#include "SimulationFunctionLibrary.h"
 #include "SimulationSquadHandlerTrait.h"
 #include "SimulationSystemSettings.h"
+#include "SimulationSystemSubsystem.h"
 
 USimulationItemHandlerTrait::USimulationItemHandlerTrait()
 {
@@ -18,28 +21,34 @@ USimulationItemHandlerTrait::USimulationItemHandlerTrait()
 void USimulationItemHandlerTrait::BuildTemplate(FMassEntityTemplateBuildContext& BuildContext,
 	const UWorld& World) const
 {
-	BuildContext.AddFragment<FEntityStorageFragment>();
+	BuildContext.AddFragment<FSquadStorageFragment>();
 }
 
-void USimulationItemHandlerTrait::SetupEntity(FMassEntityManager& Manager, FMassEntityHandle Entity,
+void USimulationItemHandlerTrait::SetupEntity(UObject* Context, FMassEntityManager& Manager, FMassEntityHandle Entity,
 	const FSimulationTraitOverrides& OverrideData)
 {
-	Super::SetupEntity(Manager, Entity, OverrideData);
+	Super::SetupEntity(Context, Manager, Entity, OverrideData);
 	if (!ensure(Manager.IsEntityValid(Entity)))
 	{
 		return;
 	}
 	if (!DefaultsDataTable)
 	{
-		DefaultsDataTable = USimulationSystemSettings::GetDataTableByKey(SIMULATION_DATATABLE_KEY(Squad));
+		DefaultsDataTable = USimulationSystemSettings::GetDataTableByKey(SIMULATION_DATATABLE_KEY(Item));
 		if (!ensure(DefaultsDataTable))
 		{
 			return;
 		}
 	}
-	auto RowData = DefaultsDataTable->FindRow<FSquadData>(OverrideData.RowName, nullptr);
+	auto RowData = DefaultsDataTable->FindRow<FItemSetData>(OverrideData.RowName, nullptr);
 	if (!ensure(RowData))
 	{
 		return;
+	}
+	auto& StorageFragment = Manager.GetFragmentDataChecked<FItemStorageFragment>(Entity);
+	for (auto& Item : RowData->Items)
+	{
+		StorageFragment.Children.Add(
+			USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld())->SpawnProfile(GetWorld(), Item));
 	}
 }

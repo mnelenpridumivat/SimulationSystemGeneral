@@ -24,6 +24,11 @@ struct FGraphLayerSerialized
 {
 	GENERATED_BODY()
 
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(VisibleAnywhere)
+	FName LayerName;
+#endif
+
 	UPROPERTY(VisibleAnywhere)
 	TMap<FSimVertexID, FVector> Vertices;
 

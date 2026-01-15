@@ -13,4 +13,16 @@ UCLASS()
 class SIMULATIONSYSTEM_API USimulationArchetype : public UMassEntityConfigAsset
 {
 	GENERATED_BODY()
+
+#if WITH_EDITOR
+	void VerifyDebugTrait();
+#endif
+ 
+public:
+	USimulationArchetype();
+ 
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+	virtual void PostLoad() override;
+#endif
 };

@@ -82,7 +82,7 @@ void AGlobalGraph::PostInitializeComponents()
 		Subsystem->SetGlobalGraph(this);
 	}
 	
-	LoadGraph();
+	ensure(LoadGraph());
 	LoadIndex = 0;
 	//AsyncLoadChunks(); // TODO: Remove temporary
 	//LoadObjects_Initial();
@@ -118,8 +118,20 @@ TWeakPtr<Simulation::Vertex> AGlobalGraph::GetVertexByID(const FSimVertexID& ID)
 	}
 	if(!ID.ChunkID)
 	{
+#if WITH_EDITOR
+		if (!ensure(Links.IsValidIndex(ID.VertexID)))
+		{
+			return nullptr;
+		}
+#endif
 		return Links[ID.VertexID];
 	}
+#if WITH_EDITOR
+	if (!ensure(LocalGraphs.IsValidIndex(ID.ChunkID-1)))
+	{
+		return nullptr;
+	}
+#endif
 	return LocalGraphs[ID.ChunkID-1]->GetVertex(ID);
 }
 
@@ -146,12 +158,17 @@ void AGlobalGraph::DrawGraph(FColor Color, float LifeTime, float Thickness)
 	}
 }
 
-void AGlobalGraph::LoadGraph()
+bool AGlobalGraph::LoadGraphLinks()
 {
 	for(auto& VertexData : VerticesSerialized)
 	{
 		Links.Add(MakeShared<Simulation::Vertex>(VertexData.Key, VertexData.Value));
 	}
+	return true;
+}
+
+bool AGlobalGraph::LoadGraphAssets()
+{
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGraphAsset::StaticClass(), Actors);
 	LocalGraphs.Empty(LocalGraphs.Num());
@@ -160,15 +177,23 @@ void AGlobalGraph::LoadGraph()
 		auto CastedActor = Cast<AGraphAsset>(Actor);
 		if (!ensureMsgf(CastedActor->GetChunkIndex() != 0, TEXT("Chunk [%s] has invalid index [0]!"), *CastedActor->GetName()))
 		{
-			return;
+			return false;
 		}
 		if(!LocalGraphs.IsValidIndex(CastedActor->GetChunkIndex()-1))
 		{
 			LocalGraphs.SetNumZeroed(CastedActor->GetChunkIndex());
 		}
 		LocalGraphs[CastedActor->GetChunkIndex()-1] = CastedActor;
-		CastedActor->LoadGraph();
+		if (!ensure(CastedActor->LoadGraph()))
+		{
+			return false;
+		}
 	}
+	return true;
+}
+
+bool AGlobalGraph::LoadCommunityRelations()
+{
 	if (ensure(!IsValid(CommunityRelationsRegistry)))
 	{
 		auto RelationRegistryClass = GetDefault<USimulationSystemSettings>()->CommunityRelationTableClass;
@@ -178,8 +203,55 @@ void AGlobalGraph::LoadGraph()
 		{
 			CommunityRelationsRegistry = NewObject<UCommunityRelationTable>(GetWorld(), RelationRegistryClass.LoadSynchronous());
 			CommunityRelationsRegistry->Validate();
+			return true;
 		}
 	}
+	return false;
+}
+
+bool AGlobalGraph::LoadGraph()
+{
+	if (!ensure(LoadGraphLinks()))
+	{
+		return false;
+	}
+	if (!ensure(LoadGraphAssets()))
+	{
+		return false;
+	}
+	if (!ensure(LoadCommunityRelations()))
+	{
+		return false;
+	}
+	return true;
+}
+
+void AGlobalGraph::UnloadGraphLinks()
+{
+	Links.Empty();
+}
+
+void AGlobalGraph::UnloadGraphAssets()
+{
+	for(auto& LocalGraph : LocalGraphs)
+	{
+		LocalGraph->UnloadGraph();
+	}
+}
+
+void AGlobalGraph::UnloadCommunityRelations()
+{
+	if (ensure(IsValid(CommunityRelationsRegistry)))
+	{
+		CommunityRelationsRegistry = nullptr;
+	}
+}
+
+void AGlobalGraph::UnloadGraph()
+{
+	UnloadGraphLinks();
+	UnloadGraphAssets();
+	UnloadCommunityRelations();
 }
 
 void AGlobalGraph::LoadObjects_Initial()
@@ -227,19 +299,6 @@ void AGlobalGraph::SaveObjects(USimulationState* Save)
 		ProfilesSerialized.Add(VertexID, Profile.Key);
 	}
 	Save->SetProfiles(ProfilesSerialized);
-}
-
-void AGlobalGraph::UnloadGraph()
-{
-	Links.Empty();
-	for(auto& LocalGraph : LocalGraphs)
-	{
-		LocalGraph->UnloadGraph();
-	}
-	if (ensure(IsValid(CommunityRelationsRegistry)))
-	{
-		CommunityRelationsRegistry = nullptr;
-	}
 }
 
 void AGlobalGraph::UnloadObjects()
