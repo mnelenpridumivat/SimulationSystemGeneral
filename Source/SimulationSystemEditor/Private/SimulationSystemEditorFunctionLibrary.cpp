@@ -362,46 +362,6 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 	}
 	
 	SlowTaskL2.EnterProgressFrame(10.0f);
-	
-	/*if (GetSimulationSystemProfileType() == ESimualtionSystemProfileType::Classes)
-	{
-		Actors.Empty();
-		TSet<AActor*> ActorsInsideChunk = {};
-		UGameplayStatics::GetAllActorsWithInterface(World, USimActorInterface::StaticClass(), Actors);
-		for(auto& Actor: Actors)
-		{
-			if(UKismetMathLibrary::IsPointInBox(Actor->GetActorLocation(), LocalGraph->GetActorLocation(), LocalGraph->GetZoneSize()))
-			{
-				ActorsInsideChunk.Add(Actor);
-			}
-		}
-		for(int i = 0; i < Layers.Num(); ++i)
-		{
-			FEditorScriptExecutionGuard ScriptGuard;
-			for(auto& Actor : ActorsInsideChunk)
-			{
-				if(GetLayerName(Actor)!=Layers[i])
-				{
-					continue;
-				}
-				if (ISimActorInterface::Execute_UseInSimulation(Actor))
-				{
-					auto Component = ISimActorInterface::Execute_GetProfileComponent(Actor);
-					if (!IsValid(Component))
-					{
-						ISimActorInterface::Execute_DirectSetGraphVertex(
-							Actor, GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->GetVertexID());
-					} else
-					{
-						Component->InitProfile(ReturnProfiles,
-						                       GetClosestVertex(Actor->GetActorLocation(), ChunkGraphs, i).Pin()->
-						                       GetVertexID());
-					}
-				}
-			}
-			SlowTaskL2.EnterProgressFrame(10.0f/Layers.Num());
-		}
-	}*/
 }
 
 void USimulationSystemEditorFunctionLibrary::RebuildLocalGraphSpawn(UWorld* World, AGraphAsset* LocalGraph,

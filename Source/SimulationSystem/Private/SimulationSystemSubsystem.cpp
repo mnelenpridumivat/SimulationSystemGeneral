@@ -5,6 +5,7 @@
 
 #include "DebugFragment.h"
 #include "GlobalGraph.h"
+#include "GraphPositionFragment.h"
 #include "MassEntityManager.h"
 #include "MassEntitySubsystem.h"
 #include "MassEntityTemplate.h"
@@ -76,7 +77,7 @@ USimProfileBase* USimulationSystemSubsystem::ExecuteGenerator(UObject* Context, 
 	return GeneratorPool.ExecuteGenerator(Context, handle);
 }
 
-FMassEntityHandle USimulationSystemSubsystem::SpawnProfile(UObject* Context, FSimulationArchetypeHandle handle)
+FMassEntityHandle USimulationSystemSubsystem::SpawnProfile(UObject* Context, FSimulationArchetypeHandle handle, const FSimVertexID& Pos)
 {
 	if (!ensure(IsValid(Context)) || !ensure(IsValid(Context->GetWorld())))
 	{
@@ -112,6 +113,9 @@ FMassEntityHandle USimulationSystemSubsystem::SpawnProfile(UObject* Context, FSi
 		auto Fragment = EntityManager.GetFragmentDataStruct(NewEntity, FragmentType);
 		FragmentType->CopyScriptStruct(Fragment.GetMemory(), FragInfo.GetMemory());
 	}
+
+	auto& PosFrag = EntityManager.GetFragmentDataChecked<FGraphPositionFragment>(NewEntity);
+	PosFrag.Position = Pos;
 
 	for (auto Trait : Archetype->GetConfig().GetTraits())
 	{

@@ -99,6 +99,8 @@ protected:
 	void ImGuiDoResearch();
 	void ImGuiDoResearchRec(DebugDataElemBase* Elem, int Tabs = 0);
 
+	void DrawSquadsDebugDraw();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

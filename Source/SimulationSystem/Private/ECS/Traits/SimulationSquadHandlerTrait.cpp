@@ -4,6 +4,7 @@
 #include "SimulationSquadHandlerTrait.h"
 
 #include "EntityStorageFragment.h"
+#include "GraphPositionFragment.h"
 #include "MassEntityTemplateRegistry.h"
 #include "ProfileGeneratorSquad.h"
 #include "SimulationArchetypeSettings.h"
@@ -59,9 +60,10 @@ void USimulationSquadHandlerTrait::SetupEntity(UObject* Context, FMassEntityMana
 		NPCs = RowData->NPCs;
 	}
 	auto& StorageFragment = Manager.GetFragmentDataChecked<FSquadStorageFragment>(Entity);
+	auto& PosFrag = Manager.GetFragmentDataChecked<FGraphPositionFragment>(Entity);
 	for (auto& NPC : NPCs)
 	{
 		StorageFragment.Children.Add(
-			USimulationFunctionLibrary::GetSimulationSystemSubsystem(Context)->SpawnProfile(Context, NPC));
+			USimulationFunctionLibrary::GetSimulationSystemSubsystem(Context)->SpawnProfile(Context, NPC, PosFrag.Position));
 	}
 }

@@ -292,7 +292,7 @@ bool AGraphAsset::LoadGraph()
 					if (ensure(Current.HasData))
 					{
 						USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld())->
-							SpawnProfile(GetWorld(), Current.Archetype);
+							SpawnProfile(GetWorld(), Current.Archetype, Current.VertexLocation);
 					}
 				}
 			}

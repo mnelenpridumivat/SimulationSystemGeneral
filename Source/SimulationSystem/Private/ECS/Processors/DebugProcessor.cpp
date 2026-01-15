@@ -11,25 +11,29 @@ TArray<FMassEntityHandle> FEntitiesForDebugContainer::Entities = {};
 
 UDebugProcessor::UDebugProcessor()
 {
+#if !UE_BUILD_SHIPPING
 	bAutoRegisterWithProcessingPhases = true;
 	ExecutionFlags = (uint8)EProcessorExecutionFlags::All;
+#endif
 }
 
 void UDebugProcessor::ConfigureQueries()
 {
+#if !UE_BUILD_SHIPPING
 	EntityQuery.AddRequirement<FDebugFragment>(EMassFragmentAccess::ReadOnly);
 	EntityQuery.RegisterWithProcessor(*this);
+#endif
 }
 
 void UDebugProcessor::Execute(FMassEntityManager& EntityManager, FMassExecutionContext& Context)
 {
 #if !UE_BUILD_SHIPPING
 	FScopeLock g(&FEntitiesForDebugContainer::EntitiesCS);
-	FEntitiesForDebugContainer::Entities.Empty();
+	FEntitiesForDebugContainer::Entities.Empty(FEntitiesForDebugContainer::Entities.Num());
 	FEntitiesForDebugContainer::Entities.Reserve(EntityQuery.GetNumMatchingEntities(EntityManager));
 	EntityQuery.ForEachEntityChunk(EntityManager, Context, ([&](FMassExecutionContext& LocContext)
 	{
-		FEntitiesForDebugContainer::Entities.Append(Context.GetEntities());
+		FEntitiesForDebugContainer::Entities.Append(LocContext.GetEntities());
 	}));
 
 	for (auto& Entity : FEntitiesForDebugContainer::Entities)

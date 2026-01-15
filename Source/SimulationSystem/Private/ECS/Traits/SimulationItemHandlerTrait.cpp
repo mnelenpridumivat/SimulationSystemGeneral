@@ -4,6 +4,7 @@
 #include "SimulationItemHandlerTrait.h"
 
 #include "EntityStorageFragment.h"
+#include "GraphPositionFragment.h"
 #include "MassEntityTemplateRegistry.h"
 #include "ProfileGeneratorItem.h"
 #include "SimulationArchetypeSettings.h"
@@ -46,9 +47,10 @@ void USimulationItemHandlerTrait::SetupEntity(UObject* Context, FMassEntityManag
 		return;
 	}
 	auto& StorageFragment = Manager.GetFragmentDataChecked<FItemStorageFragment>(Entity);
+	auto& PosFrag = Manager.GetFragmentDataChecked<FGraphPositionFragment>(Entity);
 	for (auto& Item : RowData->Items)
 	{
 		StorageFragment.Children.Add(
-			USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld())->SpawnProfile(GetWorld(), Item));
+			USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld())->SpawnProfile(GetWorld(), Item, PosFrag.Position));
 	}
 }

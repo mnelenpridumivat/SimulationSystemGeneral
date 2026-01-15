@@ -6,6 +6,7 @@
 #include "ProfileGenerator.h"
 #include "SimulationArchetypeHandle.h"
 #include "SimulationSystemSubsystemStructs.h"
+#include "SimVertexID.h"
 #include "SimulationSystemSubsystem.generated.h"
 
 class AGlobalGraph;
@@ -39,7 +40,7 @@ public:
 
 	USimulationSystemFunctionsImplementation* GetSimulationSystemFunctions() const {return SimulationSystemFunctions;}
 	USimProfileBase* ExecuteGenerator(UObject* Context, const FGeneratorHandleBase& handle);
-	FMassEntityHandle SpawnProfile(UObject* Context, FSimulationArchetypeHandle handle);
+	FMassEntityHandle SpawnProfile(UObject* Context, FSimulationArchetypeHandle handle, const FSimVertexID& Pos);
 
 	void GetAllPawnClasses(TArray<FName>& OutPawnClasses);
 	FName GetRandomNPCOfClass(FName NPCClass);

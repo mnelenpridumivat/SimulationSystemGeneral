@@ -21,6 +21,7 @@
 #include "SimulationState.h"
 #include "SimulationSystemDeveloperFunctionLibrary.h"
 #include "SimulationSystemProfileType.h"
+#include "SquadsDebugDrawProcessor.h"
 #include "SquadTask_MoveToCamp.h"
 #include "Vertex.h"
 #include "Kismet/GameplayStatics.h"
@@ -504,6 +505,35 @@ void AGraphDebugActor::ImGuiDoResearchRec(DebugDataElemBase* Elem, int Tabs)
 	}
 }
 
+void AGraphDebugActor::DrawSquadsDebugDraw()
+{
+	FScopeLock g(&FSquadsDebugDrawContainer::Lock);
+	{
+		// Graph positions
+		auto& Points = FSquadsDebugDrawContainer::GraphPositions;
+		for (auto& Point : Points)
+		{
+			DrawDebugSphere(GetWorld(), Point, 100.0f, 8, FColor(0, 128, 0), false, 0, 0, 10);
+		}
+	}
+	{
+		// Real positions
+		auto& Points = FSquadsDebugDrawContainer::EntityPositions;
+		for (auto& Point : Points)
+		{
+			DrawDebugSphere(GetWorld(), Point, 100.0f, 8, FColor(255, 0.0f, 0.0f), false, 0, 0, 10);
+		}
+	}
+	{
+		// Ways
+		auto& Lines = FSquadsDebugDrawContainer::WayLines;
+		for (auto& [A, B] : Lines)
+		{
+			DrawDebugLine(GetWorld(), A, B, FColor(64, 128, 255), false, 0, 0, 5);
+		}
+	}
+}
+
 // Called every frame
 void AGraphDebugActor::Tick(float DeltaTime)
 {
@@ -561,37 +591,53 @@ void AGraphDebugActor::Tick(float DeltaTime)
 	
 	if(ShowProfiles)
 	{
-		auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
-		TArray<USimProfileBase*> Profiles;
-		GlobalGraph->GetProfiles(Profiles);
-		for(auto& elem : Profiles)
+		switch (GetSimulationSystemProfileType())
 		{
-			if(!elem->IsA(SelectedProfileClass))
+		case ESimualtionSystemProfileType::Classes:
 			{
-				continue;
-			}
-			FVector Location = GlobalGraph->GetVertexByID(GlobalGraph->GetProfileLocationOnGraph(elem)).Pin()->GetLocation();
-			if(elem->IsA(USimProfileCamp::StaticClass()))
-			{
-				DrawDebugSphere(GetWorld(), Location, 250.0f, 8, FColor(0.209f, 0.0f, 1.0f), false, DeltaTime*1.1f, 0, 10);
-			} else if (elem->IsA(USimProfileStash::StaticClass()))
-			{
-				DrawDebugBox(GetWorld(), Location, FVector{100.0f}, FColor::White, false, DeltaTime*1.1f, 0, 10);
-			} else if (elem->IsA(UAISimProfileSquad::StaticClass()))
-			{
-				DrawDebugCapsule(GetWorld(), Location, 200.0f, 100.0f, FRotator::ZeroRotator.Quaternion(), FColor::Green, false, DeltaTime*1.1f, 0, 10);
-				auto Casted = Cast<UAISimProfileSquad>(elem);
-					if(Casted->GetCurrentTask())
+				auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(GetWorld());
+				TArray<USimProfileBase*> Profiles;
+				GlobalGraph->GetProfiles(Profiles);
+				for(auto& elem : Profiles)
+				{
+					if(!elem->IsA(SelectedProfileClass))
 					{
-						for(auto& Debugger : TaskDebuggers)
+						continue;
+					}
+					FVector Location = GlobalGraph->GetVertexByID(GlobalGraph->GetProfileLocationOnGraph(elem)).Pin()->GetLocation();
+					if(elem->IsA(USimProfileCamp::StaticClass()))
+					{
+						DrawDebugSphere(GetWorld(), Location, 250.0f, 8, FColor(0.209f, 0.0f, 1.0f), false, DeltaTime*1.1f, 0, 10);
+					} else if (elem->IsA(USimProfileStash::StaticClass()))
+					{
+						DrawDebugBox(GetWorld(), Location, FVector{100.0f}, FColor::White, false, DeltaTime*1.1f, 0, 10);
+					} else if (elem->IsA(UAISimProfileSquad::StaticClass()))
+					{
+						DrawDebugCapsule(GetWorld(), Location, 200.0f, 100.0f, FRotator::ZeroRotator.Quaternion(), FColor::Green, false, DeltaTime*1.1f, 0, 10);
+						auto Casted = Cast<UAISimProfileSquad>(elem);
+						if(Casted->GetCurrentTask())
 						{
-							if(Casted->GetCurrentTask()->IsA(Debugger.Key))
+							for(auto& Debugger : TaskDebuggers)
 							{
-								Debugger.Value->VisualizeTaskInfo(DeltaTime, Casted, Casted->GetCurrentTask());
-								break;
+								if(Casted->GetCurrentTask()->IsA(Debugger.Key))
+								{
+									Debugger.Value->VisualizeTaskInfo(DeltaTime, Casted, Casted->GetCurrentTask());
+									break;
+								}
 							}
 						}
 					}
+				}
+				break;
+			}
+		case ESimualtionSystemProfileType::ECS:
+			{
+				DrawSquadsDebugDraw();
+				break;
+			}
+			default:
+			{
+				ensure(false);
 			}
 		}
 	}
