@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ActionPlannerOwner.h"
 #include "GraphSerialized.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Vertex.h"
@@ -11,9 +12,12 @@
 #include "SimVertexID.h"
 #include "SimulationSystemEditorFunctionLibrary.generated.h"
 
+class UActionPlannerOwner;
+struct FMassFragment;
 class AGraphPointBase;
 class AGraphPointLink;
 class AGraphAsset;
+
 /**
  * 
  */
@@ -49,4 +53,5 @@ public:
 	static void DebugDrawGraphEditor();
 
 	static void Delay(TFunction<void()> InLambda, float InMinimumSeconds, int32 InMinimumFrames);
+	
 };

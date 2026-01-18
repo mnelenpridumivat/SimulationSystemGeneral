@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ActionPlannerOwner.h"
 #include "GraphWay.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Profiles/SimProfileHolder.h"
@@ -86,5 +87,42 @@ public:
 
 	static void SaveObjectData(UObject* Object, FBytesSerialization& Data);
 	static void LoadObjectData(UObject* Object, const FBytesSerialization& Data);
+
+	// UK2Nodes
+	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
+	static UScriptStruct* GetStructFromName(const FString& StructName);
+
+	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly, meta=(HidePin="Out"))
+	static bool GetConstFragmentData(UActionPlannerOwner* Owner, UScriptStruct* Struct, FFragmentProperties& Out);
+	
+	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly, meta=(HidePin="Prop"))
+	static int GetIntFragmentProperty(const FFragmentProperties& MassFragment, int Index);
+
+	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
+	static float GetFloatFragmentProperty(const FFragmentProperties& MassFragment, int Index);
+
+	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
+	static double GetDoubleFragmentProperty(const FFragmentProperties& MassFragment, int Index);
+
+	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
+	static bool GetBoolFragmentProperty(const FFragmentProperties& MassFragment, int Index);
+
+	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
+	static FString GetStringFragmentProperty(const FFragmentProperties& MassFragment, int Index);
+
+	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
+	static FName GetNameFragmentProperty(const FFragmentProperties& MassFragment, int Index);
+
+	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
+	static FText GetTextFragmentProperty(const FFragmentProperties& MassFragment, int Index);
+
+	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
+	static UObject* GetObjectFragmentProperty(const FFragmentProperties& MassFragment, int Index);
+
+	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
+	static UClass* GetClassFragmentProperty(const FFragmentProperties& MassFragment, int Index);
+	
+	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
+	static void GetStructFragmentProperty(const FFragmentProperties& MassFragment, int Index, FInstancedStruct& Out);
 	
 };

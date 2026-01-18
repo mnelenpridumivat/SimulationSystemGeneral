@@ -41,7 +41,15 @@ public class SimulationSystemEditor : ModuleRules
                 "UnrealEd",
                 "PropertyEditor",
                 "EditorSubsystem", 
-                "Blutility"
+                "Blutility",
+                "BlueprintGraph",
+                "Kismet",
+                "KismetCompiler",
+                "GraphEditor",
+                "EditorStyle",
+                "AssetTools", 
+                "EditorWidgets",
+                "UMG"
             }
         );
     }

@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "Action.generated.h"
 
+class UActionPlannerOwner;
 struct FActionPlannerGoal;
 struct FActionStorage;
 class UActionPlanner;
@@ -28,6 +29,9 @@ UCLASS(Blueprintable)
 class SIMULATIONSYSTEM_API UAction : public UObject
 {
 	GENERATED_BODY()
+	
+	UPROPERTY()
+	TObjectPtr<UWorld> World;
 
 	UPROPERTY()
 	TObjectPtr<UActionPlanner> ParentPlanner;
@@ -63,7 +67,7 @@ public:
 protected:
 
 	UFUNCTION(BlueprintPure)
-	UObject* GetOwningObject() const;
+	UActionPlannerOwner* GetOwningObject() const;
 
 	UFUNCTION(BlueprintCallable)
 	void FinishAction();
@@ -90,5 +94,8 @@ protected:
 	void EndAction(bool Successful);
 public:
 	void NativeEndAction(bool Successful);
+
+	virtual UWorld* GetWorld() const override;
+	virtual void PostInitProperties() override;
 	
 };

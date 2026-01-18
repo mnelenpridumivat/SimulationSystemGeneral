@@ -4,24 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "MassProcessor.h"
-#include "DebugProcessor.generated.h"
-
-struct SIMULATIONSYSTEM_API FEntitiesForDebugContainer
-{
-	static FCriticalSection EntitiesCS;
-	static TArray<FMassEntityHandle> Entities;
-};
+#include "AIProcessor.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SIMULATIONSYSTEM_API UDebugProcessor : public UMassProcessor
+class SIMULATIONSYSTEM_API UAIProcessor : public UMassProcessor
 {
 	GENERATED_BODY()
 
 public:
-	UDebugProcessor();
+	UAIProcessor();
 
 protected:
 	virtual void ConfigureQueries() override;

@@ -5,10 +5,11 @@
 #include "SimulationLevels.h"
 #include "SimulationStateFragment.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FSimulationStateFragment : public FMassFragment
 {
 	GENERATED_BODY()
 
+	UPROPERTY(BlueprintReadOnly)
 	ESimulationLevels SimulationLevel;
 };

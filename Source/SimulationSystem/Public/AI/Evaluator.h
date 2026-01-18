@@ -32,6 +32,6 @@ protected:
 	void SetState(FName key, bool value) const;
 
 	UFUNCTION(BlueprintPure)
-	UObject* GetOwningObject() const;
+	UActionPlannerOwner* GetOwningObject() const;
 	
 };

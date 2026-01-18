@@ -4,6 +4,7 @@
 
 #include "SimulationArchetypeSettings.generated.h"
 
+class UActionPlanner;
 class USimulationTableTrait;
 class USimulationArchetype;
 
@@ -37,4 +38,10 @@ struct FSimulationArchetypeSettings : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<TSubclassOf<USimulationTableTrait>, FSimulationTraitOverrides> Overrides;
+
+	UPROPERTY()
+	bool IsAI = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "IsAI"))
+	TSubclassOf<UActionPlanner> AIPlanner;
 };

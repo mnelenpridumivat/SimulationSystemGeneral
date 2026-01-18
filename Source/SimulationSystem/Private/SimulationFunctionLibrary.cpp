@@ -18,6 +18,7 @@
 #include "Vertex.h"
 #include "NavHeuristics/NavHeuristic_Base.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
+#include "AI/ActionPlannerOwner.h"
 
 const TCHAR* USimulationFunctionLibrary::GetWorldTcharNameChecked(UObject* Context)
 {
@@ -313,3 +314,231 @@ void USimulationFunctionLibrary::LoadObjectData(UObject* Object, const FBytesSer
 	FObjectAndNameAsStringProxyArchive SaveArchive(MemoryReader, false);
 	Object->Serialize(SaveArchive);
 }
+
+UScriptStruct* USimulationFunctionLibrary::GetStructFromName(const FString& StructName)
+{
+	return FindObject<UScriptStruct>(ANY_PACKAGE, *StructName);
+}
+
+bool USimulationFunctionLibrary::GetConstFragmentData(UActionPlannerOwner* Owner, UScriptStruct* Struct, FFragmentProperties& Out)
+{
+	if (!ensure(Owner))
+	{
+		return false;
+	}
+	if (!ensure(Owner->GetProfileType() == ESimualtionSystemProfileType::ECS))
+	{
+		return false;
+	}
+	return Owner->GetFragment(Struct, Out);
+}
+
+int USimulationFunctionLibrary::GetIntFragmentProperty(const FFragmentProperties& MassFragment, int Index)
+{
+	if (!ensure(MassFragment.Struct.IsValid()) || !ensure(MassFragment.Props.IsValidIndex(Index)))
+	{
+		return 0;
+	}
+	auto Prop = MassFragment.Props[Index];
+	auto FieldPtr = Prop->ContainerPtrToValuePtr<void>(MassFragment.Struct.GetMemory());
+	if (!ensure(FieldPtr))
+	{
+		return 0;
+	}
+	auto IntProp = CastField<FIntProperty>(Prop);
+	if (!ensure(IntProp))
+	{
+		return 0;
+	}
+	return IntProp->GetPropertyValue(FieldPtr);
+}
+
+float USimulationFunctionLibrary::GetFloatFragmentProperty(const FFragmentProperties& MassFragment,
+	int Index)
+{
+	if (!ensure(MassFragment.Struct.IsValid()) || !ensure(MassFragment.Props.IsValidIndex(Index)))
+	{
+		return 0.0f;
+	}
+	auto Prop = MassFragment.Props[Index];
+	auto FieldPtr = Prop->ContainerPtrToValuePtr<void>(MassFragment.Struct.GetMemory());
+	if (!ensure(FieldPtr))
+	{
+		return 0.0f;
+	}
+	auto FloatProp = CastField<FFloatProperty>(Prop);
+	if (!ensure(FloatProp))
+	{
+		return 0.0f;
+	}
+	return FloatProp->GetPropertyValue(FieldPtr);
+}
+
+double USimulationFunctionLibrary::GetDoubleFragmentProperty(const FFragmentProperties& MassFragment,
+	int Index)
+{
+	if (!ensure(MassFragment.Struct.IsValid()) || !ensure(MassFragment.Props.IsValidIndex(Index)))
+	{
+		return 0.0;
+	}
+	auto Prop = MassFragment.Props[Index];
+	auto FieldPtr = Prop->ContainerPtrToValuePtr<void>(MassFragment.Struct.GetMemory());
+	if (!ensure(FieldPtr))
+	{
+		return 0.0;
+	}
+	auto DoubleProp = CastField<FDoubleProperty>(Prop);
+	if (!ensure(DoubleProp))
+	{
+		return 0.0;
+	}
+	return DoubleProp->GetPropertyValue(FieldPtr);
+}
+
+bool USimulationFunctionLibrary::GetBoolFragmentProperty(const FFragmentProperties& MassFragment, int Index)
+{
+	if (!ensure(MassFragment.Struct.IsValid()) || !ensure(MassFragment.Props.IsValidIndex(Index)))
+	{
+		return false;
+	}
+	auto Prop = MassFragment.Props[Index];
+	auto FieldPtr = Prop->ContainerPtrToValuePtr<void>(MassFragment.Struct.GetMemory());
+	if (!ensure(FieldPtr))
+	{
+		return false;
+	}
+	auto BoolProp = CastField<FBoolProperty>(Prop);
+	if (!ensure(BoolProp))
+	{
+		return false;
+	}
+	return BoolProp->GetPropertyValue(FieldPtr);
+}
+
+FString USimulationFunctionLibrary::GetStringFragmentProperty(const FFragmentProperties& MassFragment,
+	int Index)
+{
+	if (!ensure(MassFragment.Struct.IsValid()) || !ensure(MassFragment.Props.IsValidIndex(Index)))
+	{
+		return {};
+	}
+	auto Prop = MassFragment.Props[Index];
+	auto FieldPtr = Prop->ContainerPtrToValuePtr<void>(MassFragment.Struct.GetMemory());
+	if (!ensure(FieldPtr))
+	{
+		return {};
+	}
+	auto StrProp = CastField<FStrProperty>(Prop);
+	if (!ensure(StrProp))
+	{
+		return {};
+	}
+	return StrProp->GetPropertyValue(FieldPtr);
+}
+
+FName USimulationFunctionLibrary::GetNameFragmentProperty(const FFragmentProperties& MassFragment,
+	int Index)
+{
+	if (!ensure(MassFragment.Struct.IsValid()) || !ensure(MassFragment.Props.IsValidIndex(Index)))
+	{
+		return NAME_None;
+	}
+	auto Prop = MassFragment.Props[Index];
+	auto FieldPtr = Prop->ContainerPtrToValuePtr<void>(MassFragment.Struct.GetMemory());
+	if (!ensure(FieldPtr))
+	{
+		return NAME_None;
+	}
+	auto NameProp = CastField<FNameProperty>(Prop);
+	if (!ensure(NameProp))
+	{
+		return NAME_None;
+	}
+	return NameProp->GetPropertyValue(FieldPtr);
+}
+
+FText USimulationFunctionLibrary::GetTextFragmentProperty(const FFragmentProperties& MassFragment,
+	int Index)
+{
+	if (!ensure(MassFragment.Struct.IsValid()) || !ensure(MassFragment.Props.IsValidIndex(Index)))
+	{
+		return {};
+	}
+	auto Prop = MassFragment.Props[Index];
+	auto FieldPtr = Prop->ContainerPtrToValuePtr<void>(MassFragment.Struct.GetMemory());
+	if (!ensure(FieldPtr))
+	{
+		return {};
+	}
+	auto TextProp = CastField<FTextProperty>(Prop);
+	if (!ensure(TextProp))
+	{
+		return {};
+	}
+	return TextProp->GetPropertyValue(FieldPtr);
+}
+
+UObject* USimulationFunctionLibrary::GetObjectFragmentProperty(const FFragmentProperties& MassFragment,
+	int Index)
+{
+	if (!ensure(MassFragment.Struct.IsValid()) || !ensure(MassFragment.Props.IsValidIndex(Index)))
+	{
+		return nullptr;
+	}
+	auto Prop = MassFragment.Props[Index];
+	auto FieldPtr = Prop->ContainerPtrToValuePtr<void>(MassFragment.Struct.GetMemory());
+	if (!ensure(FieldPtr))
+	{
+		return nullptr;
+	}
+	auto ObjProp = CastField<FObjectProperty>(Prop);
+	if (!ensure(ObjProp))
+	{
+		return nullptr;
+	}
+	return ObjProp->GetPropertyValue(FieldPtr);
+}
+
+UClass* USimulationFunctionLibrary::GetClassFragmentProperty(const FFragmentProperties& MassFragment,
+	int Index)
+{
+	if (!ensure(MassFragment.Struct.IsValid()) || !ensure(MassFragment.Props.IsValidIndex(Index)))
+	{
+		return nullptr;
+	}
+	auto Prop = MassFragment.Props[Index];
+	auto FieldPtr = Prop->ContainerPtrToValuePtr<void>(MassFragment.Struct.GetMemory());
+	if (!ensure(FieldPtr))
+	{
+		return nullptr;
+	}
+	auto ClassProp = CastField<FClassProperty>(Prop);
+	if (!ensure(ClassProp))
+	{
+		return nullptr;
+	}
+	return Cast<UClass>(ClassProp->GetPropertyValue_InContainer(FieldPtr));
+}
+
+void USimulationFunctionLibrary::GetStructFragmentProperty(const FFragmentProperties& MassFragment,
+	int Index, FInstancedStruct& Out)
+{
+	if (!ensure(MassFragment.Struct.IsValid()) || !ensure(MassFragment.Props.IsValidIndex(Index)))
+	{
+		return;
+	}
+	auto Prop = MassFragment.Props[Index];
+	auto FieldPtr = Prop->ContainerPtrToValuePtr<void>(MassFragment.Struct.GetMemory());
+	if (!ensure(FieldPtr))
+	{
+		return;
+	}
+	auto StructProp = CastField<FStructProperty>(Prop);
+	if (!ensure(StructProp))
+	{
+		return;
+	}
+	Out.InitializeAs(MassFragment.Struct.GetScriptStruct());
+	StructProp->Struct->CopyScriptStruct(Out.GetMutableMemory(), FieldPtr);
+}
+

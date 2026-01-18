@@ -25,6 +25,17 @@ public class SimulationSystemDeveloperTool : ModuleRules
                 "SimulationSystem",
                 "MassEntity", 
                 "MassSpawner",
+                "Blutility",
+                "BlueprintGraph",
+                "Kismet",
+                "KismetCompiler",
+                "GraphEditor",
+                "EditorStyle",
+                "AssetTools", 
+                "EditorWidgets",
+                "UMG",
+                "UnrealEd",
+                "InputCore",
             }
         );
 

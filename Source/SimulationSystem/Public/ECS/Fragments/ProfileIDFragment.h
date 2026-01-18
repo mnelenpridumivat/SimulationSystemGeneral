@@ -5,12 +5,12 @@
 #include "SimProfileID.h"
 #include "ProfileIDFragment.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FProfileIDFragment : public FMassFragment
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	FSimProfileID ProfileID;
 	
 };

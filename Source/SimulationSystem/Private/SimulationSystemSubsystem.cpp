@@ -3,6 +3,9 @@
 
 #include "SimulationSystemSubsystem.h"
 
+#include "ActionPlanner.h"
+#include "ActionPlannerOwner.h"
+#include "AIFragment.h"
 #include "DebugFragment.h"
 #include "GlobalGraph.h"
 #include "GraphPositionFragment.h"
@@ -124,6 +127,15 @@ FMassEntityHandle USimulationSystemSubsystem::SpawnProfile(UObject* Context, FSi
 		{
 			Casted->SetupEntity(Context, EntityManager, NewEntity, Row->Overrides[Casted->GetClass()]);
 		}
+	}
+
+	if (Row->IsAI)
+	{
+		auto& AIFragment = EntityManager.GetFragmentDataChecked<FAIFragment>(NewEntity);
+		AIFragment.ActionPlanner = NewObject<UActionPlanner>(GetWorld(), Row->AIPlanner);
+		auto OwnerHandle = NewObject<UActionPlannerOwner>(GetWorld());
+		OwnerHandle->SetEntityOwner(NewEntity);
+		AIFragment.ActionPlanner->SetParentObject(OwnerHandle);
 	}
 	
 	return NewEntity;

@@ -38,7 +38,7 @@ bool UMotivator::FindGoal_Implementation(FActionPlannerGoal& Goal)
 	return false;
 }
 
-UObject* UMotivator::GetOwningObject() const
+UActionPlannerOwner* UMotivator::GetOwningObject() const
 {
 	if(!ensureMsgf(
 		IsValid(ParentPlanner),

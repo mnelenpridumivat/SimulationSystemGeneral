@@ -7,6 +7,7 @@
 #include "EditorLevelLibrary.h"
 #include "EditorLevelUtils.h"
 //#include "ExposedFunctionLibrary.h"
+#include "ActionPlannerOwner.h"
 #include "AssetToolsModule.h"
 #include "GlobalGraph.h"
 #include "GraphAsset.h"

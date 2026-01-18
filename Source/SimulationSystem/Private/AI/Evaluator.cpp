@@ -36,7 +36,7 @@ void UEvaluator::SetState(FName key, bool value) const
 	ParentPlanner->GetActionStorage().SetState(key, value);
 }
 
-UObject* UEvaluator::GetOwningObject() const
+UActionPlannerOwner* UEvaluator::GetOwningObject() const
 {
 	if (!ensureMsgf(
 		IsValid(ParentPlanner),

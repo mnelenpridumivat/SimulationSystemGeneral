@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "Motivator.generated.h"
 
+class UActionPlannerOwner;
 struct FActionPlannerGoal;
 class UActionPlanner;
 /**
@@ -27,11 +28,12 @@ public:
 	
 protected:
 
+	// Return true if anything is satisfied, false + needs otherwise
 	UFUNCTION(BlueprintNativeEvent)
 	bool FindGoal(FActionPlannerGoal& Goal);
 
 	UFUNCTION(BlueprintPure)
-	UObject* GetOwningObject() const;
+	UActionPlannerOwner* GetOwningObject() const;
 
 	UFUNCTION(BlueprintPure)
 	bool GetPlannerKey(FName Key);

@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "ActionPlanner.generated.h"
 
+class UActionPlannerOwner;
 class UMotivator;
 class UActionPlan;
 class UAction;
@@ -77,10 +78,13 @@ UCLASS(Blueprintable)
 class SIMULATIONSYSTEM_API UActionPlanner : public UObject
 {
 	GENERATED_BODY()
+	
+	UPROPERTY()
+	TObjectPtr<UWorld> World;
 
 	// Object which uses this evaluator (Profile, Bar, Actor...)
 	UPROPERTY()
-	TObjectPtr<UObject> ParentObject;
+	TObjectPtr<UActionPlannerOwner> ParentObject;
 
 	UPROPERTY()
 	TArray<TObjectPtr<UEvaluator>> EvaluatorsObjs;
@@ -113,8 +117,8 @@ protected:
 
 public:
 
-	void SetParentObject(UObject* Object);
-	UObject* GetParentObject();
+	void SetParentObject(UActionPlannerOwner* Object);
+	UActionPlannerOwner* GetParentObject();
 	void BeginPlay();
 
 	FORCEINLINE FActionStorage& GetActionStorage(){return ActionStorage;}
@@ -146,5 +150,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	UActionPlan* GetPlan() const {return Plan;}
-	
+
+	virtual UWorld* GetWorld() const override;
+	virtual void PostInitProperties() override;
 };

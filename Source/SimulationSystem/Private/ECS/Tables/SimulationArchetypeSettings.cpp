@@ -1,6 +1,8 @@
 #include "Tables/SimulationArchetypeSettings.h"
 
+#include "ActionPlanner.h"
 #include "MassEntityTraitBase.h"
+#include "SimulationAITrait.h"
 #include "SimulationArchetype.h"
 #include "SimulationTableTrait.h"
 #include "SimulationTrait.h"
@@ -44,6 +46,28 @@ void FSimulationArchetypeSettings::OnDataTableChanged(const UDataTable* InDataTa
 	for (auto Trait : OldTraits)
 	{
 		Overrides.Remove(Trait);
+	}
+	
+	IsAI = false;
+	for (auto Trait : Traits)
+	{
+		if (Trait->IsA(USimulationAITrait::StaticClass()))
+		{
+			IsAI = true;
+			auto CastedTrait = Cast<USimulationAITrait>(Trait);
+			if (!ensure(CastedTrait))
+			{
+				continue;
+			}
+			if (!IsValid(AIPlanner))
+			{
+				AIPlanner = CastedTrait->DefaultAIPlanner;
+			}
+		}
+	}
+	if (!IsAI)
+	{
+		AIPlanner = nullptr;
 	}
 	
 }

@@ -5,6 +5,7 @@
 
 #include "ActionEffect.h"
 #include "ActionPlanner.h"
+#include "ActionPlannerOwner.h"
 #include "ActionPrecondition.h"
 
 void UAction::SetParentPlanner(UActionPlanner* Planner)
@@ -110,7 +111,7 @@ void UAction::GetRequiredStartGoal(FActionPlannerGoal& Storage)
 	}
 }
 
-UObject* UAction::GetOwningObject() const
+UActionPlannerOwner* UAction::GetOwningObject() const
 {
 	if(!ensureMsgf(
 		IsValid(ParentPlanner),
@@ -186,4 +187,15 @@ void UAction::NativeEndAction(bool Successful)
 {
 	EndAction(Successful);
 	Status = EActionStatus::Idle;
+}
+
+UWorld* UAction::GetWorld() const
+{
+	return World;
+}
+
+void UAction::PostInitProperties()
+{
+	Super::PostInitProperties();
+	World = GetOuter()->GetWorld();
 }

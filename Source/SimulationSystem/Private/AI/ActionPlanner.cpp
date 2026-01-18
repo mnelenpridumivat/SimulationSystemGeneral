@@ -5,6 +5,7 @@
 
 #include "Action.h"
 #include "ActionPlan.h"
+#include "ActionPlannerOwner.h"
 #include "Evaluator.h"
 #include "Motivator.h"
 #include "TPriorityQueue.h"
@@ -26,7 +27,7 @@ bool FActionStorage::GetState(FName Key) const
 	return false;
 }
 
-void UActionPlanner::SetParentObject(UObject* Object)
+void UActionPlanner::SetParentObject(UActionPlannerOwner* Object)
 {
 	if (!ensureMsgf(
 		IsValid(Object),
@@ -44,7 +45,7 @@ void UActionPlanner::SetParentObject(UObject* Object)
 	ParentObject = Object;
 }
 
-UObject* UActionPlanner::GetParentObject()
+UActionPlannerOwner* UActionPlanner::GetParentObject()
 {
 	if (!ensureMsgf(
 		IsValid(ParentObject),
@@ -261,4 +262,15 @@ UActionPlan* UActionPlanner::MakeDecision(const FActionPlannerGoal& Goal)
 
 	Plan = nullptr;
 	return nullptr;
+}
+
+UWorld* UActionPlanner::GetWorld() const
+{
+	return World;
+}
+
+void UActionPlanner::PostInitProperties()
+{
+	Super::PostInitProperties();
+	World = GetOuter()->GetWorld();
 }

@@ -4,12 +4,12 @@
 #include "MassEntityTypes.h"
 #include "OnlineActorFragment.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FOnlineActorFragment : public FMassFragment
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	AActor* Actor = nullptr;
 	
 };
