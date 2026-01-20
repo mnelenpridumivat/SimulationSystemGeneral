@@ -4,10 +4,10 @@
 #include "SquadsDebugDrawProcessor.h"
 
 #include "GlobalGraph.h"
-#include "GraphPositionFragment.h"
-#include "GraphTargetPositionFragment.h"
 #include "MassExecutionContext.h"
 #include "SimulationFunctionLibrary.h"
+#include "Base/GraphPositionFragment.h"
+#include "Base/GraphTargetPositionFragment.h"
 
 FCriticalSection FSquadsDebugDrawContainer::Lock;
 TArray<FVector> FSquadsDebugDrawContainer::GraphPositions;
@@ -54,10 +54,10 @@ void USquadsDebugDrawProcessor::Execute(FMassEntityManager& EntityManager, FMass
 		FSquadsDebugDrawContainer::WayLines.Reserve(Targets.Num()*WayLinesCoeff);
 		for (auto& Target : Targets)
 		{
-			for (int i = 1; i < Target.Way.Num(); ++i)
+			for (int i = 1; i < Target.Way.Num; ++i)
 			{
-				auto A = Target.Way[i];
-				auto B = Target.Way[i - 1];
+				auto A = Target.Way.Vertices[i];
+				auto B = Target.Way.Vertices[i - 1];
 				if (!ensure(A.IsValid() && B.IsValid()))
 				{
 					continue;
@@ -68,22 +68,22 @@ void USquadsDebugDrawProcessor::Execute(FMassEntityManager& EntityManager, FMass
 			}
 		}
 		for (auto& Target : Targets){
-			auto Current = Target.Way.Last();
-			if (!ensure(Current.IsValid()) || !ensure(Target.TargetPosition.IsValid()))
+			auto Current = Target.Way.Vertices[Target.Way.Num - 1];
+			if (!ensure(Current.IsValid()))
 			{
 				continue;
 			}
-			if (Current == Target.TargetPosition)
+			if (!Target.Way.Num)
 			{
 				continue;
 			}
-			auto Next = Target.Way.Last(1);
+			auto Next = Target.Way.Vertices[Target.Way.Num - 2];
 			if (!ensure(Next.IsValid()))
 			{
 				continue;
 			}
 			auto CurrentPos = GlobalGraph->GetVertexLocationByID(Current);
-			auto NextPos = GlobalGraph->GetVertexLocationByID(Target.Way.Last(1));
+			auto NextPos = GlobalGraph->GetVertexLocationByID(Next);
 			auto MovedDist = Target.MovedDistance;
 			auto InterpPos = FMath::Lerp(CurrentPos, NextPos, MovedDist/(NextPos-CurrentPos).Length());
 			FSquadsDebugDrawContainer::GraphPositions.Add(InterpPos);

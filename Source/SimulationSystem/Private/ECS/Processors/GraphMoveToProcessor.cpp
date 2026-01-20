@@ -4,11 +4,11 @@
 #include "Processors/GraphMoveToProcessor.h"
 
 #include "GlobalGraph.h"
-#include "GraphOfflineSpeedFragment.h"
-#include "GraphPositionFragment.h"
-#include "GraphTargetPositionFragment.h"
 #include "MassExecutionContext.h"
 #include "SimulationFunctionLibrary.h"
+#include "Base/GraphOfflineSpeedFragment.h"
+#include "Base/GraphPositionFragment.h"
+#include "Base/GraphTargetPositionFragment.h"
 
 UGraphMoveToProcessor::UGraphMoveToProcessor()
 {
@@ -37,7 +37,8 @@ void UGraphMoveToProcessor::Execute(FMassEntityManager& EntityManager, FMassExec
 
 		for (int32 i = 0; i < Context.GetNumEntities(); ++i)
 		{
-			auto& Position = Positions[i];
+			ensureMsgf(false, TEXT("TODO: Remake"));
+			/*auto& Position = Positions[i];
 			auto& Way = Ways[i];
 			const auto& Velocity = Velocities[i];
 			const auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(Context.GetWorld());
@@ -58,7 +59,7 @@ void UGraphMoveToProcessor::Execute(FMassEntityManager& EntityManager, FMassExec
 			} else
 			{
 				Way.MovedDistance = MovedDist;
-			}
+			}*/
 		}
 	}
 	));

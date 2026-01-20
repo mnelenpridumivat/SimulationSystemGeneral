@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MassCommandBuffer.h"
 #include "UObject/Object.h"
 #include "Action.generated.h"
 
@@ -82,6 +83,7 @@ protected:
 	void StartAction();
 public:
 	void NativeStartAction();
+	virtual void NativeStartAction(FMassCommandBuffer& CmdBuffer){}
 	
 protected:
 	UFUNCTION(BlueprintNativeEvent)

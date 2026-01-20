@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GraphWay.h"
 #include "MassEntityTypes.h"
 #include "SimVertexID.h"
 #include "GraphTargetPositionFragment.generated.h"
@@ -10,11 +11,15 @@ struct FGraphTargetPositionFragment : public FMassFragment
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly)
-	FSimVertexID TargetPosition = FSimVertexID::Invalid;
+	FGraphTargetPositionFragment() = default;
+	FGraphTargetPositionFragment(const FGraphWay& OtherWay);
+	FGraphTargetPositionFragment& operator=(const FGraphWay& OtherWay);
 	
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FSimVertexID> Way = {};
+	FGraphWayIDArray Way = {};
+
+	UPROPERTY(BlueprintReadOnly)
+	int CurrentPosition = 0;
 	
 	UPROPERTY(BlueprintReadOnly)
 	float MovedDistance = 0.0f;

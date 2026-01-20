@@ -104,3 +104,21 @@ bool UActionPlannerOwner::GetFragment(UScriptStruct* Struct, FFragmentProperties
 	
 	return true;
 }
+
+FMassEntityHandle UActionPlannerOwner::GetEntityOwner() const
+{
+	if (!ensure(EntityOwner.IsValid()))
+	{
+		return FMassEntityHandle();
+	}
+	return EntityOwner;
+}
+
+UObject* UActionPlannerOwner::GetObjectOwner() const
+{
+	if (!ensure(IsValid(ObjectOwner)))
+	{
+		return nullptr;
+	}
+	return ObjectOwner;
+}

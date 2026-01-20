@@ -279,9 +279,14 @@ FGraphWay USimulationFunctionLibrary::FindWay(UObject* Context, const FSimVertex
 		Stack.Push(Node.Key);
 		Node = Tree[Node.Key];
 	}
+	if (!ensure(Stack.Num() < MAX_PATH_LENGTH))
+	{
+		return FGraphWay();
+	}
+	auto& NewWayData = NewWay.GetWay();
 	while (Stack.Num())
 	{
-		NewWay.GetWay().Push(Stack.Pop());
+		NewWayData.Vertices[NewWayData.Num++] = Stack.Pop();
 	}
 	return NewWay;
 }

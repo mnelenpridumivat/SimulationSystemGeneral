@@ -13,7 +13,7 @@ void UTaskDebugMoveToCamp::VisualizeTaskInfo(float DeltaTime, UAISimProfileSquad
 	auto CastedTask = Cast<USquadTask_MoveToCamp>(Task);
 	auto& Way = CastedTask->GetWay();
 	TWeakPtr<Simulation::Vertex> Prev = nullptr;
-	for(auto& elem : Way)
+	/*for(auto& elem : Way)
 	{
 		if(elem == Way.GetCurrent() && Way.GetCurrent() != Way.GetEnd())
 		{
@@ -50,7 +50,7 @@ void UTaskDebugMoveToCamp::VisualizeTaskInfo(float DeltaTime, UAISimProfileSquad
 				);
 			Prev = elem;
 		}
-	}
+	}*/
 }
 
 void UTaskDebugMoveToCamp::ImGuiTaskInfo(float DeltaTime, UAISimProfileSquad* Squad, USquadTaskBase* Task)

@@ -41,4 +41,7 @@ public:
 	ESimualtionSystemProfileType GetProfileType() const;
 
 	bool GetFragment(UScriptStruct* Struct, FFragmentProperties& Out);
+
+	FMassEntityHandle GetEntityOwner() const;
+	UObject* GetObjectOwner() const;
 };
