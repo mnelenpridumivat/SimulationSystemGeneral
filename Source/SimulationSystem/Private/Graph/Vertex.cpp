@@ -10,5 +10,6 @@ Simulation::Vertex::Vertex(const FSimVertexID& VertexID, const FVector& Location
 
 void Simulation::Vertex::AddEdge(const TWeakPtr<Edge>& NewEdge)
 {
+	ensure(Edges.Num() < 15);
 	Edges.Add(NewEdge);
 }

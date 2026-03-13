@@ -273,6 +273,7 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 		SlowTaskL2.EnterProgressFrame(10.0f/FoundPointsPerLayer.Num());
 	}
 	float MaxDistance = GetMutableDefault<USimulationSystemDeveloperSettings>()->MaximumDistance;
+	auto MaxDistSq = MaxDistance*MaxDistance;
 	for(int i = 0; i < Layers.Num(); ++i)
 	{
 		auto& ChunkVertices = ChunkGraphs[i].Vertices;
@@ -285,7 +286,8 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 			{
 				auto& VertexOne = ChunkVertices[L1];
 				auto& VertexTwo = ChunkVertices[L2];
-				if(FVector::DistSquared(VertexOne->GetLocation(), VertexTwo->GetLocation()) > MaxDistance*MaxDistance)
+				auto SqDist = FVector::DistSquared(VertexOne->GetLocation(), VertexTwo->GetLocation());
+				if(SqDist > MaxDistSq)
 				{
 					continue;
 				}
@@ -309,7 +311,8 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 				auto& ChunkEdges = ChunkGraphs[i].Edges;
 				for(auto& Vertex : ChunkVertices)
 				{
-					if(FVector::DistSquared(Vertex->GetLocation(), LinkVertex->GetLocation()) > MaxDistance*MaxDistance)
+					auto DistSq = FVector::DistSquared(Vertex->GetLocation(), LinkVertex->GetLocation());
+					if(DistSq > MaxDistSq)
 					{
 						continue;
 					}
@@ -542,7 +545,7 @@ void USimulationSystemEditorFunctionLibrary::Build()
 		LocalGraph->SetChunkIndex(i+1);
 		auto DataAsset = LocalGraph->GetGraph();
 		UGraphDataAsset* AssetObj = nullptr;
-		if (DataAsset.IsNull())
+		auto CreateNewFunc = [&]()
 		{
 			FString AssetName = "DA_"+LocalGraph->GetName() + "_GraphData";
 			FString AssetPath = GetDefault<USimulationSystemSettings>()->GraphDataPath;
@@ -555,13 +558,21 @@ void USimulationSystemEditorFunctionLibrary::Build()
 			{
 				LocalGraph->SetGraph(AssetObj);
 			}
+		};
+		if (DataAsset.IsNull())
+		{
+			CreateNewFunc();
 		} else
 		{
 			AssetObj = DataAsset.LoadSynchronous();
 		}
-		if (!ensure(IsValid(AssetObj)))
+		if (!IsValid(AssetObj))
 		{
-			continue;
+			CreateNewFunc();
+			if (!ensure(IsValid(AssetObj)))
+			{
+				continue;
+			}
 		}
 		
 		FGraphSerialized& Graph = AssetObj->Graph;

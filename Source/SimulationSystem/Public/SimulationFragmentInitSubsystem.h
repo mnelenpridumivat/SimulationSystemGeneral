@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FragmentAddedObserver.h"
+//#include "FragmentAddedObserver.h"
+#include "FragmentsInitChecker.h"
 #include "MassEntityTypes.h"
+#include "RegisteredInitFragments.h"
 #include "Base/GraphTargetPositionFragment.h"
 #include "Subsystems/EngineSubsystem.h"
 #include "SimulationFragmentInitSubsystem.generated.h"
