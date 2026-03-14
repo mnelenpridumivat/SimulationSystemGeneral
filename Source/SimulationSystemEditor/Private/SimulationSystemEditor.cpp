@@ -8,7 +8,6 @@
 //#include "SimulationSystemCommands.h"
 #include "EntityDataHandleLayout.h"
 #include "SimulationDataTableKeyLayout.h"
-#include "SimulationTraitOverridesLayout.h"
 #include "SquadDataHandleLayout.h"
 #include "SquadDataNPCLayout.h"
 #include "ToolMenus.h"
@@ -28,9 +27,6 @@ void FSimulationSystemEditorModule::StartupModule()
 	RegisterCustomPropertyTypeLayout("SimulationArchetypeHandle",
 	                                 FOnGetPropertyTypeCustomizationInstance::CreateStatic(
 	                                 &FEntityDataHandleLayout::MakeInstance));
-	RegisterCustomPropertyTypeLayout("SimulationTraitOverrides",
-									 FOnGetPropertyTypeCustomizationInstance::CreateStatic(
-									 &FSimulationTraitOverridesLayout::MakeInstance));
 	RegisterCustomPropertyTypeLayout("SimulationSystemEntityDataTableKey",
 									 FOnGetPropertyTypeCustomizationInstance::CreateStatic(
 										 &FSimulationDataTableKeyLayout::MakeInstance));

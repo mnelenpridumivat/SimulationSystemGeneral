@@ -13,44 +13,69 @@
 #include "SimulationSystemSettings.h"
 #include "SimulationSystemSubsystem.h"
 
-USimulationItemHandlerTrait::USimulationItemHandlerTrait()
+void USimulationItemHandlerTrait::SetupDefaultTableSettings_Implementation(FInstancedStruct& data)
 {
-	bCanBeRandom = true;
-	DefaultsDataTable = USimulationSystemSettings::GetDataTableByKey(SIMULATION_DATATABLE_KEY(Item));
+	data.InitializeAs(FSimulationTraitOverridesItem::StaticStruct());
+	auto& TableData = data.GetMutable<FSimulationTraitOverridesItem>();
+	TableData.Items = Items;
+	TableData.Row = Row;
+	TableData.TableValue = TableValue;
+	
 }
 
 void USimulationItemHandlerTrait::BuildTemplate(FMassEntityTemplateBuildContext& BuildContext,
-	const UWorld& World) const
+                                                const UWorld& World) const
 {
 	BuildContext.AddFragment<FSquadStorageFragment>();
 }
 
 void USimulationItemHandlerTrait::SetupEntity(UObject* Context, FMassEntityManager& Manager, FMassEntityHandle Entity,
-	const FSimulationTraitOverrides& OverrideData)
+	const FInstancedStruct& OverrideData)
 {
 	Super::SetupEntity(Context, Manager, Entity, OverrideData);
+	if (!ensure(OverrideData.IsValid()) || !ensure(OverrideData.GetScriptStruct() == FSimulationTraitOverridesItem::StaticStruct()))
+	{
+		return;
+	}
+	auto& TableData = OverrideData.Get<FSimulationTraitOverridesItem>();
 	if (!ensure(Manager.IsEntityValid(Entity)))
 	{
 		return;
 	}
-	if (!DefaultsDataTable)
+	const FItemSetData* ItemSetData = nullptr;
+	if (TableData.TableValue)
 	{
-		DefaultsDataTable = USimulationSystemSettings::GetDataTableByKey(SIMULATION_DATATABLE_KEY(Item));
-		if (!ensure(DefaultsDataTable))
+		auto TableSets = USimulationSystemSettings::GetDataTableByKey(SIMULATION_DATATABLE_KEY(ItemSet));
+		if (!ensure(TableSets))
 		{
 			return;
 		}
-	}
-	auto RowData = DefaultsDataTable->FindRow<FItemSetData>(OverrideData.RowName, nullptr);
-	if (!ensure(RowData))
+		ItemSetData = TableSets->FindRow<FItemSetData>(TableData.Row.RowName, nullptr);
+		if (!ensure(ItemSetData))
+		{
+			return;
+		}
+	} else
 	{
-		return;
+		ItemSetData = &TableData.Items;
 	}
+	
+	auto Subsystem = USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld());
 	auto& StorageFragment = Manager.GetFragmentDataChecked<FItemStorageFragment>(Entity);
 	auto& PosFrag = Manager.GetFragmentDataChecked<FGraphPositionFragment>(Entity);
-	for (auto& Item : RowData->Items)
+	for (auto& elem : ItemSetData->Items)
 	{
-		StorageFragment.Children.Add(
-			USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld())->SpawnProfile(GetWorld(), Item, PosFrag.Position));
+		auto Num = ensure(elem.AmountMin <= elem.AmountMax) ? elem.AmountMin : elem.AmountMax;
+		for (auto i = Num; i < elem.AmountMax; i++)
+		{
+			if (FMath::RandRange(0.0, 1.0) < elem.Probability)
+			{
+				Num++;
+			}
+		}
+		for (auto i = 0; i < Num; i++)
+		{
+			StorageFragment.Children.Add(Subsystem->SpawnProfile(GetWorld(), elem.Item, PosFrag.Position));
+		}
 	}
 }

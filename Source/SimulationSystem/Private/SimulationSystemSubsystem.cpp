@@ -19,7 +19,7 @@
 #include "SimulationFunctionLibrary.h"
 #include "SimulationSystemFunctionsImplementation.h"
 #include "SimulationSystemSettings.h"
-#include "SimulationTableTrait.h"
+#include "SimulationTrait.h"
 
 void USimulationSystemSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -122,20 +122,11 @@ FMassEntityHandle USimulationSystemSubsystem::SpawnProfile(UObject* Context, FSi
 
 	for (auto Trait : Archetype->GetConfig().GetTraits())
 	{
-		if (auto Casted = Cast<USimulationTableTrait>(Trait);
+		if (auto Casted = Cast<USimulationTrait>(Trait);
 			Casted && ensure(Row->Overrides.Contains(Casted->GetClass())))
 		{
 			Casted->SetupEntity(Context, EntityManager, NewEntity, Row->Overrides[Casted->GetClass()]);
 		}
-	}
-
-	if (Row->IsAI)
-	{
-		auto& AIFragment = EntityManager.GetFragmentDataChecked<FAIFragment>(NewEntity);
-		AIFragment.ActionPlanner = NewObject<UActionPlanner>(GetWorld(), Row->AIPlanner);
-		auto OwnerHandle = NewObject<UActionPlannerOwner>(GetWorld());
-		OwnerHandle->SetEntityOwner(NewEntity);
-		AIFragment.ActionPlanner->SetParentObject(OwnerHandle);
 	}
 	
 	return NewEntity;

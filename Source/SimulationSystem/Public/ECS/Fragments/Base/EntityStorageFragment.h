@@ -19,3 +19,11 @@ struct FItemStorageFragment : public FMassFragment
 
 	TArray<FMassEntityHandle> Children = {};
 };
+
+USTRUCT()
+struct FNPCsStorageFragment : public FMassFragment
+{
+	GENERATED_BODY()
+
+	TArray<FMassEntityHandle> Children = {};
+};

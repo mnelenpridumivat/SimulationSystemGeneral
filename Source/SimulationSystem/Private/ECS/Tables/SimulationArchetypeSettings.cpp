@@ -4,7 +4,6 @@
 #include "MassEntityTraitBase.h"
 #include "SimulationAITrait.h"
 #include "SimulationArchetype.h"
-#include "SimulationTableTrait.h"
 #include "SimulationTrait.h"
 
 void FSimulationArchetypeSettings::OnDataTableChanged(const UDataTable* InDataTable, const FName InRowName)
@@ -18,7 +17,7 @@ void FSimulationArchetypeSettings::OnDataTableChanged(const UDataTable* InDataTa
 	}
 
 	auto Traits = Archetype.LoadSynchronous()->GetConfig().GetTraits();
-	TSet<TSubclassOf<USimulationTableTrait>> OldTraits;
+	TSet<TSubclassOf<USimulationTrait>> OldTraits;
 	Overrides.GetKeys(OldTraits);
 
 	for (auto Trait : Traits)
@@ -28,11 +27,11 @@ void FSimulationArchetypeSettings::OnDataTableChanged(const UDataTable* InDataTa
 			continue;
 		}
 		auto TraitClass = Trait->GetClass();
-		if (!TraitClass->IsChildOf(USimulationTableTrait::StaticClass()))
+		if (!TraitClass->IsChildOf(USimulationTrait::StaticClass()))
 		{
 			continue;
 		}
-		auto CastedTrait = Cast<USimulationTableTrait>(Trait);
+		auto CastedTrait = Cast<USimulationTrait>(Trait);
 		if (!OldTraits.Contains(TraitClass))
 		{
 			auto& Value = Overrides.Add(TraitClass);
@@ -46,28 +45,6 @@ void FSimulationArchetypeSettings::OnDataTableChanged(const UDataTable* InDataTa
 	for (auto Trait : OldTraits)
 	{
 		Overrides.Remove(Trait);
-	}
-	
-	IsAI = false;
-	for (auto Trait : Traits)
-	{
-		if (Trait->IsA(USimulationAITrait::StaticClass()))
-		{
-			IsAI = true;
-			auto CastedTrait = Cast<USimulationAITrait>(Trait);
-			if (!ensure(CastedTrait))
-			{
-				continue;
-			}
-			if (!IsValid(AIPlanner))
-			{
-				AIPlanner = CastedTrait->DefaultAIPlanner;
-			}
-		}
-	}
-	if (!IsAI)
-	{
-		AIPlanner = nullptr;
 	}
 	
 }

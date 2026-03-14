@@ -7,6 +7,16 @@
 #include "SimulationAITrait.generated.h"
 
 class UActionPlanner;
+
+USTRUCT(BlueprintType)
+struct FSimulationTraitOverridesAI
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UActionPlanner> AIPlanner;
+};
+
 /**
  * 
  */
@@ -20,7 +30,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UActionPlanner> DefaultAIPlanner = nullptr;
 	
+	virtual void SetupDefaultTableSettings_Implementation(FInstancedStruct& data) override;
 	virtual void BuildTemplate(FMassEntityTemplateBuildContext& BuildContext, const UWorld& World) const override;
-	//virtual void SetupEntity(UObject* Context, FMassEntityManager& Manager, FMassEntityHandle Entity, const FSimulationTraitOverrides& OverrideData) override;
+	virtual void SetupEntity(UObject* Context, FMassEntityManager& Manager, FMassEntityHandle Entity, const FInstancedStruct& OverrideData) override;
 
 };

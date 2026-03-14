@@ -6,8 +6,6 @@
 #include "MassEntityTraitBase.h"
 #include "MassEntityTypes.h"
 #include "SimulationTrait.generated.h"
-
-struct FSimulationTraitOverrides;
 /**
  * 
  */
@@ -17,10 +15,9 @@ class SIMULATIONSYSTEM_API USimulationTrait : public UMassEntityTraitBase
 	GENERATED_BODY()
 
 public:
-
-	/*UFUNCTION(BlueprintCallable)
-	virtual bool IsTableBasedTrait() { return false; }
-
 	UFUNCTION(BlueprintNativeEvent)
-	void SetupDefaultTableSettings(FSimulationTraitOverrides& data);*/
+	void SetupDefaultTableSettings(FInstancedStruct& data);
+
+	// This is a post-spawn init, possibly with spawning other entities
+	virtual void SetupEntity(UObject* Context, FMassEntityManager& Manager, FMassEntityHandle Entity, const FInstancedStruct& OverrideData);
 };

@@ -1,30 +1,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "StructUtils/InstancedStruct.h"
 
 #include "SimulationArchetypeSettings.generated.h"
 
 class UActionPlanner;
-class USimulationTableTrait;
+class USimulationTrait;
 class USimulationArchetype;
-
-USTRUCT(BlueprintType)
-struct FSimulationTraitOverrides
-{
-	GENERATED_BODY()
-
-	UPROPERTY(VisibleAnywhere)
-	TSubclassOf<USimulationTableTrait> Trait;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool CanBeRandom;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName RowName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(EditCondition = "CanBeRandom"))
-	bool UseRandom = false;
-};
 
 USTRUCT(BlueprintType)
 struct FSimulationArchetypeSettings : public FTableRowBase
@@ -37,11 +20,5 @@ struct FSimulationArchetypeSettings : public FTableRowBase
 	TSoftObjectPtr<USimulationArchetype> Archetype;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TMap<TSubclassOf<USimulationTableTrait>, FSimulationTraitOverrides> Overrides;
-
-	UPROPERTY()
-	bool IsAI = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "IsAI"))
-	TSubclassOf<UActionPlanner> AIPlanner;
+	TMap<TSubclassOf<USimulationTrait>, FInstancedStruct> Overrides;
 };
