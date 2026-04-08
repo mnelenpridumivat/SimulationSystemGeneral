@@ -10,5 +10,11 @@ struct FAIInfoFragment : public FMassFragment
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TMap<FName, bool> Facts;
+	TSet<FName> Facts;
+};
+
+USTRUCT()
+struct FAIInfoTransferTag : public FMassTag
+{
+	GENERATED_BODY()
 };

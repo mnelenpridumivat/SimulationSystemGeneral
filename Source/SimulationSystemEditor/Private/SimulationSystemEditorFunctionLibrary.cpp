@@ -39,6 +39,7 @@
 #include "Subsystems/EditorActorSubsystem.h"
 #include "Subsystems/EditorAssetSubsystem.h"
 #include "Subsystems/UnrealEditorSubsystem.h"
+#include "UObject/SavePackage.h"
 
 void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* World,
                                                                        AGraphAsset* LocalGraph,
@@ -57,7 +58,7 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 	UKismetSystemLibrary::LineTraceMulti(World,
 		FVector(ZoneLocation.X, ZoneLocation.Y, ZoneSize.Z-ZoneLocation.Z),
 		FVector(ZoneLocation.X, ZoneLocation.Y, ZoneLocation.Z-ZoneSize.Z),
-		UEngineTypes::ConvertToTraceType(GetMutableDefault<USimulationSystemDeveloperSettings>()->SimPointsTraceChannel),
+		UEngineTypes::ConvertToTraceType(GetDefault<USimulationSystemDeveloperSettings>()->SimPointsTraceChannel),
 		true, {}, EDrawDebugTrace::Persistent, OutHits, false);
 	TArray<FName> Layers = {};
 	for(auto& Hit : OutHits)
@@ -106,8 +107,8 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 	TArray<FVector> FoundPointsXY = {};
 	//TArray<FVector> ProcessedPoints = {ZoneLocation+FVector(0.0f, 0.0f, 100.0f)};
 	TArray<FVector> ProcessedPoints = {ZoneLocation};
-	float MinDistanceSq = GetMutableDefault<USimulationSystemDeveloperSettings>()->MinimumDistance
-				*GetMutableDefault<USimulationSystemDeveloperSettings>()->MinimumDistance;
+	float MinDistanceSq = GetDefault<USimulationSystemDeveloperSettings>()->MinimumDistance
+				*GetDefault<USimulationSystemDeveloperSettings>()->MinimumDistance;
 	while(ProcessedPoints.Num())
 	{
 		FScopedSlowTask SlowTaskL3(100.0f, FText::Format(NSLOCTEXT("SpawnBuild", "ProcessPointLocation", "Found points/Locations left: %d/%d"), FoundPointsXY.Num(), ProcessedPoints.Num()));
@@ -160,7 +161,7 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 			FVector(Point.X, Point.Y, ZoneSize.Z-Point.Z),
 			FVector(Point.X, Point.Y, Point.Z-ZoneSize.Z),
 			
-			GetMutableDefault<USimulationSystemDeveloperSettings>()->SimPointsTraceChannel
+			GetDefault<USimulationSystemDeveloperSettings>()->SimPointsTraceChannel
 		);
 		FoundPointsXY.Add(FVector(Point.X, Point.Y, 0.0f));
 		for(auto& Hit : OutHits)
@@ -192,7 +193,7 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 					FVector::ForwardVector,
 					i*60.0f,
 					FVector::UpVector)
-				*GetMutableDefault<USimulationSystemDeveloperSettings>()->DefaultDistance;
+				*GetDefault<USimulationSystemDeveloperSettings>()->DefaultDistance;
 			for(auto& AlreadyAddedPoint : FoundPointsXY)
 			{
 				if(FVector::DistSquared(ModifiedPoint, AlreadyAddedPoint) < MinDistanceSq)
@@ -272,7 +273,7 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 		UEditorLevelUtils::MoveActorsToLevel(Actors, UGameplayStatics::GetStreamingLevel(World, Pair.Key));
 		SlowTaskL2.EnterProgressFrame(10.0f/FoundPointsPerLayer.Num());
 	}
-	float MaxDistance = GetMutableDefault<USimulationSystemDeveloperSettings>()->MaximumDistance;
+	float MaxDistance = GetDefault<USimulationSystemDeveloperSettings>()->MaximumDistance;
 	auto MaxDistSq = MaxDistance*MaxDistance;
 	for(int i = 0; i < Layers.Num(); ++i)
 	{
@@ -291,6 +292,7 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 				{
 					continue;
 				}
+				UE_LOG(LogTemp, Log, TEXT("New edge with len (%f)"), FVector::Dist(VertexOne->GetLocation(), VertexTwo->GetLocation()));
 				ChunkEdges.Add(MakeShared<Simulation::Edge>(VertexOne, VertexTwo));
 				VertexOne->AddEdge(ChunkEdges.Last());
 				VertexTwo->AddEdge(ChunkEdges.Last());
@@ -339,9 +341,11 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 			for (const auto& ChunkVertex : ChunkLayer.Vertices)
 			{
 				SerializedLayer.Vertices.Add(ChunkVertex->GetVertexID(), ChunkVertex->GetLocation());
+				ensure(ChunkVertex->GetEdges().Num() < 15);
 			}
 			for (const auto& ChunkEdge : ChunkLayer.Edges)
 			{
+				ensure(FVector::Dist(ChunkEdge.Get()->GetVertexOne().Pin()->GetLocation(), ChunkEdge.Get()->GetVertexTwo().Pin()->GetLocation()) < MaxDistance);
 				SerializedLayer.Edges.Add(
 					{
 						ChunkEdge.Get()->GetVertexOne().Pin()->GetVertexID(),
@@ -350,10 +354,10 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 			}
 			SlowTaskL3.EnterProgressFrame(1);
 		}
-		SlowTaskL2.EnterProgressFrame(5.0f);
+		SlowTaskL2.EnterProgressFrame(15.0f);
 	}
 
-	{
+	/*{
 		auto GlobalGraph = USimulationFunctionLibrary::GetGlobalGraph(World);
 		if (ensure(GlobalGraph)
 			&& ensure(GlobalGraph->LoadGraphLinks())
@@ -363,14 +367,15 @@ void USimulationSystemEditorFunctionLibrary::RebuildSelectedLocalGraph(UWorld* W
 		}
 		LocalGraph->UnloadGraph();
 		GlobalGraph->UnloadGraphLinks();
-	}
+	}*/
 	
-	SlowTaskL2.EnterProgressFrame(10.0f);
+	//SlowTaskL2.EnterProgressFrame(10.0f);
 }
 
 void USimulationSystemEditorFunctionLibrary::RebuildLocalGraphSpawn(UWorld* World, AGraphAsset* LocalGraph,
 	FProfilesSerialized& ReturnProfiles)
 {
+	FScopedSlowTask SlowTaskL2(100.0f, NSLOCTEXT("SpawnBuild", "LocalGraphBuildSpawn", "Build local graph spawn"));
 	TArray<AActor*> Actors;
 	TSet<AActor*> ActorsInsideChunk = {};
 	UGameplayStatics::GetAllActorsWithInterface(World, USimActorInterface::StaticClass(), Actors);
@@ -380,6 +385,7 @@ void USimulationSystemEditorFunctionLibrary::RebuildLocalGraphSpawn(UWorld* Worl
 		{
 			ActorsInsideChunk.Add(Actor);
 		}
+		SlowTaskL2.EnterProgressFrame(50.0f/Actors.Num());
 	}
 	for(auto& Actor : ActorsInsideChunk)
 	{
@@ -404,6 +410,7 @@ void USimulationSystemEditorFunctionLibrary::RebuildLocalGraphSpawn(UWorld* Worl
 									   GetVertexID());
 			}
 		}
+		SlowTaskL2.EnterProgressFrame(50.0f/ActorsInsideChunk.Num());
 	}
 }
 
@@ -577,9 +584,48 @@ void USimulationSystemEditorFunctionLibrary::Build()
 		
 		FGraphSerialized& Graph = AssetObj->Graph;
 		FProfilesSerialized& Profiles = AssetObj->Profiles;
+		Graph.Layers.Empty();
+		Profiles.Objects.Empty();
 		RebuildSelectedLocalGraph(World, LocalGraph, Links, Graph, Profiles);
 
 		UEditorAssetSubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorAssetSubsystem>();
+		if (ensure(IsValid(Subsystem)))
+		{
+			//Subsystem->SaveLoadedAsset(AssetObj, false);
+			auto Package = AssetObj->GetOutermost();
+			if (ensure(Package))
+			{
+				Package->SetDirtyFlag(true);
+
+				auto PackageName = Package->GetName();
+				auto PackageFileName = FPackageName::LongPackageNameToFilename(PackageName, FPackageName::GetAssetPackageExtension());
+
+				FSavePackageArgs SaveArgs;
+				SaveArgs.TopLevelFlags = RF_Standalone;
+				SaveArgs.SaveFlags = SAVE_None;
+				SaveArgs.bForceByteSwapping = false;
+				SaveArgs.bWarnOfLongFilename = true;
+				SaveArgs.bSlowTask = false;
+
+				if (ensure(UPackage::SavePackage(Package, AssetObj, *PackageFileName, SaveArgs)))
+				{
+					FAssetRegistryModule::AssetCreated(AssetObj);
+				}
+			}
+		}
+
+
+		{
+			if (ensure(GlobalGraph)
+				&& ensure(GlobalGraph->LoadGraphLinks())
+				&& ensure(LocalGraph->LoadGraph()))
+			{
+				RebuildLocalGraphSpawn(World, LocalGraph, Profiles);
+			}
+			LocalGraph->UnloadGraph();
+			GlobalGraph->UnloadGraphLinks();
+		}
+		
 		if (ensure(IsValid(Subsystem)))
 		{
 			Subsystem->SaveLoadedAsset(AssetObj, false);

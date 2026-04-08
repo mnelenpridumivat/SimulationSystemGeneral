@@ -76,11 +76,11 @@ void FEntityDataHandleLayout::CustomizeChildren(TSharedRef<class IPropertyHandle
 		ComboBoxArgs.OnGetStrings = FOnGetPropertyComboBoxStrings::CreateSP(this, &FEntityDataHandleLayout::OnGetAvalableEntities);
 		//ComboBoxArgs.OnGetValue = FOnGetPropertyComboBoxValue::CreateSP(this, &FSquadDataNPCLayout::OnGetNPCValue);
 		
-		StructBuilder.AddCustomRow(LOCTEXT("Squad_Name", "Squad Name"))
+		StructBuilder.AddCustomRow(LOCTEXT("Entity_Name", "Entity Name"))
 		.NameContent()
 		[
 			SNew(STextBlock)
-			.Text(LOCTEXT("Squad_Name", "Squad Name"))
+			.Text(LOCTEXT("Entity_Name", "Entity Name"))
 			.Font(StructCustomizationUtils.GetRegularFont())
 		]
 		.ValueContent()

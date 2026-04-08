@@ -184,7 +184,9 @@ bool AGlobalGraph::LoadGraphAssets()
 			LocalGraphs.SetNumZeroed(CastedActor->GetChunkIndex());
 		}
 		LocalGraphs[CastedActor->GetChunkIndex()-1] = CastedActor;
-		if (!ensure(CastedActor->LoadGraph()))
+		if (!ensure(CastedActor->LoadGraph())
+			|| !ensure(CastedActor->LoadObjects_Initial())
+			|| !ensure(CastedActor->LoadObjects_Finalize()))
 		{
 			return false;
 		}

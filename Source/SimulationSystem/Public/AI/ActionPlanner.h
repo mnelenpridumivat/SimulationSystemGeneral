@@ -18,10 +18,10 @@ struct FActionStorage
 	GENERATED_BODY()
 
 private:
-	UPROPERTY()
-	TMap<FName, bool> State;
+	TSet<FName> State;
 
 public:
+	void Init(TSet<FName>& InState);
 	void Reset(){State.Reset();}
 	void SetState(FName Key, bool Value);
 	bool GetState(FName Key) const;
@@ -104,6 +104,8 @@ class SIMULATIONSYSTEM_API UActionPlanner : public UObject
 	UPROPERTY()
 	bool IsThinking = false; // if true, avoid any ActionStorage changes until made a decision
 
+	std::atomic_bool IsWaitingForData = true;
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -125,6 +127,8 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	bool GetKey(FName Key) const {return ActionStorage.GetState(Key);}
+
+	void MoveKeys(TSet<FName>& Keys);
 
 	/*
 	 * Thinking Algo:

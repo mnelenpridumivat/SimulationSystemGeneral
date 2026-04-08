@@ -10,21 +10,26 @@
 #include "Motivator.h"
 #include "TPriorityQueue.h"
 
+void FActionStorage::Init(TSet<FName>& InState)
+{
+	State = MoveTemp(InState);
+	State.Reserve(State.Num()*1.5);
+}
+
 void FActionStorage::SetState(FName Key, bool Value)
 {
-	State.FindOrAdd(Key) = Value;
+	if(Value)
+	{
+		State.Add(Key);
+	} else
+	{
+		State.Remove(Key);
+	}
 }
 
 bool FActionStorage::GetState(FName Key) const
 {
-	if (ensureMsgf(
-		State.Contains(Key),
-		TEXT("State [%s] do not exists!"),
-		*Key.ToString()))
-	{
-		return State[Key];
-	}
-	return false;
+	return State.Contains(Key);
 }
 
 void UActionPlanner::SetParentObject(UActionPlannerOwner* Object)
@@ -119,6 +124,12 @@ void UActionPlanner::BeginPlay()
 		MotivatorObj = NewObject<UMotivator>(GetWorld(), Motivator);
 		MotivatorObj->SetParentPlanner(this);
 	}
+}
+
+void UActionPlanner::MoveKeys(TSet<FName>& Keys)
+{
+	ActionStorage.Init(Keys);
+	IsWaitingForData = true;
 }
 
 void UActionPlanner::Execute()

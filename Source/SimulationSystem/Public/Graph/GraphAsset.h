@@ -40,7 +40,8 @@ public:
 	TWeakPtr<Simulation::Vertex> GetVertex(const FSimVertexID& ID);
 
 	bool LoadGraph();
-	//void LoadObjects_Initial();
+	bool LoadObjects_Finalize();
+	bool LoadObjects_Initial();
 	void LoadObjects_Save(); //TODO: Accept SaveObject
 	FGraphSerialized SaveObjects();
 	void UnloadGraph();

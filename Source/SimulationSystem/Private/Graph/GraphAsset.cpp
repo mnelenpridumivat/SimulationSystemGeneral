@@ -43,7 +43,9 @@ TWeakPtr<Simulation::Vertex> AGraphAsset::GetVertex(const FSimVertexID& ID)
 		return nullptr;
 	}
 #endif
-	return KeyArr[ID.VertexID];
+	auto& Vertex = KeyArr[ID.VertexID];
+	ensure(Vertex->GetVertexID() == ID);
+	return Vertex;
 }
 void AGraphAsset::DrawGraph(FColor Color, float LifeTime, float Thickness)
 {
@@ -264,6 +266,8 @@ bool AGraphAsset::LoadGraph()
 #endif
 						for (const auto& VertexData : CurrentLayer.Vertices)
 						{
+							ensure(VertexData.Key.ChunkID == ChunkIndex);
+							ensure(VertexData.Key.LevelID == i);
 							RealLayer.Vertices.Add(MakeShared<Simulation::Vertex>(VertexData.Key, VertexData.Value));
 						}
 						for (const auto& EdgeData : CurrentLayer.Edges)
@@ -271,6 +275,8 @@ bool AGraphAsset::LoadGraph()
 							auto VertexOne = GlobalGraph->GetVertexByID(EdgeData.VertexOne);
 							auto VertexTwo = GlobalGraph->GetVertexByID(EdgeData.VertexTwo);
 #if WITH_EDITOR
+							//auto Dist = FVector::Dist(VertexOne.Pin()->GetLocation(), VertexTwo.Pin()->GetLocation());
+							//ensure(Dist < 2200);
 							if (!ensure(VertexOne.IsValid() && VertexTwo.IsValid()))
 							{
 								continue;
@@ -283,26 +289,17 @@ bool AGraphAsset::LoadGraph()
 					}
 				}
 			}
-			{
-				// Profiles
-				const auto& Data = GraphFile->Profiles;
-				for (size_t i = 0; i < Data.Objects.Num(); i++)
-				{
-					auto& Current = Data.Objects[i];
-					if (ensure(Current.HasData))
-					{
-						USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld())->
-							SpawnProfile(GetWorld(), Current.Archetype, Current.VertexLocation);
-					}
-				}
-			}
-			
 		}
 	}
 	else
 	{
 		return false;
 	}
+	return true;
+}
+
+bool AGraphAsset::LoadObjects_Finalize()
+{
 	if (ensureMsgf(
 		!GetDefault<USimulationSystemSettings>()->LocalGraphRegistryClass.IsNull(),
 		TEXT("There is no LocalGraphRegistry class in SimulationSystemSettings!")))
@@ -310,11 +307,38 @@ bool AGraphAsset::LoadGraph()
 		auto Class = GetDefault<USimulationSystemSettings>()->LocalGraphRegistryClass.LoadSynchronous();
 		Registry = NewObject<ULocalGraphRegistry>(GetWorld(), Class);
 		Registry->SetLocalGraph(this);
+		return true;
 	}
-	else
+	return false;
+}
+
+bool AGraphAsset::LoadObjects_Initial()
+{
+	if (ensureMsgf(
+		!Graph.IsNull(),
+		TEXT("Graph file reference in %s is invalid"),
+		*GetName()))
 	{
-		return false;
+		UGraphDataAsset* GraphFile = Graph.LoadSynchronous();
+		if (ensureMsgf(
+			IsValid(GraphFile),
+			TEXT("Unable to load graph in [%s] from invalid graph file!"),
+			*GetName()))
+		{
+			// Profiles
+			const auto& Data = GraphFile->Profiles;
+			for (size_t i = 0; i < Data.Objects.Num(); i++)
+			{
+				auto& Current = Data.Objects[i];
+				if (ensure(Current.HasData))
+				{
+					USimulationFunctionLibrary::GetSimulationSystemSubsystem(GetWorld())->
+						SpawnProfile(GetWorld(), Current.Archetype, Current.VertexLocation);
+				}
+			}
+			return true;
+		}
 	}
-	return true;
+	return false;
 }
 

@@ -28,6 +28,10 @@ void USimulationAITrait::SetupEntity(UObject* Context, FMassEntityManager& Manag
 		return;
 	}
 	auto& Data = OverrideData.Get<FSimulationTraitOverridesAI>();
+	if (!ensure(Data.AIPlanner))
+	{
+		return;
+	}
 	auto& AIFragment = Manager.GetFragmentDataChecked<FAIFragment>(Entity);
 	AIFragment.ActionPlanner = NewObject<UActionPlanner>(GetWorld(), Data.AIPlanner);
 	auto OwnerHandle = NewObject<UActionPlannerOwner>(GetWorld());
