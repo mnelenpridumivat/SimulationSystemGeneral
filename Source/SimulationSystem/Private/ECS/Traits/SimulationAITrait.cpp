@@ -3,8 +3,8 @@
 
 #include "SimulationAITrait.h"
 
-#include "ActionPlanner.h"
-#include "ActionPlannerOwner.h"
+#include "Planner/ActionPlanner.h"
+#include "Planner/ActionPlannerOwner.h"
 #include "AIFragment.h"
 #include "MassEntityTemplateRegistry.h"
 

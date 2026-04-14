@@ -18,7 +18,7 @@
 #include "Vertex.h"
 #include "NavHeuristics/NavHeuristic_Base.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
-#include "AI/ActionPlannerOwner.h"
+#include "ActionPlannerOwner.h"
 
 const TCHAR* USimulationFunctionLibrary::GetWorldTcharNameChecked(UObject* Context)
 {
