@@ -12,8 +12,10 @@
 #include "DrawDebugHelpers.h"
 #include "GlobalGraph.h"
 #include "GraphAsset.h"
+#include "GraphPointBase.h"
 #include "MassEntitySubsystem.h"
 #include "MassExecutionContext.h"
+#include "NavHeuristic_DistToDest.h"
 #include "SimProfileCamp.h"
 #include "SimProfileStash.h"
 #include "SimulationArchetype.h"
@@ -77,7 +79,11 @@ void AGraphDebugActor::BeginPlay()
 			ensure(false);
 		}
 	}
-	
+
+	if (IsValid(TestNavGraphPointA) && IsValid(TestNavGraphPointB))
+	{
+		TestWay = USimulationFunctionLibrary::FindWay(GetWorld(), TestNavGraphPointA->GetVertexID(), TestNavGraphPointB->GetVertexID(), {NewObject<UNavHeuristic_DistToDest>()});
+	}
 }
 
 void AGraphDebugActor::BeginPlayClassesSetup()
@@ -647,6 +653,17 @@ void AGraphDebugActor::Tick(float DeltaTime)
 	}
 
 	ImGui::End();
+
+	if (TestWay.IsValid())
+	{
+		auto& Way = TestWay.GetWay();
+		for (size_t i = 1; i < Way.Num; ++i)
+		{
+			auto Prev = Way.Vertices[i-1].Pin();
+			auto Cur = Way.Vertices[i].Pin();
+			DrawDebugLine(GetWorld(), Prev->GetLocation(), Cur->GetLocation(), FColor::Red, false, 0, 0, 50.0f);
+		}
+	}
 	
 }
 

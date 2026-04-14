@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "DebugData.h"
+#include "GraphWay.h"
 #include "MassEntityTypes.h"
 #include "GameFramework/Actor.h"
 #include "GraphDebugActor.generated.h"
 
+class AGraphPointBase;
 class USimulationArchetype;
 struct DebugDataElemBase;
 class UTaskDebugBase;
@@ -82,6 +84,15 @@ protected:
 
 	UPROPERTY()
 	TMap<TSubclassOf<USquadTaskBase>, UTaskDebugBase*> TaskDebuggers;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+	AGraphPointBase* TestNavGraphPointA;
+	
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+	AGraphPointBase* TestNavGraphPointB;
+
+	UPROPERTY()
+	FGraphWay TestWay;
 
 	// Stats
 	void ImGuiStats_Classes();

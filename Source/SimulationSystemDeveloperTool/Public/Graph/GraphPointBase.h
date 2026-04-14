@@ -28,6 +28,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* Mesh;
 
+	UPROPERTY()
 	FSimVertexID ID;
 
 public:
@@ -35,5 +36,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void SetVertexID(FSimVertexID NewID);
+
+	UFUNCTION(BlueprintPure)
 	FSimVertexID GetVertexID();
 };
