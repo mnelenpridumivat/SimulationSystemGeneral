@@ -22,6 +22,7 @@ public class SimulationSystem : ModuleRules
 				"MassEntity", 
 				"MassSpawner",
 				"MassSimulation",
+				"StructUtils"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

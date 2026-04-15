@@ -46,7 +46,7 @@ struct FDriverFunctionOperationClamp : public FDriverFunctionNode
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SIMULATIONSYSTEM.FDriverFunctionNode", ExcludeBaseStruct))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SimulationSystem.FDriverFunctionNode", ExcludeBaseStruct))
 	FInstancedStruct Instance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -70,7 +70,7 @@ struct FDriverFunctionOperationNegate : public FDriverFunctionNode
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SIMULATIONSYSTEM.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SimulationSystem.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
 	FInstancedStruct Instance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -85,7 +85,7 @@ struct FDriverFunctionOperationSum : public FDriverFunctionNode
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SIMULATIONSYSTEM.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SimulationSystem.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
 	TArray<FInstancedStruct> Instances;
 };
 
@@ -94,7 +94,7 @@ struct FDriverFunctionOperationMul : public FDriverFunctionNode
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SIMULATIONSYSTEM.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SimulationSystem.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
 	TArray<FInstancedStruct> Instances;
 };
 
@@ -103,7 +103,7 @@ struct FDriverFunctionOperationMax : public FDriverFunctionNode
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SIMULATIONSYSTEM.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SimulationSystem.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
 	TArray<FInstancedStruct> Instances;
 };
 
@@ -112,7 +112,7 @@ struct FDriverFunctionOperationMin : public FDriverFunctionNode
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SIMULATIONSYSTEM.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SimulationSystem.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
 	TArray<FInstancedStruct> Instances;
 };
 
@@ -121,7 +121,7 @@ struct FDriverFunctionOperationAverage : public FDriverFunctionNode
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SIMULATIONSYSTEM.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SimulationSystem.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
 	TArray<FInstancedStruct> Instances;
 };
 
@@ -130,7 +130,7 @@ struct FDriverFunctionOperationAverageWeightedElem
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SIMULATIONSYSTEM.FDriverFunctionNode", ExcludeBaseStruct))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SimulationSystem.FDriverFunctionNode", ExcludeBaseStruct))
 	FInstancedStruct Instance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -157,7 +157,7 @@ struct FDriverFunction
 	/*
 	 * Place to build formula for mental trait calculation from binary facts
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SIMULATIONSYSTEM.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(BaseStruct = "/Script/SimulationSystem.FDriverFunctionNode", ExcludeBaseStruct, ShowTreeView))
 	FInstancedStruct Instance;
  
 	friend FArchive& operator<<(FArchive& Ar, FDriverFunction& Op)

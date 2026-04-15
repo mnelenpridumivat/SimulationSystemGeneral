@@ -322,7 +322,8 @@ void USimulationFunctionLibrary::LoadObjectData(UObject* Object, const FBytesSer
 
 UScriptStruct* USimulationFunctionLibrary::GetStructFromName(const FString& StructName)
 {
-	return FindObject<UScriptStruct>(ANY_PACKAGE, *StructName);
+	return FindFirstObject<UScriptStruct>(*StructName);
+	//return FindObject<UScriptStruct>(ANY_PACKAGE, *StructName);
 }
 
 bool USimulationFunctionLibrary::GetConstFragmentData(UActionPlannerOwner* Owner, UScriptStruct* Struct, FFragmentProperties& Out)
