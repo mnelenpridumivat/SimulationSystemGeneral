@@ -4,6 +4,7 @@
 #include "Motivator.h"
 
 #include "ActionPlanner.h"
+#include "MotivatorConfigDataAsset.h"
 
 void UMotivator::SetParentPlanner(UActionPlanner* Planner)
 {
@@ -25,7 +26,16 @@ void UMotivator::SetParentPlanner(UActionPlanner* Planner)
 
 bool UMotivator::NativeFindGoal(FActionPlannerGoal& Goal)
 {
-	bool NoNeed = FindGoal(Goal);
+	bool NoNeed = true;
+	if (IsValid(MotivatorSettings))
+	{
+		auto& Storage = ParentPlanner->GetActionStorage();
+		NoNeed = UMotivatorConfigDataAsset::FindGoal(
+			MotivatorSettings->GetDefaultObject<UMotivatorConfigDataAsset>(),
+			Storage, Goal);
+	} else {
+		NoNeed = FindGoal(Goal);
+	}
 	ensureMsgf(
 		NoNeed || !Goal.State.IsEmpty(),
 		TEXT("No goal found in Motivator [%s]"),

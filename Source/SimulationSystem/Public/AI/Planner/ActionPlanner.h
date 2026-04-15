@@ -25,7 +25,7 @@ public:
 	void Reset(){State.Reset();}
 	void SetState(FName Key, bool Value);
 	bool GetState(FName Key) const;
-	
+	const TSet<FName>& GetAllStates() const {return State;}
 };
 
 USTRUCT(BlueprintType)

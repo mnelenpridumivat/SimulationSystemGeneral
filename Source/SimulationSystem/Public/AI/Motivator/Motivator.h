@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "Motivator.generated.h"
 
+class UMotivatorConfigDataAsset;
 class UActionPlannerOwner;
 struct FActionPlannerGoal;
 class UActionPlanner;
@@ -27,6 +28,9 @@ public:
 	bool NativeFindGoal(FActionPlannerGoal& Goal);
 	
 protected:
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UMotivatorConfigDataAsset> MotivatorSettings;
 
 	// Return true if anything is satisfied, false + needs otherwise
 	UFUNCTION(BlueprintNativeEvent)
